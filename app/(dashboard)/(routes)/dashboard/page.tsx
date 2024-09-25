@@ -1,8 +1,10 @@
 
 function DashboardPage() {
   return (
-    <div>DashboardPage</div>
-  )
+    <div>
+      <h1>DashboardPage</h1>
+    </div>
+  );
 }
 
-export default DashboardPage
+export default DashboardPage;
