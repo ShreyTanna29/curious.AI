@@ -1,4 +1,4 @@
-##This is project is UNDER DEVELOPMENT.
+## This is project is UNDER DEVELOPMENT.
 conversstation page is ready, set this up locally to chat with curious AI.
 
 
