@@ -1,5 +1,5 @@
 ## This is project is UNDER DEVELOPMENT.
-conversstation page is ready, set this up locally to chat with curious AI.
+conversstation, code generation and image generation page is ready, set this up locally to chat with curious AI.
 
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
