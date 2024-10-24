@@ -16,6 +16,7 @@
     "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-select": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
@@ -31,6 +32,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@gradio/client": "^1.7.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

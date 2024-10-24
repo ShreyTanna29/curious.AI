@@ -1,7 +1,8 @@
 "use client";
 import axios from "axios";
 import Heading from "@/components/heading";
-import { Code } from "lucide-react";
+import Image from "next/image";
+import { Image as ImageIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./constants";
@@ -13,19 +14,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
-import { cn } from "@/lib/utils";
-import UserAvatar from "@/components/user.avatar";
-import BotAvatar from "@/components/bot.avatar";
-import ReactMarkdown from "react-markdown";
+import { Card, } from "@/components/ui/card";
 
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
-
-function CodeGenerationPage() {
+function ImagePage() {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [images, setImages] = useState<string[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -34,18 +27,13 @@ function CodeGenerationPage() {
   });
 
   const isLoading = form.formState.isSubmitting;
-
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const userMessage: Message = {
-        role: "user",
-        content: values.prompt,
-      };
-      const newMessages = [...messages, userMessage];
-      const response = await axios.post("/api/code", {
-        messages: newMessages,
-      });
-      setMessages((current) => [...current, response.data, userMessage]);
+      const response = await axios.post("/api/image", values);
+      const output = response.data.output[0];
+      setImages((prev) => [output, ...prev]);
+      console.log(output);
+
       form.reset();
     } catch (error: unknown) {
       console.log(error);
@@ -57,11 +45,11 @@ function CodeGenerationPage() {
   return (
     <div>
       <Heading
-        title="Code Generation"
-        description="Get code for anything in any language."
-        icon={Code}
-        iconColor="text-green-500"
-        bgColor="bg-green-500/10"
+        title="Image Generation"
+        description="Turn your thoughts into images."
+        icon={ImageIcon}
+        iconColor="text-pink-500"
+        bgColor="bg-pink-500/10"
       />
       <div className="px-4 lg:px-8">
         <div>
@@ -78,7 +66,7 @@ function CodeGenerationPage() {
                       <Input
                         className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
                         disabled={isLoading}
-                        placeholder="e.g. Write code for a Todo application in javascript."
+                        placeholder="e.g. A cute cat with hat"
                         {...field}
                       />
                     </FormControl>
@@ -100,38 +88,26 @@ function CodeGenerationPage() {
               <Loader />
             </div>
           )}
-          {messages.length === 0 && !isLoading && (
-            <Empty label="No code generated yet."></Empty>
+          {!images[0] && !isLoading && (
+            <Empty label="No images generated."></Empty>
           )}
-          <div className="flex flex-col-reverse gap-y-4 ">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "p-8 w-full flex items-start gap-x-8 rounded-lg",
-                  message.role === "user"
-                    ? "bg-white border border-black/10"
-                    : "bg-muted"
-                )}
-              >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <ReactMarkdown
-                  components={{
-                    pre: ({ node, ...props }) => (
-                      <div className=" overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg ">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    code: ({ node, ...props }) => (
-                      <code className="bg-black/10 rounded-lg p-1" {...props} />
-                    ),
-                  }}
-                  className="text-sm overflow-hidden leading-7"
-                >
-                  {message.content || ""}
-                </ReactMarkdown>
-              </div>
-            ))}
+          <div
+            
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8 "
+          >
+            {images &&
+              images.map((image) => (
+                <Card key={image} className="rounded-lg overflow-hidden">
+                  <div className="relative aspect-square">
+                    <Image
+                      width={524}
+                      height={524}
+                      alt="image"
+                      src={image}
+                    />
+                  </div>
+                </Card>
+              ))}
           </div>
         </div>
       </div>
@@ -139,4 +115,4 @@ function CodeGenerationPage() {
   );
 }
 
-export default CodeGenerationPage;
+export default ImagePage;
