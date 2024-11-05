@@ -16,6 +16,7 @@ import Loader from "@/components/loader";
 import { cn } from "@/lib/utils";
 import UserAvatar from "@/components/user.avatar";
 import BotAvatar from "@/components/bot.avatar";
+import { useProModel } from "@/hooks/useProModel";
 
 type Message = {
   role: "user" | "assistant";
@@ -23,6 +24,7 @@ type Message = {
 };
 
 function ConversationPage() {
+  const proModel = useProModel();
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -47,6 +49,9 @@ function ConversationPage() {
       form.reset();
     } catch (error: unknown) {
       console.log(error);
+      if (error?.response?.status === 403) {
+        proModel.onOpen();
+      }
     } finally {
       router.refresh();
     }
@@ -63,7 +68,7 @@ function ConversationPage() {
       />
       <div className="px-4 lg:px-8 overflow-auto  md:h-[70vh] h-[65svh] ">
         <div className="space-y-4 mt-4">
-          {messages.length === 0 && !isLoading && (
+          {messages.length === 0 && (
             <Empty label="No conversation started."></Empty>
           )}
           <div className="flex flex-col-reverse gap-y-4">
@@ -91,7 +96,7 @@ function ConversationPage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
+              className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2 transition-transform duration-100"
             >
               <FormField
                 name="prompt"
@@ -114,13 +119,12 @@ function ConversationPage() {
               >
                 Ask
               </Button>
-              
             </form>
             {isLoading && (
-                <div className="hidden md:block w-10 h-10 ml-4">
-                  <Loader />
-                </div>
-              )}
+              <div className="hidden md:block w-10 h-10 ml-4">
+                <Loader />
+              </div>
+            )}
           </Form>
         </div>
       </div>
