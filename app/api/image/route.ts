@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     console.log("HELLO");
 
     const response = await axios.post(url, {
-      key: process.env.MODEL_LABS_API_KEY,
+      key: process.env.MODEL_LABS_IMAGE_API_KEY,
       prompt: prompt,
     });
 

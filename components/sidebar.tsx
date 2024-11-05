@@ -4,7 +4,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
 import { cn } from "@/lib/utils";
-import { Code, ImageIcon, LayoutDashboard, MessageSquare, Music, Settings, Video } from "lucide-react";
+import {
+  Code,
+  ImageIcon,
+  LayoutDashboard,
+  MessageSquare,
+  Settings,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const monserrat = Montserrat({ weight: "600", subsets: ["latin"] });
@@ -29,18 +35,6 @@ const routes = [
     color: "text-pink-700",
   },
   {
-    label: "Video Generation",
-    icon: Video,
-    href: "/video",
-    color: "text-orange-700",
-  },
-  {
-    label: "Music Generation",
-    icon: Music,
-    href: "/music",
-    color: "text-emerald-500",
-  },
-  {
     label: "Code Generation",
     icon: Code,
     href: "/code",
@@ -56,7 +50,7 @@ const routes = [
 const Sidebar = () => {
   const pathName = usePathname();
   return (
-    <div className="space-y-4 py-4 flex flex-col h-full bg-[#111827] text-white">
+    <div className="space-y-4 py-4 flex flex-col h-full bg-[#0f0f0f] text-white">
       <div className="px-3 py-2 flex-1">
         <Link href={"/dashboard"} className="flex items-center pl-3 mb-14">
           <div className="relative w-8 h-8 mr-4">

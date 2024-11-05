@@ -111,7 +111,7 @@ function CodeGenerationPage() {
                   "p-8 w-full flex items-start gap-x-8 rounded-lg",
                   message.role === "user"
                     ? "bg-white border border-black/10"
-                    : "bg-muted"
+                    : "bg-green-500/10 md:max-w-[60%]"
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
