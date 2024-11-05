@@ -1,8 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function POST(req: Request) {
   try {
@@ -18,7 +19,16 @@ export async function POST(req: Request) {
       return new NextResponse("Messages are required", { status: 400 });
     }
 
-    messages = ["You are code generator. You must answer only in markdown code snippets. Use code comments for explanation.", ...messages]
+    messages = [
+      "You are code generator. You must answer only in markdown code snippets. Use code comments for explanation.",
+      ...messages,
+    ];
+
+    const freeTrail = await checkApiLimit();
+
+    if (!freeTrail) {
+      return new NextResponse("Free trail has expired", { status: 403 });
+    }
 
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
@@ -27,6 +37,8 @@ export async function POST(req: Request) {
       messages[messages.length - 1].content
     );
     const response = result.response;
+
+    await increaseApiLimit();
 
     return NextResponse.json({ role: "assistant", content: response.text() });
   } catch (error) {

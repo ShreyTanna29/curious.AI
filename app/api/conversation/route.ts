@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -18,6 +19,12 @@ export async function POST(req: Request) {
       return new NextResponse("Messages are required", { status: 400 });
     }
 
+    const freeTrail = await checkApiLimit();
+
+    if (!freeTrail) {
+      return new NextResponse("Free trail has expired", { status: 403 });
+    }
+
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const chat = model.startChat();
@@ -25,6 +32,8 @@ export async function POST(req: Request) {
       messages[messages.length - 1].content
     );
     const response = result.response;
+
+    await increaseApiLimit();
 
     return NextResponse.json({ role: "assistant", content: response.text() });
   } catch (error) {
