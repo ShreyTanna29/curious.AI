@@ -14,10 +14,11 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
-import { Card, } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 function ImagePage() {
   const router = useRouter();
+  const proModel = useProModel()
   const [images, setImages] = useState<string[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,6 +38,9 @@ function ImagePage() {
       form.reset();
     } catch (error: unknown) {
       console.log(error);
+      if (error?.response?.status === 403) {
+        proModel.onOpen();
+      }
     } finally {
       router.refresh();
     }
@@ -91,20 +95,12 @@ function ImagePage() {
           {!images[0] && !isLoading && (
             <Empty label="No images generated."></Empty>
           )}
-          <div
-            
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8 "
-          >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8 ">
             {images &&
               images.map((image) => (
                 <Card key={image} className="rounded-lg overflow-hidden">
                   <div className="relative aspect-square">
-                    <Image
-                      width={524}
-                      height={524}
-                      alt="image"
-                      src={image}
-                    />
+                    <Image width={524} height={524} alt="image" src={image} />
                   </div>
                 </Card>
               ))}

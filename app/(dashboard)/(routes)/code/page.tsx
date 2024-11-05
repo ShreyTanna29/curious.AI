@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import UserAvatar from "@/components/user.avatar";
 import BotAvatar from "@/components/bot.avatar";
 import ReactMarkdown from "react-markdown";
+import { useProModel } from "@/hooks/useProModel";
 
 type Message = {
   role: "user" | "assistant";
@@ -25,6 +26,7 @@ type Message = {
 
 function CodeGenerationPage() {
   const router = useRouter();
+  const proModel = useProModel()
   const [messages, setMessages] = useState<Message[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,6 +51,9 @@ function CodeGenerationPage() {
       form.reset();
     } catch (error: unknown) {
       console.log(error);
+      if (error?.response?.status === 403) {
+        proModel.onOpen();
+      }
     } finally {
       router.refresh();
     }
