@@ -15,6 +15,7 @@ import { useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { Card } from "@/components/ui/card";
+import { useProModel } from "@/hooks/useProModel";
 
 function ImagePage() {
   const router = useRouter();
