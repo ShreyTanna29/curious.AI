@@ -16,6 +16,7 @@ import { Card } from "./ui/card";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const tools = [
   {
@@ -48,6 +49,7 @@ export default function ProModel() {
       window.location.href = response.data.url;
     } catch (error) {
       console.log("STRIPE CLIENT PRO MODEL ERROR", error);
+      toast.error("Something went wrong.")
     } finally {
       setLoading(false);
     }
@@ -90,6 +92,7 @@ export default function ProModel() {
             size="lg"
             variant="premium"
             className="w-full"
+            disabled={loading}
           >
             Upgrade
             <Zap className="w-4 h-4 ml-2 fill-white" />

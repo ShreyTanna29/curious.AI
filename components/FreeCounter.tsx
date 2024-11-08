@@ -9,10 +9,14 @@ import { useProModel } from "@/hooks/useProModel";
 
 interface freeCounterProps {
   apiLimitCount: number;
+  isPro: boolean;
 }
 
-export const FreeCounter = ({ apiLimitCount }: freeCounterProps) => {
-  const proModel = useProModel()
+export const FreeCounter = ({
+  apiLimitCount,
+  isPro = false,
+}: freeCounterProps) => {
+  const proModel = useProModel();
   const [mounted, setMounted] = useState(false); // preventing hydration error
 
   useEffect(() => {
@@ -22,6 +26,11 @@ export const FreeCounter = ({ apiLimitCount }: freeCounterProps) => {
   if (!mounted) {
     return null;
   }
+
+  if (isPro) {
+    return null;
+  }
+
   return (
     <div className="px-3">
       <Card className="bg-white/10 border-0">
@@ -35,7 +44,11 @@ export const FreeCounter = ({ apiLimitCount }: freeCounterProps) => {
               value={(apiLimitCount / MAX_FREE_COUNT) * 100}
             />
           </div>
-          <Button onClick={proModel.onOpen} variant="premium" className="w-full">
+          <Button
+            onClick={proModel.onOpen}
+            variant="premium"
+            className="w-full"
+          >
             Upgrade <Zap className="w-4 h-4 ml-2 fill-white" />
           </Button>
         </CardContent>

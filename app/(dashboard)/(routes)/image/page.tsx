@@ -16,10 +16,11 @@ import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { Card } from "@/components/ui/card";
 import { useProModel } from "@/hooks/useProModel";
+import toast from "react-hot-toast";
 
 function ImagePage() {
   const router = useRouter();
-  const proModel = useProModel()
+  const proModel = useProModel();
   const [images, setImages] = useState<string[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,6 +42,8 @@ function ImagePage() {
       console.log(error);
       if (error?.response?.status === 403) {
         proModel.onOpen();
+      } else {
+        toast.error("Something went wrong.");
       }
     } finally {
       router.refresh();

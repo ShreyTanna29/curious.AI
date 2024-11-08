@@ -18,6 +18,7 @@ import UserAvatar from "@/components/user.avatar";
 import BotAvatar from "@/components/bot.avatar";
 import ReactMarkdown from "react-markdown";
 import { useProModel } from "@/hooks/useProModel";
+import toast from "react-hot-toast";
 
 type Message = {
   role: "user" | "assistant";
@@ -53,6 +54,8 @@ function CodeGenerationPage() {
       console.log(error);
       if (error?.response?.status === 403) {
         proModel.onOpen();
+      }else{
+        toast.error("Something went wrong.");
       }
     } finally {
       router.refresh();
