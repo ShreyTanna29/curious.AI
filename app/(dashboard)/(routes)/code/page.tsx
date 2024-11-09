@@ -116,10 +116,10 @@ function CodeGenerationPage() {
               <div
                 key={index}
                 className={cn(
-                  "p-8 w-full flex items-start gap-x-8 rounded-lg",
+                  "p-6 flex items-start gap-x-8",
                   message.role === "user"
-                    ? "bg-white border border-black/10"
-                    : "bg-green-500/10 md:max-w-[60%]"
+                    ? "bg-white border border-black/50 rounded-l-2xl rounded-tr-2xl ml-auto md:max-w-[40%]"
+                    : "bg-green-500/5 mr-auto md:max-w-[60%] rounded-r-2xl rounded-tl-2xl"
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
