@@ -27,7 +27,7 @@ type Message = {
 
 function CodeGenerationPage() {
   const router = useRouter();
-  const proModel = useProModel()
+  const proModel = useProModel();
   const [messages, setMessages] = useState<Message[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,11 +50,11 @@ function CodeGenerationPage() {
       });
       setMessages((current) => [...current, response.data, userMessage]);
       form.reset();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.log(error);
       if (error?.response?.status === 403) {
         proModel.onOpen();
-      }else{
+      } else {
         toast.error("Something went wrong.");
       }
     } finally {
@@ -125,12 +125,12 @@ function CodeGenerationPage() {
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
                 <ReactMarkdown
                   components={{
-                    pre: ({ node, ...props }) => (
+                    pre: ({ ...props }) => (
                       <div className=" overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg ">
                         <pre {...props} />
                       </div>
                     ),
-                    code: ({ node, ...props }) => (
+                    code: ({ ...props }) => (
                       <code className="bg-black/10 rounded-lg p-1" {...props} />
                     ),
                   }}

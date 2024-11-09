@@ -38,7 +38,7 @@ function ImagePage() {
       console.log(output);
 
       form.reset();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.log(error);
       if (error?.response?.status === 403) {
         proModel.onOpen();

@@ -48,7 +48,7 @@ function ConversationPage() {
       });
       setMessages((current) => [response.data, userMessage, ...current]);
       form.reset();
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.log(error);
       if (error?.response?.status === 403) {
         proModel.onOpen();
