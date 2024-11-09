@@ -1,6 +1,5 @@
-## This is project is UNDER DEVELOPMENT.
-conversstation, code generation and image generation page is ready, set this up locally to chat with curious AI.
-
+## Checkout the app.
+visit : https://curiousai.vercel.app
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
