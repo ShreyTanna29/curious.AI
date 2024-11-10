@@ -1,40 +1,64 @@
-## This is project is UNDER DEVELOPMENT.
-conversstation, code generation and image generation page is ready, set this up locally to chat with curious AI.
+[Curious.AI.webm](https://github.com/user-attachments/assets/bd091ee3-bf90-4ac8-b0ea-3fce8965dd30)
 
+# 🤖 curious.ai
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+A powerful AI platform that combines conversation, code generation, and image generation capabilities using cutting-edge AI models. Visit: https://curiousai.vercel.app
 
-## Getting Started
+## ✨ Features
 
-First, run the development server:
+- **AI Conversation**: Engage in natural conversations using Google's Gemini Pro model
+- **Code Generation**: Generate code snippets with detailed explanations
+- **Image Generation**: Create images from text descriptions
+- **Authentication**: Secure user authentication with Clerk
+- **API Limits**: Built-in free trial system with premium subscription options
+- **Modern UI**: Beautiful interface built with Next.js 14 and Tailwind CSS
+- **24X7 Customer Support**: resolve doubts or report issues with our dedicated chat support
+- **Safe & Secured Payments**: Your payments are secured by stripe
 
+## 🚀 Getting Started
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/curious.ai.git
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Go to the clone drepo.
+```bash
+cd curious.ai
+```
+3. Install the dependencies.
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4. Set up environment variables:
+```bash
+GEMINI_API_KEY="Your Gemini API Key"
+MODEL_LABS_IMAGE_API_KEY="Your Model Labs Key"
+CLERK_SECRET_KEY"Your clerk secret key"
+CLERK_PUBLISHABLE_KEY="your clerk publishable key"
+POSTGRES_URL="Your Postgres DB url"
+```
+5. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Visit http://localhost:3000 to see the application.
 
-## Learn More
+🛠️ Built With
+- Next.js 14
+- TypeScript
+- Tailwind CSS
+- ShadCN ui
+- Clerk Authentication
+- Google Generative AI (Gemini)
+- Models Lab API
+- Zod
+- Stripe
+- Crisp for customer support
+- Postgres database
+- Prisma
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Made with ❤️ by Shrey Tanna
