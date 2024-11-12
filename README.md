@@ -22,7 +22,7 @@ A powerful AI platform that combines conversation, code generation, and image ge
 git clone https://github.com/yourusername/curious.ai.git
 ```
 
-2. Go to the clone drepo.
+2. Go to the cloned repo.
 ```bash
 cd curious.ai
 ```
