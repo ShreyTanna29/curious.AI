@@ -35,8 +35,6 @@ function ImagePage() {
       const response = await axios.post("/api/image", values);
       const output = response.data.output[0];
       setImages((prev) => [output, ...prev]);
-      console.log(output);
-
       form.reset();
     } catch (error: any) {
       console.log(error);
