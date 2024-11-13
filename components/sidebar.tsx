@@ -14,6 +14,9 @@ import {
 import { usePathname } from "next/navigation";
 import { FreeCounter } from "./FreeCounter";
 import UserProfileCard from "./UserProfileCard";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
+import DarkMode from "./themes";
 
 const monserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 
