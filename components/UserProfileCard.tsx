@@ -9,7 +9,7 @@ export default function UserProfileCard() {
   return (
     <>
       <div className="">
-        <Card className="bg-white/10 border-0  text-white overflow-clip flex items-center">
+        <Card className="bg-black/10 dark:bg-white/10 border-0  dark:text-white overflow-clip flex items-center">
           <CardContent className="py-6 text-ellipsis ">
             <div className="flex">
               <UserButton afterSignOutUrl="/" />

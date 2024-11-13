@@ -33,9 +33,9 @@ export const FreeCounter = ({
 
   return (
     <div className="px-3">
-      <Card className="bg-white/10 border-0">
+      <Card className="bg-black/10 dark:bg-white/10 border-0">
         <CardContent className="py-6">
-          <div className="text-center text-white text-sm mb-4 space-y-2">
+          <div className="text-center dark:text-white text-sm mb-4 space-y-2">
             <p>
               {apiLimitCount} / {MAX_FREE_COUNT} Free Generations
             </p>
