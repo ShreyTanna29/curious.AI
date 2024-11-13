@@ -1,4 +1,3 @@
-import DarkMode from "@/components/themes";
 import MobileSidebar from "@/components/mobile-sidebar";
 import Sidebar from "@/components/sidebar";
 import { getApiLimitCount } from "@/lib/api-limit";
