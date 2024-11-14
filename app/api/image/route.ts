@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const { prompt } = body;
     console.log(prompt);
 
-    const url = "https://api.edenai.run/v2/image/generation";
+    const url = "https://api.novita.ai/v3/async/txt2img";
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -32,13 +32,21 @@ export async function POST(req: Request) {
     const response = await axios.post(
       url,
       {
-        providers: "amazon",
-        text: prompt,
-        resolution: "512x512",
+        request: {
+          model_name: "majicmixRealistic_v6_65516.safetensors",
+          prompt: prompt,
+          width: 512,
+          height: 512,
+          image_num: 1,
+          steps: 50,
+          guidance_scale: 10,
+          sampler_name: "Euler a",
+        },
       },
       {
         headers: {
-          authorization: "Bearer " + process.env.EDEN_AI_API_KEY,
+          Authorization: "Bearer " + process.env.NOVITA_AI_API_KEY,
+          "Content-Type": "application/json",
         },
       }
     );
@@ -49,15 +57,29 @@ export async function POST(req: Request) {
 
     console.log(response.data);
 
+    const task_id = await response.data.task_id;
+
+    const taskUrl = `https://api.novita.ai/v3/async/task-result?task_id=${task_id}`;
+
+    const output = await axios.get(taskUrl, {
+      headers: {
+        Authorization: "Bearer " + process.env.NOVITA_AI_API_KEY,
+        "Content-Type": "application/json",
+      },
+    });
+    const imgUrl = await (output).data.images[0].image_url;
+    console.log("imgUrl", imgUrl);
+
     await prismadb.image.create({
       data: {
         userId: userId,
-        url: response.data.amazon.items[0].image_resource_url,
+        url: String(imgUrl),
       },
     });
 
-    return NextResponse.json(response.data);
+    return NextResponse.json(await imgUrl);
   } catch (error) {
     console.log("ERROR :: Image Generation API :: ", error);
+    return new NextResponse("Internal server error", { status: 500 });
   }
 }

@@ -48,7 +48,7 @@ function ImagePage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post("/api/image", values);
-      const output = response.data.amazon.items[0].image_resource_url;
+      const output = await response.data
       console.log(output);
 
       setImages((prev) => [output, ...prev]);
@@ -58,7 +58,7 @@ function ImagePage() {
       if (error?.response?.status === 403) {
         proModel.onOpen();
       } else {
-        toast.error("Something went wrong.");
+        toast.error("Please write anohter prompt.");
       }
     } finally {
       router.refresh();

@@ -2,7 +2,7 @@
 const nextConfig = {
     images:{
         domains: [
-            "d14uq1pz7dzsdq.cloudfront.net",
+            "faas-output-image.s3.ap-southeast-1.amazonaws.com",
         ]
     }
 };
