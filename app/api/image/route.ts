@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
 import { checkSubscription } from "@/lib/subscription";
+import prismadb from "@/lib/prismadb";
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     const { prompt } = body;
     console.log(prompt);
 
-    const url = "https://modelslab.com/api/v6/realtime/text2img";
+    const url = "https://api.edenai.run/v2/image/generation";
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -28,14 +29,33 @@ export async function POST(req: Request) {
       return new NextResponse("Free trail has expired", { status: 403 });
     }
 
-    const response = await axios.post(url, {
-      key: process.env.MODEL_LABS_IMAGE_API_KEY,
-      prompt: prompt,
-    });
+    const response = await axios.post(
+      url,
+      {
+        providers: "amazon",
+        text: prompt,
+        resolution: "512x512",
+      },
+      {
+        headers: {
+          authorization: "Bearer " + process.env.EDEN_AI_API_KEY,
+        },
+      }
+    );
 
     if (!isPro) {
       await increaseApiLimit();
     }
+
+    console.log(response.data);
+
+    await prismadb.image.create({
+      data: {
+        userId: userId,
+        url: response.data.amazon.items[0].image_resource_url,
+      },
+    });
+
     return NextResponse.json(response.data);
   } catch (error) {
     console.log("ERROR :: Image Generation API :: ", error);

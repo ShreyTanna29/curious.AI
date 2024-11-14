@@ -2,7 +2,7 @@
 const nextConfig = {
     images:{
         domains: [
-            "pub-3626123a908346a7a8be8d9295f44e26.r2.dev",
+            "d14uq1pz7dzsdq.cloudfront.net",
         ]
     }
 };

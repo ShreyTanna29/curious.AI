@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { Card } from "@/components/ui/card";
@@ -29,11 +29,28 @@ function ImagePage() {
     },
   });
 
+  const userImages = async () => {
+    try {
+      const response = await axios.get("/api/image/get-user-images");
+      const userImgs = response.data.map((img: any) => img.url);
+      setImages(userImgs);
+    } catch (error) {
+      console.log("Error fetching user images:", error);
+      toast.error("Failed to load images");
+    }
+  };
+
+  useEffect(() => {
+    userImages();
+  }, []);
+
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post("/api/image", values);
-      const output = response.data.output[0];
+      const output = response.data.amazon.items[0].image_resource_url;
+      console.log(output);
+
       setImages((prev) => [output, ...prev]);
       form.reset();
     } catch (error: any) {
