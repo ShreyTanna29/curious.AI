@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = auth();
-
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -18,6 +17,7 @@ export async function GET() {
 
     return NextResponse.json(userImages);
   } catch (error) {
-    console.log(error);
+    console.log("ERROR :: Get-user-images ::" + error);
+    return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
