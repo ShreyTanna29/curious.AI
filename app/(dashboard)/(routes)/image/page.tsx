@@ -32,7 +32,16 @@ function ImagePage() {
   const userImages = async () => {
     try {
       const response = await axios.get("/api/image/get-user-images");
-      setImages(response.data);
+      console.log(response.data);
+      // const images[] = response.data.map(img => {return img.url})
+
+      if (response.data) {
+        setImages(
+          response.data.map((img: { url: string }) => {
+            return img.url;
+          })
+        );
+      }
     } catch (error) {
       console.log("Error fetching user images:", error);
       toast.error("Failed to load images");
@@ -47,7 +56,7 @@ function ImagePage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const response = await axios.post("/api/image", values);
-      const output = await response.data
+      const output = await response.data;
       console.log(output);
 
       setImages((prev) => [output, ...prev]);
