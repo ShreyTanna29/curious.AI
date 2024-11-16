@@ -12,7 +12,7 @@ export async function POST(req: Request) {
     const { prompt } = body;
     console.log(prompt);
 
-    const url = "https://api.novita.ai/v3/async/txt2img";
+    const url = "https://api.thehive.ai/api/v3/black-forest-labs/flux-schnell";
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -32,20 +32,16 @@ export async function POST(req: Request) {
     const response = await axios.post(
       url,
       {
-        request: {
-          model_name: "majicmixRealistic_v6_65516.safetensors",
-          prompt: prompt,
-          width: 512,
-          height: 512,
-          image_num: 1,
-          steps: 50,
-          guidance_scale: 10,
-          sampler_name: "Euler a",
+        input: {
+          prompt,
+          num_images: 1,
+          output_format: "png",
         },
       },
       {
         headers: {
-          Authorization: "Bearer " + process.env.NOVITA_AI_API_KEY,
+          accept: "application/json",
+          authorization: `Bearer ${process.env.HIVE_API_KEY}`,
           "Content-Type": "application/json",
         },
       }
@@ -57,17 +53,7 @@ export async function POST(req: Request) {
 
     console.log(response.data);
 
-    const task_id = await response.data.task_id;
-
-    const taskUrl = `https://api.novita.ai/v3/async/task-result?task_id=${task_id}`;
-
-    const output = await axios.get(taskUrl, {
-      headers: {
-        Authorization: "Bearer " + process.env.NOVITA_AI_API_KEY,
-        "Content-Type": "application/json",
-      },
-    });
-    const imgUrl = await (output).data.images[0].image_url;
+    const imgUrl = await response.data.output[0].url;
     console.log("imgUrl", imgUrl);
 
     await prismadb.image.create({

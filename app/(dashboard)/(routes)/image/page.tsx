@@ -32,8 +32,7 @@ function ImagePage() {
   const userImages = async () => {
     try {
       const response = await axios.get("/api/image/get-user-images");
-      const userImgs = response.data.map((img: any) => img.url);
-      setImages(userImgs);
+      setImages(response.data);
     } catch (error) {
       console.log("Error fetching user images:", error);
       toast.error("Failed to load images");
