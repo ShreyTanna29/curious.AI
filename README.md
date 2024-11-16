@@ -34,7 +34,7 @@ npm install
 4. Set up environment variables:
 ```bash
 GEMINI_API_KEY="Your Gemini API Key"
-MODEL_LABS_IMAGE_API_KEY="Your Model Labs Key"
+HIVE_IMAGE_API_KEY="Your Hive AI Key for flux model"
 CLERK_SECRET_KEY"Your clerk secret key"
 CLERK_PUBLISHABLE_KEY="your clerk publishable key"
 POSTGRES_URL="Your Postgres DB url"
