@@ -2,7 +2,12 @@
 import axios from "axios";
 import Heading from "@/components/heading";
 import Image from "next/image";
-import { Image as ImageIcon } from "lucide-react";
+import {
+  Download,
+  EllipsisVertical,
+  Image as ImageIcon,
+  Share2,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./constants";
@@ -14,14 +19,64 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
-import { Card } from "@/components/ui/card";
+import { Card, CardFooter } from "@/components/ui/card";
 import { useProModel } from "@/hooks/useProModel";
 import toast from "react-hot-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+type imageType = {
+  url: string;
+  prompt: string;
+};
+
+const downloadImage = async (imageUrl: string, prompt: string) => {
+  try {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${prompt.slice(0, 30)}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error: unknown) {
+    console.log(error);
+
+    toast.error("Failed to download image");
+  }
+};
+
+const shareImage = async (imageUrl: string, prompt: string) => {
+  try {
+    if (navigator.share) {
+      await navigator.share({
+        title: "Check out this AI generated image!",
+        text: prompt,
+        url: imageUrl,
+      });
+    } else {
+      await navigator.clipboard.writeText(imageUrl);
+      toast.success("Image URL copied to clipboard!");
+    }
+  } catch (error: unknown) {
+    console.log(error);
+
+    toast.error("Failed to share image");
+  }
+};
 
 function ImagePage() {
   const router = useRouter();
   const proModel = useProModel();
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<imageType[]>([]);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -32,13 +87,11 @@ function ImagePage() {
   const userImages = async () => {
     try {
       const response = await axios.get("/api/image/get-user-images");
-      console.log(response.data);
-      // const images[] = response.data.map(img => {return img.url})
 
       if (response.data) {
         setImages(
-          response.data.map((img: { url: string }) => {
-            return img.url;
+          response.data.map((img: imageType) => {
+            return { url: img.url, prompt: img.prompt };
           })
         );
       }
@@ -57,9 +110,8 @@ function ImagePage() {
     try {
       const response = await axios.post("/api/image", values);
       const output = await response.data;
-      console.log(output);
 
-      setImages((prev) => [output, ...prev]);
+      setImages((prev) => [{ url: output, prompt: values.prompt }, ...prev]);
       form.reset();
     } catch (error: any) {
       console.log(error);
@@ -125,10 +177,47 @@ function ImagePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8 ">
             {images &&
               images.map((image) => (
-                <Card key={image} className="rounded-lg overflow-hidden">
+                <Card key={image.url} className="rounded-lg overflow-hidden">
                   <div className="relative aspect-square">
-                    <Image width={524} height={524} alt="image" src={image} />
+                    <div className="absolute text-white top-2 right-2 z-10 ">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <div className="p-1 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/30 transition">
+                            <EllipsisVertical className="w-5 h-5 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" />
+                          </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem
+                            className="flex gap-2 cursor-pointer"
+                            onClick={() =>
+                              downloadImage(image.url, image.prompt)
+                            }
+                          >
+                            <Download />
+                            Download
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+
+                          <DropdownMenuItem
+                            className="flex gap-2 cursor-pointer "
+                            onClick={() => shareImage(image.url, image.prompt)}
+                          >
+                            <Share2 />
+                            Share
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                    <Image
+                      width={524}
+                      height={524}
+                      alt="image"
+                      src={image.url}
+                    />
                   </div>
+                  <CardFooter className="justify-center p-4 bg-black/10 dark:bg-white/10  ">
+                    <h1 className="font-bold  ">{image.prompt}</h1>
+                  </CardFooter>
                 </Card>
               ))}
           </div>

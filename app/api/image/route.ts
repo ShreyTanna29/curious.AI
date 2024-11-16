@@ -10,7 +10,6 @@ export async function POST(req: Request) {
     const { userId } = auth();
     const body = await req.json();
     const { prompt } = body;
-    console.log(prompt);
 
     const url = "https://api.thehive.ai/api/v3/black-forest-labs/flux-schnell";
 
@@ -51,15 +50,14 @@ export async function POST(req: Request) {
       await increaseApiLimit();
     }
 
-    console.log(response.data);
 
     const imgUrl = await response.data.output[0].url;
-    console.log("imgUrl", imgUrl);
 
     await prismadb.image.create({
       data: {
         userId: userId,
         url: String(imgUrl),
+        prompt,
       },
     });
 

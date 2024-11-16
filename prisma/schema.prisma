@@ -35,5 +35,6 @@ model Image {
   id        String   @id @default(uuid())
   userId    String
   url       String
+  prompt    String
   createdAt DateTime @default(now())
 }
