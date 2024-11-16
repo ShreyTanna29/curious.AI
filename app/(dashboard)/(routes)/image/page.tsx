@@ -37,19 +37,27 @@ type imageType = {
 
 const downloadImage = async (imageUrl: string, prompt: string) => {
   try {
-    const response = await fetch(imageUrl);
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
+    const response = await axios.post(
+      "/api/image/download",
+      { imageUrl },
+      {
+        responseType: "blob",
+      }
+    );
+
+    const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
     link.href = url;
     link.download = `${prompt.slice(0, 30)}.png`;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
     window.URL.revokeObjectURL(url);
+
+    toast.success("Image downloaded successfully!");
   } catch (error: unknown) {
     console.log(error);
-
+    
     toast.error("Failed to download image");
   }
 };
@@ -126,7 +134,7 @@ function ImagePage() {
   };
 
   return (
-    <div>
+    <div className="select-none">
       <Heading
         title="Image Generation"
         description="Turn your thoughts into images."
@@ -179,7 +187,7 @@ function ImagePage() {
               images.map((image) => (
                 <Card key={image.url} className="rounded-lg overflow-hidden">
                   <div className="relative aspect-square">
-                    <div className="absolute text-white top-2 right-2 z-10 ">
+                    <div className="absolute text-white top-2 right-2 z-10 cursor-pointer ">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <div className="p-1 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/30 transition">
@@ -216,7 +224,7 @@ function ImagePage() {
                     />
                   </div>
                   <CardFooter className="justify-center p-4 bg-black/10 dark:bg-white/10  ">
-                    <h1 className="font-bold  ">{image.prompt}</h1>
+                    <h1 className="font-bold ">{image.prompt}</h1>
                   </CardFooter>
                 </Card>
               ))}

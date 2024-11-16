@@ -14,8 +14,6 @@ export async function GET() {
         userId,
       },
     });
-console.log(userImages);
-
     return NextResponse.json(userImages);
   } catch (error) {
     console.log("ERROR :: Get-user-images ::" + error);
