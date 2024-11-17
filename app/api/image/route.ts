@@ -1,9 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import axios from "axios";
-import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
-import { checkSubscription } from "@/lib/subscription";
-import prismadb from "@/lib/prismadb";
+import { checkApiLimit, increaseApiLimit } from "@/packages/api/api-limit";
+import { checkSubscription } from "@/packages/features/subscription";
+import prismadb from "@/packages/api/prismadb";
 
 export async function POST(req: Request) {
   try {

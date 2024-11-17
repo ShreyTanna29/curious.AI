@@ -1,7 +1,7 @@
 import MobileSidebar from "@/components/mobile-sidebar";
 import Sidebar from "@/components/sidebar";
-import { getApiLimitCount } from "@/lib/api-limit";
-import { checkSubscription } from "@/lib/subscription";
+import { getApiLimitCount } from "@/packages/api/api-limit";
+import { checkSubscription } from "@/packages/features/subscription";
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   const apiLimitCount = await getApiLimitCount();

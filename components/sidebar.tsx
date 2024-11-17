@@ -3,13 +3,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Montserrat } from "next/font/google";
-import { cn } from "@/lib/utils";
+import { cn } from "@/packages/utils";
 import {
   Code,
   ImageIcon,
   LayoutDashboard,
   MessageSquare,
   Settings,
+  ShoppingBag,
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { FreeCounter } from "./FreeCounter";
@@ -42,6 +43,12 @@ const routes = [
     icon: Code,
     href: "/code",
     color: "text-green-500",
+  },
+  {
+    label: "Marketplace",
+    icon: ShoppingBag,
+    href: "/marketplace",
+    color: "text-orange-700",
   },
   {
     label: "Settings",

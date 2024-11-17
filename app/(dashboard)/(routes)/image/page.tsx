@@ -29,6 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { shareImage } from "@/packages/features/shareImage";
 
 type imageType = {
   url: string;
@@ -59,25 +60,6 @@ const downloadImage = async (imageUrl: string, prompt: string) => {
     console.log(error);
 
     toast.error("Failed to download image");
-  }
-};
-
-const shareImage = async (imageUrl: string, prompt: string) => {
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: "Check out this AI generated image!",
-        text: prompt,
-        url: imageUrl,
-      });
-    } else {
-      await navigator.clipboard.writeText(imageUrl);
-      toast.success("Image URL copied to clipboard!");
-    }
-  } catch (error: unknown) {
-    console.log(error);
-
-    toast.error("Failed to share image");
   }
 };
 

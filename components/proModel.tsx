@@ -13,7 +13,7 @@ import { useProModel } from "@/hooks/useProModel";
 import { Badge } from "./ui/badge";
 import { Check, Code, ImageIcon, MessageSquare, Zap } from "lucide-react";
 import { Card } from "./ui/card";
-import { cn } from "@/lib/utils";
+import { cn } from "@/packages/utils";
 import { Button } from "./ui/button";
 import axios from "axios";
 import toast from "react-hot-toast";
