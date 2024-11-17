@@ -57,7 +57,7 @@ const downloadImage = async (imageUrl: string, prompt: string) => {
     toast.success("Image downloaded successfully!");
   } catch (error: unknown) {
     console.log(error);
-    
+
     toast.error("Failed to download image");
   }
 };
@@ -85,6 +85,9 @@ function ImagePage() {
   const router = useRouter();
   const proModel = useProModel();
   const [images, setImages] = useState<imageType[]>([]);
+  const [downloadingImages, setDownloadingImages] = useState<{
+    [key: string]: boolean;
+  }>({});
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -131,6 +134,12 @@ function ImagePage() {
     } finally {
       router.refresh();
     }
+  };
+
+  const imageDownloadHandler = async (url: string, prompt: string) => {
+    setDownloadingImages((prev) => ({ ...prev, [url]: true }));
+    await downloadImage(url, prompt);
+    setDownloadingImages((prev) => ({ ...prev, [url]: false }));
   };
 
   return (
@@ -190,16 +199,20 @@ function ImagePage() {
                     <div className="absolute text-white top-2 right-2 z-10 cursor-pointer ">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <div className="p-1 rounded-full bg-black/20 backdrop-blur-sm hover:bg-black/30 transition">
-                            <EllipsisVertical className="w-5 h-5 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" />
+                          <div className="p-1 rounded-full bg-black/20    backdrop-blur-sm hover:bg-black/30  transition">
+                            {downloadingImages[image.url] ? (
+                              <div className="border-white h-5 w-5 animate-spin rounded-full border-4 border-t-white/10" />
+                            ) : (
+                              <EllipsisVertical className="w-5 h-5 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" />
+                            )}
                           </div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
                           <DropdownMenuItem
                             className="flex gap-2 cursor-pointer"
-                            onClick={() =>
-                              downloadImage(image.url, image.prompt)
-                            }
+                            onClick={() => {
+                              imageDownloadHandler(image.url, image.prompt);
+                            }}
                           >
                             <Download />
                             Download
@@ -234,5 +247,4 @@ function ImagePage() {
     </div>
   );
 }
-
 export default ImagePage;
