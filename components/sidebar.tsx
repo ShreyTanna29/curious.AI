@@ -14,6 +14,7 @@ import {
 import { usePathname } from "next/navigation";
 import { FreeCounter } from "./FreeCounter";
 import UserProfileCard from "./UserProfileCard";
+import { useEffect } from "react";
 
 const monserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 
@@ -56,6 +57,16 @@ interface sidebarProps {
 
 const Sidebar = ({ apiLimitCount = 0, isPro = false }: sidebarProps) => {
   const pathName = usePathname();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle(
+      "dark",
+      localStorage.theme === "Dark Theme" ||
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
+    );
+  }, []);
+
   return (
     <div className="space-y-4 py-4 flex text-black flex-col h-full bg-slate-100 dark:bg-[#0f0f0f] dark:text-white">
       <div className="px-3 py-2 flex-1">

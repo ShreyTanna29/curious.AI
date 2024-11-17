@@ -10,7 +10,6 @@ import {
   Settings,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 function DashboardPage() {
   const router = useRouter();
@@ -45,15 +44,6 @@ function DashboardPage() {
       bgColor: "bg-slate-100 dark:bg-white/10",
     },
   ];
-
-  useEffect(() => {
-    document.documentElement.classList.toggle(
-      "dark",
-      localStorage.theme === "Dark Theme" ||
-        (!("theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
-  });
 
   return (
     <div>
