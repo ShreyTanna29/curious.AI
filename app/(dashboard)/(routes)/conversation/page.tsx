@@ -18,6 +18,7 @@ import UserAvatar from "@/components/user.avatar";
 import BotAvatar from "@/components/bot.avatar";
 import { useProModel } from "@/hooks/useProModel";
 import toast from "react-hot-toast";
+import ReactMarkdown from "react-markdown";
 
 type Message = {
   role: "user" | "assistant";
@@ -79,15 +80,36 @@ function ConversationPage() {
               <div
                 key={index}
                 className={cn(
-                  "p-4 md:p-6 flex items-center gap-x-6  ",
+                  "p-4 md:p-6 flex items-center gap-x-6 ",
                   message.role === "user"
                     ? "bg-white border border-black/50 rounded-l-2xl rounded-tr-2xl ml-auto md:max-w-[80%] dark:bg-black dark:border-white  "
-                    : "bg-violet-500/10 mr-auto md:max-w-[60%] rounded-r-2xl rounded-tl-2xl dark:bg-white/10 "
+                    : "bg-violet-500/10 mr-auto md:max-w-[60%] rounded-r-2xl rounded-tl-2xl dark:bg-white/10  "
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <p className="text-sm md:text-lg text-muted-foreground dark:text-white ">
-                  {message.content}
+                <p className="text-sm md:text-xl text-muted-foreground dark:text-white ">
+                  {message.role === "user" ? (
+                    message.content
+                  ) : (
+                    <ReactMarkdown
+                      components={{
+                        pre: ({ ...props }) => (
+                          <div className=" overflow-auto w-full  my-2 bg-black/10 p-2 rounded-lg ">
+                            <pre {...props} />
+                          </div>
+                        ),
+                        code: ({ ...props }) => (
+                          <code
+                            className="bg-black/10 rounded-lg p-1"
+                            {...props}
+                          />
+                        ),
+                      }}
+                      className="text-sm md:text-xl overflow-hidden leading-7"
+                    >
+                      {message.content || ""}
+                    </ReactMarkdown>
+                  )}
                 </p>
               </div>
             ))}
