@@ -84,7 +84,7 @@ function ImagePage() {
       if (error?.response?.status === 403) {
         proModel.onOpen();
       } else {
-        toast.error("Please write anohter prompt.");
+        toast.error("Please write another prompt.");
       }
     } finally {
       router.refresh();
