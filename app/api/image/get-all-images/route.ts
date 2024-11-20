@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function GET(req: Request) {
   const { userId } = auth();
   const { searchParams } = new URL(req.url);
-  const page = parseInt(searchParams.get("page") || "0");
+  const page = parseInt(searchParams.get("page")!);
   const PAGESIZE = 12;
   if (!userId) {
     return new NextResponse("Unauthorised", { status: 401 });
