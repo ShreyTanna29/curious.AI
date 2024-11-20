@@ -29,56 +29,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { shareImage, downloadImage } from "@/packages/features";
 
 type imageType = {
   url: string;
   prompt: string;
-};
-
-const downloadImage = async (imageUrl: string, prompt: string) => {
-  try {
-    const response = await axios.post(
-      "/api/image/download",
-      { imageUrl },
-      {
-        responseType: "blob",
-      }
-    );
-
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${prompt.slice(0, 30)}.png`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(url);
-
-    toast.success("Image downloaded successfully!");
-  } catch (error: unknown) {
-    console.log(error);
-
-    toast.error("Failed to download image");
-  }
-};
-
-const shareImage = async (imageUrl: string, prompt: string) => {
-  try {
-    if (navigator.share) {
-      await navigator.share({
-        title: "Check out this AI generated image!",
-        text: prompt,
-        url: imageUrl,
-      });
-    } else {
-      await navigator.clipboard.writeText(imageUrl);
-      toast.success("Image URL copied to clipboard!");
-    }
-  } catch (error: unknown) {
-    console.log(error);
-
-    toast.error("Failed to share image");
-  }
 };
 
 function ImagePage() {
@@ -129,7 +84,7 @@ function ImagePage() {
       if (error?.response?.status === 403) {
         proModel.onOpen();
       } else {
-        toast.error("Please write anohter prompt.");
+        toast.error("Please write another prompt.");
       }
     } finally {
       router.refresh();

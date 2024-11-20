@@ -1,8 +1,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { checkApiLimit, increaseApiLimit } from "@/lib/api-limit";
-import { checkSubscription } from "@/lib/subscription";
+import { checkApiLimit, increaseApiLimit } from "@/packages/api/api-limit";
+import { checkSubscription } from "@/packages/features/subscription";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { cn } from "@/packages/utils";
 import {
   ArrowRight,
   Code,
   ImageIcon,
   MessageSquare,
   Settings,
+  ShoppingBag,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -37,11 +38,18 @@ function DashboardPage() {
       bgColor: "bg-green-700/10",
     },
     {
+      label: "Marketplace",
+      icon: ShoppingBag,
+      href: "/marketplace",
+      color: "text-orange-700",
+      bgColor: "bg-orange-700/10",
+    },
+    {
       label: "Settings",
       icon: Settings,
       href: "/settings",
-      color: "white",
-      bgColor: "bg-slate-100 dark:bg-white/10",
+      color: "text-black dark:text-white",
+      bgColor: "bg-black/10 dark:bg-white/10",
     },
   ];
 
