@@ -38,3 +38,19 @@ model Image {
   prompt    String
   createdAt DateTime @default(now())
 }
+
+model chat {
+  id        String   @id @default(uuid())
+  userId    String
+  prompt    String
+  response  String
+  createdAt DateTime @default(now())
+}
+
+model code {
+  id        String   @id @default(uuid())
+  userId    String
+  prompt    String
+  response  String
+  createdAt DateTime @default(now())
+}

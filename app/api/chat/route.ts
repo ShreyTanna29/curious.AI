@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { checkApiLimit, increaseApiLimit } from "@/packages/api/api-limit";
 import { checkSubscription } from "@/packages/features/subscription";
+import prismadb from "@/packages/api/prismadb";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -10,14 +11,14 @@ export async function POST(req: Request) {
   try {
     const { userId } = auth();
     const body = await req.json();
-    const { messages } = body;
+    const { prompt } = body;
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    if (!messages) {
-      return new NextResponse("Messages are required", { status: 400 });
+    if (!prompt) {
+      return new NextResponse("prompt is required", { status: 400 });
     }
 
     const freeTrail = await checkApiLimit();
@@ -30,16 +31,22 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const chat = model.startChat();
-    const result = await chat.sendMessage(
-      messages[messages.length - 1].content
-    );
-    const response = result.response;
+    const result = await chat.sendMessage(prompt);
+    const response = result.response.candidates?.[0].content.parts[0].text;
 
     if (!isPro) {
       await increaseApiLimit();
     }
 
-    return NextResponse.json({ role: "assistant", content: response.text() });
+    await prismadb.chat.create({
+      data: {
+        userId,
+        prompt,
+        response: String(response),
+      },
+    });
+
+    return NextResponse.json(response);
   } catch (error) {
     console.log("[CONVERSATION_ERROR]", error);
     return new NextResponse("Internal error", { status: 500 });
