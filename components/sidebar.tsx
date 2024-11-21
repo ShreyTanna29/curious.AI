@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { FreeCounter } from "./FreeCounter";
 import UserProfileCard from "./UserProfileCard";
 import { useEffect } from "react";
+import { Badge } from "./ui/badge";
 
 const monserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 
@@ -81,9 +82,16 @@ const Sidebar = ({ apiLimitCount = 0, isPro = false }: sidebarProps) => {
           <div className="relative w-8 h-8 mr-4">
             <Image fill src="/logo.png" alt="Logo" />
           </div>
-          <h1 className={cn("text-2xl font-bold", monserrat.className)}>
-            Curious.AI
-          </h1>
+          <div className="flex items-center gap-1">
+            <h1 className={cn("text-2xl font-bold", monserrat.className)}>
+              Curious.AI
+            </h1>
+            {isPro && (
+              <Badge variant="pro" className="uppercase text-sm py-1">
+                pro
+              </Badge>
+            )}
+          </div>
         </Link>
         <div className="mb-8">
           <UserProfileCard />
