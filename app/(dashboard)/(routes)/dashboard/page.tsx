@@ -17,9 +17,9 @@ function DashboardPage() {
 
   const tools = [
     {
-      label: "Conversation",
+      label: "Chat",
       icon: MessageSquare,
-      href: "/conversation",
+      href: "/chat",
       color: "text-violet-500",
       bgColor: "bg-violet-500/10",
     },

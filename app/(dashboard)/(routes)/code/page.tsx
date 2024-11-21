@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { cn } from "@/packages/utils";
@@ -29,6 +29,7 @@ function CodeGenerationPage() {
   const router = useRouter();
   const proModel = useProModel();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [gettingUserCode, setGettingUserCode] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,17 +39,41 @@ function CodeGenerationPage() {
 
   const isLoading = form.formState.isSubmitting;
 
+  const getUserCodes = async () => {
+    setGettingUserCode(true);
+    const response = await axios.get("/api/code/get-user-code");
+    if (response.data) {
+      response.data.map((chat: any) =>
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: chat.response.toString("utf8") },
+          { role: "user", content: chat.prompt },
+        ])
+      );
+    }
+    setGettingUserCode(false);
+  };
+
+  useEffect(() => {
+    getUserCodes();
+  }, []);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const userMessage: Message = {
         role: "user",
         content: values.prompt,
       };
-      const newMessages = [...messages, userMessage];
       const response = await axios.post("/api/code", {
-        messages: newMessages,
+        prompt: values.prompt,
       });
-      setMessages((current) => [...current, response.data, userMessage]);
+
+      const newMessage: Message = {
+        role: "assistant",
+        content: String(response.data),
+      };
+
+      setMessages((current) => [...current, newMessage, userMessage]);
       form.reset();
     } catch (error: any) {
       console.log(error);
@@ -103,12 +128,12 @@ function CodeGenerationPage() {
           </Form>
         </div>
         <div className="space-y-4 mt-4">
-          {isLoading && (
+          {(isLoading || gettingUserCode) && (
             <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
               <Loader />
             </div>
           )}
-          {messages.length === 0 && !isLoading && (
+          {messages.length === 0 && !isLoading && !gettingUserCode && (
             <Empty label="No code generated yet."></Empty>
           )}
           <div className="flex flex-col-reverse gap-y-4 ">
@@ -119,19 +144,19 @@ function CodeGenerationPage() {
                   "p-6 flex items-start gap-x-8 overflow-x-auto",
                   message.role === "user"
                     ? "bg-white border border-black/50 rounded-l-2xl rounded-tr-2xl ml-auto md:max-w-[40%] dark:bg-black dark:border-white "
-                    : "bg-green-500/5 mr-auto max-w-[100%] md:max-w-[60%]  rounded-tl-2xl dark:bg-white/10 "
+                    : "bg-green-500/5 mr-auto max-w-[100%] md:max-w-[60%] rounded-r-2xl rounded-tl-2xl dark:bg-white/10 "
                 )}
               >
                 {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
                 <ReactMarkdown
                   components={{
                     pre: ({ ...props }) => (
-                      <div className=" overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg ">
+                      <div className=" overflow-auto w-full my-2  bg-black/10 p-4 rounded-lg ">
                         <pre {...props} />
                       </div>
                     ),
                     code: ({ ...props }) => (
-                      <code className="bg-black/10 rounded-lg p-1" {...props} />
+                      <code className=" rounded-lg p-1" {...props} />
                     ),
                   }}
                   className="text-sm overflow-hidden leading-7"

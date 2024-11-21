@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { cn } from "@/packages/utils";
@@ -29,6 +29,8 @@ function ConversationPage() {
   const proModel = useProModel();
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [gettingUserChats, setGettingUserChats] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -36,6 +38,24 @@ function ConversationPage() {
     },
   });
 
+  const getUserChats = async () => {
+    setGettingUserChats(true);
+    const response = await axios.get("/api/chat/get-user-chat");
+    if (response.data) {
+      response.data.map((chat: any) =>
+        setMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: chat.response.toString("utf8") },
+          { role: "user", content: chat.prompt },
+        ])
+      );
+    }
+    setGettingUserChats(false);
+  };
+
+  useEffect(() => {
+    getUserChats();
+  }, []);
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -43,11 +63,17 @@ function ConversationPage() {
         role: "user",
         content: values.prompt,
       };
-      const newMessages = [...messages, userMessage];
-      const response = await axios.post("/api/conversation", {
-        messages: newMessages,
+
+      const response = await axios.post("/api/chat", {
+        prompt: values.prompt,
       });
-      setMessages((current) => [response.data, userMessage, ...current]);
+
+      const newMessage: Message = {
+        role: "assistant",
+        content: String(response.data),
+      };
+
+      setMessages((current) => [newMessage, userMessage, ...current]);
       form.reset();
     } catch (error: any) {
       console.log(error);
@@ -64,15 +90,22 @@ function ConversationPage() {
   return (
     <div>
       <Heading
-        title="Conversation"
+        title="Chat"
         description="Ask about anyting to one of the smartest AI."
         icon={MessageSquare}
         iconColor="text-violet-500"
         bgColor="bg-violet-500/10"
       />
+
+      {gettingUserChats && (
+        <div className="w-full flex items-center justify-center">
+          <Loader />
+        </div>
+      )}
+
       <div className="px-4 lg:px-8 overflow-auto  md:h-[70vh] h-[65svh] ">
         <div className="space-y-4 mt-4">
-          {messages.length === 0 && (
+          {messages.length === 0 && !gettingUserChats && (
             <Empty label="No conversation started."></Empty>
           )}
           <div className="flex flex-col-reverse gap-y-4">
