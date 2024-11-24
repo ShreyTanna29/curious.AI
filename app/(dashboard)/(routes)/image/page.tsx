@@ -40,6 +40,7 @@ function ImagePage() {
   const router = useRouter();
   const proModel = useProModel();
   const [images, setImages] = useState<imageType[]>([]);
+  const [loadingImages, setLoadingImages] = useState(true)
   const [downloadingImages, setDownloadingImages] = useState<{
     [key: string]: boolean;
   }>({});
@@ -51,6 +52,7 @@ function ImagePage() {
   });
 
   const userImages = async () => {
+    setLoadingImages(true)
     try {
       const response = await axios.get("/api/image/get-user-images");
 
@@ -65,6 +67,7 @@ function ImagePage() {
       console.log("Error fetching user images:", error);
       toast.error("Failed to load images");
     }
+    setLoadingImages(false)
   };
 
   useEffect(() => {
@@ -138,12 +141,12 @@ function ImagePage() {
           </Form>
         </div>
         <div className="space-y-4 mt-4">
-          {isLoading && (
+          {(isLoading || loadingImages) && (
             <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
               <Loader />
             </div>
           )}
-          {!images[0] && !isLoading && (
+          {!images[0] && !isLoading && !loadingImages && (
             <Empty label="No images generated."></Empty>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-8 ">
