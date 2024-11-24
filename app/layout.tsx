@@ -34,10 +34,10 @@ export default function RootLayout({
       <html lang="en">
         <link rel="icon" href="/logo.png" sizes="any" />
         <CrispProvider />
-        <NextTopLoader />
         <body
           className={`${geistSans.variable} dark:bg-black ${geistMono.variable} antialiased`}
         >
+          <NextTopLoader showSpinner={false} />
           <ModalProvider />
           <ToasterProvider />
           {children}
