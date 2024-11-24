@@ -29,6 +29,7 @@
     "crisp-sdk-web": "^1.0.25",
     "lucide-react": "^0.446.0",
     "next": "14.2.13",
+    "nextjs-toploader": "^3.7.15",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.0",

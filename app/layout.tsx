@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ModalProvider } from "@/components/modalProvider";
 import { ToasterProvider } from "@/components/toaster.provider";
 import { CrispProvider } from "@/components/crisp-provider";
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -33,6 +34,7 @@ export default function RootLayout({
       <html lang="en">
         <link rel="icon" href="/logo.png" sizes="any" />
         <CrispProvider />
+        <NextTopLoader />
         <body
           className={`${geistSans.variable} dark:bg-black ${geistMono.variable} antialiased`}
         >
