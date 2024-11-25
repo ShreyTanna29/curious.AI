@@ -7,6 +7,7 @@ import {
   EllipsisVertical,
   Image as ImageIcon,
   Share2,
+  Trash2,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -30,6 +31,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { shareImage, downloadImage } from "@/packages/features";
+import { deleteImage } from "@/packages/features/deleteImage";
+import LoadingSpinner from "@/components/loadingSpinner";
 
 type imageType = {
   url: string;
@@ -41,9 +44,14 @@ function ImagePage() {
   const proModel = useProModel();
   const [images, setImages] = useState<imageType[]>([]);
   const [loadingImages, setLoadingImages] = useState(true)
+  const [deletingImages, setDeletingImages] = useState<{
+    [key: string]: boolean;
+  }>({});
+
   const [downloadingImages, setDownloadingImages] = useState<{
     [key: string]: boolean;
   }>({});
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -99,6 +107,13 @@ function ImagePage() {
     await downloadImage(url, prompt);
     setDownloadingImages((prev) => ({ ...prev, [url]: false }));
   };
+
+  const deleteImageHandler = async (url: string) => {
+    setDeletingImages((prev) => ({ ...prev, [url]: true }))
+    await deleteImage({ url })
+    await userImages()
+    setDeletingImages((prev) => ({ ...prev, [url]: false }))
+  }
 
   return (
     <div className="select-none">
@@ -158,8 +173,8 @@ function ImagePage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <div className="p-1 rounded-full bg-black/20    backdrop-blur-sm hover:bg-black/30  transition">
-                            {downloadingImages[image.url] ? (
-                              <div className="border-white h-5 w-5 animate-spin rounded-full border-4 border-t-white/10" />
+                            {(downloadingImages[image.url] || deletingImages[image.url]) ? (
+                              <LoadingSpinner />
                             ) : (
                               <EllipsisVertical className="w-5 h-5 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" />
                             )}
@@ -183,6 +198,15 @@ function ImagePage() {
                           >
                             <Share2 />
                             Share
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="flex gap-2 cursor-pointer "
+                            onClick={() =>
+                              deleteImageHandler(image.url)}
+                          >
+                            <Trash2 />
+                            Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

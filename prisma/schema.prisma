@@ -34,7 +34,7 @@ model UserSubscription {
 model Image {
   id        String   @id @default(uuid())
   userId    String
-  url       String
+  url       String   @unique
   prompt    String
   createdAt DateTime @default(now())
 }
