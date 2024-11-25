@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { ModalProvider } from "@/components/modalProvider";
 import { ToasterProvider } from "@/components/toaster.provider";
 import { CrispProvider } from "@/components/crisp-provider";
 import NextTopLoader from 'nextjs-toploader';
@@ -38,7 +37,6 @@ export default function RootLayout({
           className={`${geistSans.variable} dark:bg-black ${geistMono.variable} antialiased`}
         >
           <NextTopLoader showSpinner={false} />
-          <ModalProvider />
           <ToasterProvider />
           {children}
         </body>
