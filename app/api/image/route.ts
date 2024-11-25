@@ -1,8 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import axios from "axios";
-import { checkApiLimit, increaseApiLimit } from "@/packages/api/api-limit";
-import { checkSubscription } from "@/packages/features/subscription";
 import prismadb from "@/packages/api/prismadb";
 
 export async function POST(req: Request) {
@@ -19,13 +17,6 @@ export async function POST(req: Request) {
 
     if (!prompt) {
       return new NextResponse("Prompt is required.", { status: 400 });
-    }
-
-    const freeTrail = await checkApiLimit();
-    const isPro = await checkSubscription();
-
-    if (!freeTrail && !isPro) {
-      return new NextResponse("Free trail has expired", { status: 403 });
     }
 
     const response = await axios.post(
@@ -45,11 +36,6 @@ export async function POST(req: Request) {
         },
       }
     );
-
-    if (!isPro) {
-      await increaseApiLimit();
-    }
-
 
     const imgUrl = await response.data.output[0].url;
 

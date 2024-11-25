@@ -21,7 +21,6 @@ import { useEffect, useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { Card, CardFooter } from "@/components/ui/card";
-import { useProModel } from "@/hooks/useProModel";
 import toast from "react-hot-toast";
 import {
   DropdownMenu,
@@ -41,7 +40,6 @@ type imageType = {
 
 function ImagePage() {
   const router = useRouter();
-  const proModel = useProModel();
   const [images, setImages] = useState<imageType[]>([]);
   const [loadingImages, setLoadingImages] = useState(true)
   const [deletingImages, setDeletingImages] = useState<{
@@ -92,12 +90,9 @@ function ImagePage() {
       form.reset();
     } catch (error: any) {
       console.log(error);
-      if (error?.response?.status === 403) {
-        proModel.onOpen();
-      } else {
-        toast.error("Please write another prompt.");
-      }
-    } finally {
+      toast.error("Something went wrong.");
+    }
+    finally {
       router.refresh();
     }
   };

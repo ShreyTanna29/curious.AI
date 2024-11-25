@@ -17,7 +17,6 @@ import { cn } from "@/packages/utils";
 import UserAvatar from "@/components/user.avatar";
 import BotAvatar from "@/components/bot.avatar";
 import ReactMarkdown from "react-markdown";
-import { useProModel } from "@/hooks/useProModel";
 import toast from "react-hot-toast";
 
 type Message = {
@@ -27,7 +26,6 @@ type Message = {
 
 function CodeGenerationPage() {
   const router = useRouter();
-  const proModel = useProModel();
   const [messages, setMessages] = useState<Message[]>([]);
   const [gettingUserCode, setGettingUserCode] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
@@ -77,11 +75,7 @@ function CodeGenerationPage() {
       form.reset();
     } catch (error: any) {
       console.log(error);
-      if (error?.response?.status === 403) {
-        proModel.onOpen();
-      } else {
-        toast.error("Something went wrong.");
-      }
+      toast.error("Something went wrong.");
     } finally {
       router.refresh();
     }
