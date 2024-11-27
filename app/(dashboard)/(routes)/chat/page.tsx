@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Empty from "@/components/empty";
 import Loader from "@/components/loader";
-import { cn } from "@/packages/utils";
+import { cn } from "@/lib/utils";
 import UserAvatar from "@/components/user.avatar";
 import BotAvatar from "@/components/bot.avatar";
 import toast from "react-hot-toast";

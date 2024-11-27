@@ -1,4 +1,4 @@
-import { cn } from "@/packages/utils";
+import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 import React from "react";
 

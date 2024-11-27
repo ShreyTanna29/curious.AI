@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { cn } from "@/packages/utils";
+import { cn } from "@/lib/utils";
 import {
   ArrowRight,
   Code,
