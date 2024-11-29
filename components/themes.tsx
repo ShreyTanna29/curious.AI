@@ -40,8 +40,8 @@ export default function Themes() {
     document.documentElement.classList.toggle(
       "dark",
       localStorage.theme === "Dark Theme" ||
-        (!("theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
   }, [handleThemeChange]);
 
