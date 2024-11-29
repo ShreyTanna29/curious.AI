@@ -54,8 +54,8 @@ function DashboardPage() {
   ];
 
   return (
-    <div>
-      <div className="mb-8 space-y-4">
+    <div className="w-full">
+      <div className="mb-8 w-full space-y-4">
         <h2 className="text-2xl font-bold text-center md:text-4xl ">
           Explore the power of AI
         </h2>
@@ -64,14 +64,14 @@ function DashboardPage() {
         </p>
       </div>
 
-      <div className="px-4 md:px-20 lg:px-32 space-y-4 ">
+      <div className="px-4 w-full space-y-4 ">
         {tools.map((tool) => (
           <Card
             key={tool.href}
             onClick={() => {
               router.push(tool.href);
             }}
-            className="p-4 border-black/5 flex items-center justify-between hover:shadow-md transition cursor-pointer"
+            className="p-4 border-black/5 flex w-full items-center justify-between hover:shadow-md transition cursor-pointer"
           >
             <div className="flex items-center gap-x-4">
               <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
