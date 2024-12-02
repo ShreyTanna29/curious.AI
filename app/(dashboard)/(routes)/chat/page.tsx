@@ -97,7 +97,7 @@ function ConversationPage() {
         </div>
       )}
 
-      <div className="px-4 lg:px-8 overflow-auto  md:h-[70vh] h-[65svh] ">
+      <div className="px-4 lg:px-8 overflow-auto  md:h-[70vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent  ">
         <div className="space-y-4 mt-4">
           {messages.length === 0 && !gettingUserChats && (
             <Empty label="No conversation started."></Empty>
