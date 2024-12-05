@@ -9,6 +9,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      backgroundImage: {
+        "image-page-bg": "url('/bg-image.jpg')",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
