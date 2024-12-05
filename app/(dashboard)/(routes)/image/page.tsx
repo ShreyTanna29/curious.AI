@@ -2,8 +2,8 @@
 import axios from "axios";
 import Image from "next/image";
 import {
-  ArrowUp,
   ChevronDown,
+  ChevronUp,
   Download,
   EllipsisVertical,
   Share2,
@@ -17,7 +17,6 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Loader from "@/components/loader";
 import { Card, CardFooter } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import {
@@ -32,6 +31,7 @@ import { deleteImage } from "@/packages/features/deleteImage";
 import LoadingSpinner from "@/components/loadingSpinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TextGenerateEffect } from "@/components/text-generate-effect";
+import Loader from "@/components/loader";
 
 type imageType = {
   url: string;
@@ -58,23 +58,28 @@ function ImagePage() {
     },
   });
 
+  const [loadedPreviousImages, setLoadedPreviousImages] = useState(false)
   const userImages = async () => {
-    setLoadingImages(true)
     try {
-      const response = await axios.get("/api/image/get-user-images");
+      if (!loadedPreviousImages) {
+        setLoadingImages(true)
+        const response = await axios.get("/api/image/get-user-images");
 
-      if (response.data) {
-        setPrevImages(
-          response.data.map((img: imageType) => {
-            return { url: img.url, prompt: img.prompt };
-          })
-        );
+        if (response.data) {
+          setPrevImages(
+            response.data.map((img: imageType) => {
+              return { url: img.url, prompt: img.prompt };
+            })
+          );
+          setLoadedPreviousImages(true)
+        }
       }
+
     } catch (error) {
       console.log("Error fetching user images:", error);
       toast.error("Failed to load images");
-    }
-    setLoadingImages(false)
+    } finally { setLoadingImages(false) }
+
   };
 
   const isLoading = form.formState.isSubmitting;
@@ -107,25 +112,27 @@ function ImagePage() {
     setDeletingImages((prev) => ({ ...prev, [url]: false }))
   }
 
+
+
   return (
     <div className="select-none h-full">
       <div className=" px-4 lg:px-8 h-full w-full">
-        <div className="w-full h-[30%] flex items-center justify-center" >
+        <div className="w-full h-[20%] md:h-[30%] flex items-center justify-center" >
           <TextGenerateEffect className="text-3xl md:text-6xl" words="Let's Imagify Your Thoughts ✨🎩" />
         </div>
         <div className="flex w-full  mt-8">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-full border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
+              className=" rounded-lg md:rounded-full border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
             >
               <FormField
                 name="prompt"
                 render={({ field }) => (
-                  <FormItem className="col-span-10 lg:col-span-9">
+                  <FormItem className="col-span-12 lg:col-span-9">
                     <FormControl className="m-0 p-2">
                       <Textarea
-                        className="border-0 outline-none focus-visible:ring-0  focus-visible:ring-transparent"
+                        className="border-0 outline-none focus-visible:ring-0  focus-visible:ring-transparent resize-none"
                         disabled={isLoading}
                         placeholder="e.g. A cute cat with hat"
                         {...field}
@@ -134,28 +141,27 @@ function ImagePage() {
                   </FormItem>
                 )}
               />
+
               <Button
-                className="rounded-full bg-black/10 dark:bg-white/10"
+                className="rounded-full col-span-10 dark:text-white dark:hover:text-black lg:col-span-1  bg-black/10 dark:bg-white/10"
                 disabled={isLoading}
               >
-                <ArrowUp className="text-black dark:text-white" />
+                {isLoading ? <Loader /> : "Create"}
               </Button>
+
+
             </form>
           </Form>
         </div>
         <div className="space-y-4 mt-4">
-          {(isLoading || loadingImages) && (
-            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-              <Loader />
-            </div>
-          )}
 
           <div className="flex w-full items-center justify-center">
-            <div className="cursor-pointer flex bg-black/10 p-4 items-center justify-center gap-2 dark:bg-white/10" onClick={() => {
+
+            <div className="cursor-pointer flex bg-black/10 text-sm md:text-lg rounded-lg p-4 items-center justify-center gap-2 dark:bg-white/10" onClick={() => {
               setShowPrevImages(!showPrevImages)
               userImages()
             }}>
-              My Previous Images <ChevronDown />
+              My Previous Images  {loadingImages ? <LoadingSpinner /> : (showPrevImages ? <ChevronUp /> : <ChevronDown />)}
             </div>
           </div>
 
