@@ -32,6 +32,7 @@ import LoadingSpinner from "@/components/loadingSpinner";
 import { Textarea } from "@/components/ui/textarea";
 import { TextGenerateEffect } from "@/components/text-generate-effect";
 import Loader from "@/components/loader";
+import { MovingBorderButton } from "@/components/moving-border";
 
 type imageType = {
   url: string;
@@ -43,6 +44,7 @@ function ImagePage() {
   const [prevImages, setPrevImages] = useState<imageType[]>([]);
   const [showPrevImages, setShowPrevImages] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false)
+  const [surpriseMeLoading, setSurpriseMeLoading] = useState(false)
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
   }>({});
@@ -112,6 +114,15 @@ function ImagePage() {
     setDeletingImages((prev) => ({ ...prev, [url]: false }))
   }
 
+  const surpriseMeHandler = async () => {
+    setSurpriseMeLoading(true)
+    const response = await axios.post("/api/chat", {
+      prompt: "Give me a unique and amazing prompt for an image generation model. give me prompt directly without any extra text"
+    })
+
+    form.setValue("prompt", response.data)
+    setSurpriseMeLoading(false)
+  }
 
 
   return (
@@ -155,7 +166,17 @@ function ImagePage() {
         </div>
         <div className="space-y-4 mt-4">
 
-          <div className="flex w-full items-center justify-center">
+          <div className=" flex w-full flex-wrap gap-4 md:items-center md:justify-center">
+            <div className="" aria-disabled={surpriseMeLoading}>
+              <MovingBorderButton
+                className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800" borderRadius="2rem"
+                onClick={() => {
+                  surpriseMeHandler()
+                }}>
+                Surprise Me  { } {surpriseMeLoading ? <LoadingSpinner className="ml-2" /> : "✨"}
+              </MovingBorderButton>
+            </div>
+
 
             <div className="cursor-pointer flex bg-black/10 text-sm md:text-lg rounded-lg p-4 items-center justify-center gap-2 dark:bg-white/10" onClick={() => {
               setShowPrevImages(!showPrevImages)
