@@ -110,7 +110,8 @@ function ImagePage() {
   const deleteImageHandler = async (url: string) => {
     setDeletingImages((prev) => ({ ...prev, [url]: true }))
     await deleteImage({ url })
-    await userImages()
+    const newImgs = newImages.filter(image => image.url !== url)
+    setNewImages(newImgs)
     setDeletingImages((prev) => ({ ...prev, [url]: false }))
   }
 
