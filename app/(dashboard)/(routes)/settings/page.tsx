@@ -24,7 +24,7 @@ export default function SettingsPage() {
 
         <div className="flex gap-4 items-center ml-6">
           <h1 className="font-bold">Account : </h1>
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 ml-20 mt-4 md:mt-0">
             <Link href={"/user-profile"}>
               <Button
                 variant={"outline"}
