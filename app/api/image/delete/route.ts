@@ -7,9 +7,6 @@ export async function DELETE(req: Request) {
     const { userId } = auth();
     const body = await req.json();
     const { url } = body;
-    console.log("==========ROUTEJS==========================");
-    console.log(url);
-    console.log("=============ROUTEJS=======================");
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
