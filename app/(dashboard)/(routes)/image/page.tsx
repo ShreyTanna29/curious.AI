@@ -94,7 +94,7 @@ function ImagePage() {
       form.reset();
     } catch (error: any) {
       console.log(error);
-      toast.error("Something went wrong.");
+      toast.error("Something went wrong. Please try again.");
     }
     finally {
       router.refresh();
@@ -115,13 +115,22 @@ function ImagePage() {
   }
 
   const surpriseMeHandler = async () => {
-    setSurpriseMeLoading(true)
-    const response = await axios.post("/api/chat", {
-      prompt: "Give me a unique and amazing prompt for an image generation model. give me prompt directly without any extra text"
-    })
+    try {
+      setSurpriseMeLoading(true)
+      const response = await axios.post("/api/chat", {
+        prompt: "Give me a unique and amazing prompt for an image generation model. give me prompt directly without any extra text"
+      })
+      form.setValue("prompt", response.data)
+    } catch (error) {
+      console.log('====================================');
+      console.log("ERROR :: Image page :: ", error);
+      console.log('====================================');
+      toast.error("Please try again.");
+    } finally {
+      setSurpriseMeLoading(false)
 
-    form.setValue("prompt", response.data)
-    setSurpriseMeLoading(false)
+    }
+
   }
 
 
