@@ -1,4 +1,3 @@
-import LandingContent from "@/components/landing-content";
 import LandingHero from "@/components/landing-hero";
 import LandingImageSection from "@/components/landing-image-section";
 import LandingNavbar from "@/components/landingNavbar";
