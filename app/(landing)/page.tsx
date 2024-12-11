@@ -1,13 +1,16 @@
 import LandingContent from "@/components/landing-content";
 import LandingHero from "@/components/landing-hero";
+import LandingImageSection from "@/components/landing-image-section";
 import LandingNavbar from "@/components/landingNavbar";
 
 function LandingPage() {
   return (
-    <div className="h-full">
+    <div className="h-full w-full ">
       <LandingNavbar />
-      <LandingHero />
-      <LandingContent />
+      <div className="h-full w-full">
+        <LandingHero />
+      </div>
+      <LandingImageSection />
     </div>
   );
 }
