@@ -36,7 +36,7 @@ export default function LandingImageSection() {
                 />
             </div>
             <div className="relative w-full text-center mt-28">
-                <h1 className=" text-white text-9xl">Level up your creativity</h1>
+                <h1 className=" text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl">Level up your creativity</h1>
                 <p className="text-gray-400 mt-4 ">Go beyond the limits of creativity with AI generated image </p>
             </div>
         </div>
