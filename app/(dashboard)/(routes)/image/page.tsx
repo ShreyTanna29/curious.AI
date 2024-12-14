@@ -33,6 +33,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { TextGenerateEffect } from "@/components/text-generate-effect";
 import Loader from "@/components/loader";
 import { MovingBorderButton } from "@/components/moving-border";
+import CopyButton from "@/components/CopyButton";
+
 
 type imageType = {
   url: string;
@@ -251,7 +253,13 @@ function ImagePage() {
                     />
                   </div>
                   <CardFooter className="justify-center p-4 bg-black/10 dark:bg-white/10  ">
-                    <h1 className="font-bold ">{image.prompt}</h1>
+                    <h1 className="font-bold w-full text-center">
+                      {image.prompt}
+                      <div className="mt-1">
+                        <CopyButton className="ml-auto" text={image.prompt} />
+                      </div>
+                    </h1>
+
                   </CardFooter>
                 </Card>
               ))}
@@ -310,8 +318,14 @@ function ImagePage() {
                       src={image.url}
                     />
                   </div>
-                  <CardFooter className="justify-center p-4 bg-black/10 dark:bg-white/10  ">
-                    <h1 className="font-bold ">{image.prompt}</h1>
+                  <CardFooter className="justify-center p-4 bg-black/10 dark:bg-white/10 ">
+
+                    <h1 className="font-bold w-full text-center ">
+                      {image.prompt}
+                      <div className="mt-1">
+                        <CopyButton className="ml-auto" text={image.prompt} />
+                      </div>
+                    </h1>
                   </CardFooter>
                 </Card>
               ))}

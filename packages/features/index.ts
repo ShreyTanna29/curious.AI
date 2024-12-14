@@ -1,4 +1,4 @@
 import { downloadImage } from "./downloadImage";
 import { shareImage } from "./shareImage";
-
-export { downloadImage, shareImage };
+import copyToClipboard from "./copyToClipboard";
+export { downloadImage, shareImage, copyToClipboard };
