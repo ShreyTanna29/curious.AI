@@ -1,4 +1,5 @@
-[Curious.AI.webm](https://github.com/user-attachments/assets/bd091ee3-bf90-4ac8-b0ea-3fce8965dd30)
+
+![Screenshot from 2024-12-14 20-12-14](https://github.com/user-attachments/assets/d5cc08b7-49c0-47b6-a8a3-2102304df2dc)
 
 # 🤖 curious.ai
 
