@@ -114,6 +114,7 @@ function ImagePage() {
     await deleteImage({ url })
     const newImgs = newImages.filter(image => image.url !== url)
     setNewImages(newImgs)
+    setPrevImages(prevImages.filter(img => img.url !== url))
     setDeletingImages((prev) => ({ ...prev, [url]: false }))
   }
 
