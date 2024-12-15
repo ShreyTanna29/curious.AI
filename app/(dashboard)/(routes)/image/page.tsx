@@ -126,9 +126,7 @@ function ImagePage() {
       })
       form.setValue("prompt", response.data)
     } catch (error) {
-      console.log('====================================');
       console.log("ERROR :: Image page :: ", error);
-      console.log('====================================');
       toast.error("Please try again.");
     } finally {
       setSurpriseMeLoading(false)
