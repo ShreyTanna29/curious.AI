@@ -5,6 +5,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ToasterProvider } from "@/components/toaster.provider";
 import { CrispProvider } from "@/components/crisp-provider";
 import NextTopLoader from 'nextjs-toploader';
+import { Provider } from "@/packages/provider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,7 +40,9 @@ export default function RootLayout({
         >
           <NextTopLoader showSpinner={false} />
           <ToasterProvider />
-          {children}
+          <Provider>
+            {children}
+          </Provider>
         </body>
       </html>
     </ClerkProvider>
