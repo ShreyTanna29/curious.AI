@@ -1,5 +1,6 @@
 "use client"
 import LandingFooter from "@/components/landing-bottom";
+import LandingChatSection from "@/components/landing-chat-section";
 import LandingCodeSection from "@/components/landing-code-section";
 import LandingHero from "@/components/landing-hero";
 import LandingImageSection from "@/components/landing-image-section";
@@ -24,6 +25,7 @@ function LandingPage() {
       </div>
       <LandingImageSection />
       <LandingCodeSection />
+      <LandingChatSection />
       <LandingFooter />
     </div>
   );
