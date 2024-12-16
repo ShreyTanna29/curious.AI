@@ -146,8 +146,7 @@ function ImagePage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className=" rounded-lg md:rounded-full border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
-              style={{ borderRadius: '16px' }} // Fixed border radius
+              className=" rounded-[16px] border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
             >
               <FormField
                 name="prompt"
