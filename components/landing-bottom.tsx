@@ -4,7 +4,7 @@ import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
 
 const LandingFooter: React.FC = () => {
     return (
-        <footer className="flex flex-col items-center w-full py-2 mt-12 md:mt-48 lg:mt-60 text-white bg-white/10 text-center">
+        <footer className="flex flex-col items-center w-full py-2 mt-4 text-white bg-white/10 text-center">
             <div className='flex flex-col md:flex-row justify-between items-center w-full px-4'>
                 <div className='flex flex-col items-center md:items-start mx-10 mb-6 md:mb-0'>
                     <div className='flex items-center'>
