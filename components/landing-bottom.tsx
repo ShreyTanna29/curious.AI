@@ -18,7 +18,7 @@ const LandingFooter: React.FC = () => {
                         <div className='my-3 mx-2 font-semibold text-base'>Curious.AI</div>
                     </div>
                     <div className='my-2 text-start text-sm max-w-96 text-gray-400'>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Expedita minus ad nisi neque nam, recusandae nobis architecto repellat quam, harum eaque, dolores veniam corrupti qui?
+                        Unleash your creativity with our AI-powered platform! Whether you&#39;re exploring ideas or building something amazing, we&#39;re here to empower your imagination. Start creating today!
                     </div>
                     <div>
                         <div className="flex space-x-4 mt-3">
@@ -61,7 +61,7 @@ const LandingFooter: React.FC = () => {
                 <div className='text-gray-400 text-sm mb-3 md:mb-0'>&copy; 2024 All Rights Reserved</div>
                 <div className='text-gray-400 text-sm flex'>
                     <Link href={"/"}><div className='underline mx-5 list-item'>Privacy Policy</div></Link>
-                    <Link href={"/"}><div className='underline mx-5 list-item'>Terms & Conditions</div></Link>  
+                    <Link href={"/"}><div className='underline mx-5 list-item'>Terms & Conditions</div></Link>
                 </div>
             </div>
         </footer>
