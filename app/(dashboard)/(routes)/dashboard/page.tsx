@@ -10,10 +10,9 @@ import {
   Settings,
   ShoppingBag,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 function DashboardPage() {
-  const router = useRouter();
 
   const tools = [
     {
@@ -66,21 +65,19 @@ function DashboardPage() {
 
       <div className="px-4 w-full space-y-4 ">
         {tools.map((tool) => (
-          <Card
-            key={tool.href}
-            onClick={() => {
-              router.push(tool.href);
-            }}
-            className="p-4 border-black/5 flex w-full items-center justify-between hover:shadow-md transition cursor-pointer"
-          >
-            <div className="flex items-center gap-x-4">
-              <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
-                <tool.icon className={cn("w-8 h-8", tool.color)} />
+          <Link key={tool.href} href={tool.href}>
+            <Card
+              className="p-4 border-black/5 flex w-full items-center justify-between hover:shadow-md transition cursor-pointer"
+            >
+              <div className="flex items-center gap-x-4">
+                <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
+                  <tool.icon className={cn("w-8 h-8", tool.color)} />
+                </div>
+                <div className="font-semibold">{tool.label}</div>
               </div>
-              <div className="font-semibold">{tool.label}</div>
-            </div>
-            <ArrowRight className="w-5 h-5" />
-          </Card>
+              <ArrowRight className="w-5 h-5" />
+            </Card>
+          </Link>
         ))}
       </div>
     </div>
