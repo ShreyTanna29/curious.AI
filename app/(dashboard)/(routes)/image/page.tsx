@@ -47,6 +47,7 @@ function ImagePage() {
   const [showPrevImages, setShowPrevImages] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false)
   const [surpriseMeLoading, setSurpriseMeLoading] = useState(false)
+  const [surpriseMeDisabled, setSurpriseMeDisabled] = useState(false)
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
   }>({});
@@ -89,6 +90,7 @@ function ImagePage() {
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setSurpriseMeDisabled(true);
       const response = await axios.post("/api/image", values);
       const output = await response.data;
 
@@ -100,6 +102,7 @@ function ImagePage() {
     }
     finally {
       router.refresh();
+      setSurpriseMeDisabled(false);
     }
   };
 
@@ -185,7 +188,7 @@ function ImagePage() {
         <div className="space-y-4 mt-4">
 
           <div className=" flex w-full flex-wrap gap-4 md:items-center md:justify-center">
-            <div className="" aria-disabled={surpriseMeLoading}>
+            <div className="" aria-disabled={surpriseMeLoading} style={{pointerEvents: surpriseMeDisabled? "none":"stroke"}}>
               <MovingBorderButton
                 className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800" borderRadius="2rem"
                 onClick={() => {
