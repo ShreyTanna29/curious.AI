@@ -10,7 +10,7 @@ RUN npm cache clean --force && \
     rm -rf /root/.npm/_cacache
 
 # Install dependencies with strict flag
-RUN npm install --strict-peer-deps
+RUN npm install --force
 
 # Copy prisma and application code
 COPY prisma ./prisma
