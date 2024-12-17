@@ -13,6 +13,9 @@ export async function GET() {
       where: {
         userId,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     return NextResponse.json(userImages);
   } catch (error) {
