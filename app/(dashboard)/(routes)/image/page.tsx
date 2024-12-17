@@ -188,7 +188,7 @@ function ImagePage() {
         <div className="space-y-4 mt-4">
 
           <div className=" flex w-full flex-wrap gap-4 md:items-center md:justify-center">
-            <div className="" aria-disabled={surpriseMeLoading} style={{pointerEvents: surpriseMeDisabled? "none":"stroke"}}>
+            <div className={`${surpriseMeDisabled ? 'pointer-events-none' : ''}`} aria-disabled={surpriseMeLoading}>
               <MovingBorderButton
                 className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800" borderRadius="2rem"
                 onClick={() => {
