@@ -12,7 +12,7 @@ COPY prisma ./prisma
 RUN npm cache clean --force && rm -rf /root/.npm/_cacache
 
 # Install dependencies
-RUN npm install --force
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
