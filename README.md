@@ -45,6 +45,17 @@ POSTGRES_URL="Your Postgres DB url"
 npm run dev
 ```
 
+### Steps (Docker)
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/yourusername/curious.ai.git
+   cd curious.ai
+2. **Fill the appropriate Environment Variables in the docker-compose.yml->environment file, with the help of .env.example**
+3. **Run**
+   ```bash
+   docker-compose up --build
+
 Visit http://localhost:3000 to see the application.
 
 🛠️ Built With
