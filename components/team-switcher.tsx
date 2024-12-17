@@ -7,8 +7,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import Image from "next/image"
+import { useRouter } from 'next/navigation'
 
 export function TeamSwitcher() {
+
+  const router = useRouter()
 
   return (
     <SidebarMenu>
@@ -16,6 +19,7 @@ export function TeamSwitcher() {
         <SidebarMenuButton
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+          onClick={()=> router.push('/')}
         >
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary/10 text-sidebar-primary-foreground">
             <Image src={"/logo.png"} alt="abc" width={18} height={18} />
