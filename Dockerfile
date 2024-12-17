@@ -6,6 +6,8 @@ COPY package.json package-lock.json ./
 
 COPY prisma ./prisma
 
+RUN npm cache clean --force
+
 RUN npm install
 
 COPY . .
