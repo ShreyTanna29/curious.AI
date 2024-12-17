@@ -7,8 +7,8 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Mayank@0380
-      POSTGRES_DB: curious
+      POSTGRES_PASSWORD: <password>
+      POSTGRES_DB: curiousAI
     ports:
       - "5432:5432"
     volumes:
@@ -31,7 +31,7 @@ services:
       NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /dashboard
       NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL: /
       GEMINI_API_KEY: your-gemini-key
-      DATABASE_URL: postgresql://postgres:Mayank%400380@db:5432/curious
+      DATABASE_URL: postgresql://postgres:<password>@db:5432/curiousAI
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       HIVE_API_KEY: your-hive-ai-key
 
