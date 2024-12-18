@@ -3,7 +3,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const { userId } = auth();
+  const { userId } = await auth();
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page")!);
   const PAGESIZE = 12;

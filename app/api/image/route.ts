@@ -5,9 +5,9 @@ import prismadb from "@/packages/api/prismadb";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     const body = await req.json();
-    const { prompt } = body;
+    const { prompt } = await body;
 
     const url = "https://api.thehive.ai/api/v3/black-forest-labs/flux-schnell";
 
@@ -49,7 +49,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(await imgUrl);
   } catch (error) {
-    console.log("ERROR :: Image Generation API :: ", error);
+    console.log(
+      "ERROR :: Image Generation API :: ",
+      JSON.stringify(error, null, 2)
+    );
     return new NextResponse("Internal server error", { status: 500 });
   }
 }
