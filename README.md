@@ -61,6 +61,12 @@ npm run dev
    ```bash
    docker compose up --build
    ```
+Sometimes you might face some unusual issue with Docker. In that case, go to `package.json` and change the Next.js version from `15.0.4` to `14.2.18`, as the error is from Next.js itself. Then, rerun the command:
+
+   ```bash
+   docker-compose up --build
+   ```
+
    
 Visit http://localhost:3000 to see the application.
 
