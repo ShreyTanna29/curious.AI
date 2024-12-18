@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.9'
 
 services:
   db:
@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: <password>
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: curiousAI
     ports:
       - "5432:5432"
@@ -23,17 +23,20 @@ services:
     depends_on:
       - db
     environment:
-      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_dG91Y2hlZC1ob25leWJlZS02My5jbGVyay5hY2NvdW50cy5kZXYk
-      CLERK_SECRET_KEY: sk_test_OTJBVhNowV37Pr6KR1xN65w8X4ULKcKerIIramTF10
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZW1pbmVudC1raW5nZmlz........................
+      CLERK_SECRET_KEY: sk_test_BBm5wqpSxhuS0J3qcm0SH............................
       NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
       NEXT_PUBLIC_CLERK_SIGN_UP_URL: /sign-up
       NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /dashboard
       NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /dashboard
       NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL: /
-      GEMINI_API_KEY: your-gemini-key
-      DATABASE_URL: postgresql://postgres:<password>@db:5432/curiousAI
+      GEMINI_API_KEY: AIzaSyBE9UNXu........................
+      DATABASE_URL: postgresql://postgres:password@db:5432/curiousAI
+      DIRECT_URL: postgresql://postgres:password@db:5432/curiousAI
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-      HIVE_API_KEY: your-hive-ai-key
+      HIVE_API_KEY: qZdf67wO9Kl......................
+    command: >
+      sh -c "npx prisma migrate deploy && npm run dev"
 
 volumes:
   postgres-data:
