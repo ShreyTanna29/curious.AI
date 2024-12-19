@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import prismadb from "@/packages/api/prismadb";
 
+export const maxDuration = 20;
+export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const { userId } = await auth();
