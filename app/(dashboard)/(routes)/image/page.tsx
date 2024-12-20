@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import {
@@ -43,6 +43,7 @@ type imageType = {
 function ImagePage() {
   const router = useRouter();
   const [newImages, setNewImages] = useState<imageType[]>([]);
+  const [darkTheme, setDarkTheme] = useState<boolean>(false);
   const [prevImages, setPrevImages] = useState<imageType[]>([]);
   const [showPrevImages, setShowPrevImages] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false)
@@ -51,6 +52,12 @@ function ImagePage() {
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
   }>({});
+
+  useEffect(() => {
+    setDarkTheme(localStorage.theme === "Dark Theme" ||
+      (!("theme" in localStorage) &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches));
+  }, []);
 
   const [downloadingImages, setDownloadingImages] = useState<{
     [key: string]: boolean;
@@ -135,9 +142,7 @@ function ImagePage() {
       setSurpriseMeLoading(false)
 
     }
-
   }
-
 
   return (
     <div className="select-none h-full">
@@ -194,7 +199,7 @@ function ImagePage() {
                 onClick={() => {
                   surpriseMeHandler()
                 }}>
-                Surprise Me  { } {surpriseMeLoading ? <LoadingSpinner className="ml-2" /> : "✨"}
+                Surprise Me  { } {surpriseMeLoading ? <LoadingSpinner className="ml-2" darkTheme={darkTheme}/> : "✨"}
               </MovingBorderButton>
             </div>
 
