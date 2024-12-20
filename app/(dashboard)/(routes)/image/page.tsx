@@ -43,7 +43,6 @@ type imageType = {
 function ImagePage() {
   const router = useRouter();
   const [newImages, setNewImages] = useState<imageType[]>([]);
-  const [darkTheme, setDarkTheme] = useState<boolean>(false);
   const [prevImages, setPrevImages] = useState<imageType[]>([]);
   const [showPrevImages, setShowPrevImages] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false)
