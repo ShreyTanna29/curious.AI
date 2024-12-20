@@ -193,7 +193,7 @@ function ImagePage() {
                 onClick={() => {
                   surpriseMeHandler()
                 }}>
-                Surprise Me  { } {surpriseMeLoading ? <LoadingSpinner className="ml-2" : "✨"}
+                Surprise Me  { } {surpriseMeLoading ? <LoadingSpinner className="ml-2" /> : "✨"}
               </MovingBorderButton>
             </div>
 
