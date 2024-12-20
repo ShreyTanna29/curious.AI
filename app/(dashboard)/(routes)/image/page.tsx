@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import {  useState } from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import {
@@ -135,9 +135,7 @@ function ImagePage() {
       setSurpriseMeLoading(false)
 
     }
-
   }
-
 
   return (
     <div className="select-none h-full">
