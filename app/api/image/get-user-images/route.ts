@@ -1,10 +1,13 @@
+import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 import prismadb from "@/packages/api/prismadb";
-import { auth } from "@/nextjs/server";
+import { getServerSession } from "next-auth";
+
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
-    const { userId } = auth();
+    const session = await getServerSession(NEXT_AUTH_CONFIG);
+    const userId = session.user.id;
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }

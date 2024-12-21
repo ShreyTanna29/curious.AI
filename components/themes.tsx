@@ -17,9 +17,7 @@ enum ThemeEnum {
 }
 
 export default function Themes() {
-  const [theme, setTheme] = useState<ThemeEnum>(
-    localStorage.theme || ThemeEnum.System
-  );
+  const [theme, setTheme] = useState<ThemeEnum>(ThemeEnum.System);
 
   const handleThemeChange = (selectedTheme: ThemeEnum) => {
     setTheme(selectedTheme);
@@ -35,6 +33,10 @@ export default function Themes() {
     // if user has choosed system theme.
     localStorage.removeItem("theme");
   };
+
+  useEffect(() => {
+    setTheme(localStorage.theme || ThemeEnum.System);
+  }, [])
 
   useEffect(() => {
     document.documentElement.classList.toggle(
