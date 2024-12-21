@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
 import { ToasterProvider } from "@/components/toaster.provider";
 import { CrispProvider } from "@/components/crisp-provider";
 import NextTopLoader from 'nextjs-toploader';
@@ -30,21 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
+
+
+
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <link rel="icon" href="/logo.png" sizes="any" />
-        <CrispProvider />
-        <body
-          className={`${geistSans.variable} dark:bg-black ${geistMono.variable} antialiased`}
-        >
-          <NextTopLoader showSpinner={false} />
-          <ToasterProvider />
-          <Provider>
-            {children}
-          </Provider>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <link rel="icon" href="/logo.png" sizes="any" />
+      <CrispProvider />
+      <body
+        className={`${geistSans.variable} dark:bg-black ${geistMono.variable} antialiased`}
+      >
+        <NextTopLoader showSpinner={false} />
+        <ToasterProvider />
+        <Provider>
+          {children}
+        </Provider>
+      </body>
+    </html>
   );
 }

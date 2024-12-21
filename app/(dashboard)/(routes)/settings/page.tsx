@@ -2,7 +2,7 @@
 import Heading from "@/components/heading";
 import Themes from "@/components/themes";
 import { Button } from "@/components/ui/button";
-import { SignOutButton } from "@clerk/nextjs";
+import { signOut } from "next-auth/react";
 import { Settings } from "lucide-react";
 import Link from "next/link";
 
@@ -33,14 +33,15 @@ export default function SettingsPage() {
                 Manage Account
               </Button>
             </Link>
-            <SignOutButton>
-              <Button
-                variant={"destructive"}
-                className="rounded-lg dark:border-white"
-              >
-                Logout
-              </Button>
-            </SignOutButton>
+
+            <Button
+              variant={"destructive"}
+              className="rounded-lg dark:border-white"
+              onClick={() => signOut({ callbackUrl: "/" })}
+            >
+              Logout
+            </Button>
+
           </div>
         </div>
       </div>

@@ -1,11 +1,13 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import axios from "axios";
 import prismadb from "@/packages/api/prismadb";
+import { getServerSession } from "next-auth";
+import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 
 export async function POST(req: Request) {
   try {
-    const { userId } = auth();
+    const session = await getServerSession(NEXT_AUTH_CONFIG);
+    const userId = session.user.id;
     const body = await req.json();
     const { prompt } = body;
 
