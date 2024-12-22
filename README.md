@@ -11,10 +11,8 @@ A powerful AI platform that combines conversation, code generation, and image ge
 - **Code Generation**: Generate code snippets with detailed explanations
 - **Image Generation**: Create images from text descriptions
 - **Authentication**: Secure user authentication with Clerk
-- **API Limits**: Built-in free trial system with premium subscription options
 - **Modern UI**: Beautiful interface built with Next.js 14 and Tailwind CSS
 - **24X7 Customer Support**: resolve doubts or report issues with our dedicated chat support
-- **Safe & Secured Payments**: Your payments are secured by stripe
 
 ## 🚀 Getting Started
 
@@ -71,18 +69,17 @@ Sometimes you might face some unusual issue with Docker. In that case, go to `pa
 Visit http://localhost:3000 to see the application.
 
 🛠️ Built With
-- Next.js 14
+- Next.js 15
 - TypeScript
 - Tailwind CSS
 - ShadCN ui
 - Clerk Authentication
 - Google Generative AI (Gemini)
-- Models Lab API
+- Hive AI API
 - Zod
-- Stripe
 - Crisp for customer support
 - Postgres database
 - Prisma
 
-
+Don't forget to star ⭐ the repo. <br>
 Made with ❤️ by Shrey Tanna
