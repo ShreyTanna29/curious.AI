@@ -2,6 +2,7 @@ import GoogleProvider from "next-auth/providers/google";
 import prismadb from "./prismadb";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
+import { SessionStrategy } from "next-auth";
 
 export const NEXT_AUTH_CONFIG = {
   providers: [
@@ -31,7 +32,7 @@ export const NEXT_AUTH_CONFIG = {
         if (!user) {
           return null;
         }
-        bcrypt.compare(credentials.password, user.password!, (result) => {
+        bcrypt.compare(credentials.password, user.password || "", (result) => {
           if (result) {
             return {
               name: user.name,
@@ -51,7 +52,7 @@ export const NEXT_AUTH_CONFIG = {
     }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as SessionStrategy,
     maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 24 * 60 * 60, // Update session every 24 hours
   },
@@ -108,6 +109,9 @@ export const NEXT_AUTH_CONFIG = {
     },
   },
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/signin",
+  },
 };
 
 async function refreshAccessToken(token: {

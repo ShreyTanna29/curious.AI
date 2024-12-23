@@ -27,7 +27,7 @@ export default function LandingHero() {
           if (isSignedIn) {
             router.push("/dashboard")
           } else {
-            signIn('google', { callbackUrl: '/dashboard' });
+            signIn(undefined, { callbackUrl: '/dashboard' });
           }
         }}
       >
