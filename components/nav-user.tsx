@@ -85,12 +85,14 @@ export function NavUser({
               </DropdownMenuItem >
             </Link>
             <DropdownMenuSeparator />
-            <SignOutButton>
-              <DropdownMenuItem className="cursor-pointer">
-                <LogOut />
-                Log out
-              </DropdownMenuItem>
-            </SignOutButton>
+            <Link href={"/"} >
+              <SignOutButton>
+                <DropdownMenuItem className="cursor-pointer">
+                  <LogOut />
+                  Log out
+                </DropdownMenuItem>
+              </SignOutButton>
+            </Link>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
