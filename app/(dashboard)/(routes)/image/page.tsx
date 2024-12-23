@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import {  useState } from "react";
+import { useState } from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import {
@@ -169,7 +169,7 @@ function ImagePage() {
                         />
                       </FormControl>
                       <Button
-                        className="rounded-full bg-black/10 dark:bg-white/10 text-black dark:text-white"
+                        className="rounded-full  dark:hover:text-black bg-black dark:bg-white/10  text-white"
                         disabled={isLoading}
                       >
                         {isLoading ? <Loader /> : "Create"}
