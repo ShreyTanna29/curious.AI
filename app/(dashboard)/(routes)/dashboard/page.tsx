@@ -67,7 +67,7 @@ function DashboardPage() {
         {tools.map((tool) => (
           <Link key={tool.href} href={tool.href}>
             <Card
-              className="p-4 border-black/5 flex w-full items-center justify-between hover:shadow-md transition cursor-pointer"
+              className="p-4 border-black/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer"
             >
               <div className="flex items-center gap-x-4">
                 <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
