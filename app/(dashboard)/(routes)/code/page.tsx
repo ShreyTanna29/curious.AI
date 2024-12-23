@@ -43,9 +43,9 @@ function CodeGenerationPage() {
     if (response.data) {
       response.data.map((chat: any) =>
         setMessages((prev) => [
-          ...prev,
           { role: "assistant", content: chat.response.toString("utf8") },
           { role: "user", content: chat.prompt },
+          ...prev,
         ])
       );
     }
