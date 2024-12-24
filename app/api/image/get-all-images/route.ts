@@ -1,9 +1,11 @@
+import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 import prismadb from "@/packages/api/prismadb";
-import { auth } from "@clerk/nextjs/server";
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {
-  const { userId } = await auth();
+  const session = await getServerSession(NEXT_AUTH_CONFIG);
+  const userId = session.user.id;
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page")!);
   const PAGESIZE = 12;

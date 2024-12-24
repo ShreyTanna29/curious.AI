@@ -36,7 +36,7 @@ export default function Themes() {
 
   useEffect(() => {
     setTheme(localStorage.theme || ThemeEnum.System);
-  }, []);
+  }, [])
 
   useEffect(() => {
     document.documentElement.classList.toggle(

@@ -1,12 +1,15 @@
 "use client";
-import { useAuth } from "@clerk/nextjs";
+import { signIn, useSession } from "next-auth/react";
 import { BackgroundBeams } from "./background-beams";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LandingHero() {
-  const { isSignedIn } = useAuth();
+  const { status } = useSession()
+  const isSignedIn = status === "authenticated" ? true : false
+  const router = useRouter()
+
   return (
     <div className="h-full w-full bg-neutral-950 relative flex flex-col items-center justify-center antialiased ">
       <div className="max-w-full  p-4">
@@ -17,11 +20,20 @@ export default function LandingHero() {
           Generate stunning visuals, write flawless code, and chat with smart intelligence – all for free!
         </p>
       </div>
-      <Link href={isSignedIn ? "/dashboard" : "sign-in"} >
-        <Button className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-transparent text-white " >
-          {isSignedIn ? "Visit Dashboard" : "Get Started"} <ArrowRight />
-        </Button>
-      </Link>
+
+      <Button
+        className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-transparent text-white "
+        onClick={() => {
+          if (isSignedIn) {
+            router.push("/dashboard")
+          } else {
+            signIn(undefined, { callbackUrl: '/dashboard' });
+          }
+        }}
+      >
+        {isSignedIn ? "Visit Dashboard" : "Get Started"} <ArrowRight />
+      </Button>
+
       <BackgroundBeams />
 
 

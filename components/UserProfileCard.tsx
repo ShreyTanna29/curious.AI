@@ -1,18 +1,18 @@
-import { UserButton } from "@clerk/nextjs";
 import { Card, CardContent } from "./ui/card";
-import { useUser } from "@clerk/nextjs";
+import { Avatar } from "./ui/avatar";
+import { useSession } from "next-auth/react";
 
 export default function UserProfileCard() {
-  const user = useUser();
-  const userEmail = user.user?.emailAddresses[0].emailAddress;
-  const userName = user.user?.fullName;
+  const session = useSession()
+  const userEmail = session.data?.user?.email
+  const userName = session.data?.user?.name;
   return (
     <>
       <div className="">
         <Card className="bg-black/10 dark:bg-white/10 border-0  dark:text-white overflow-clip flex items-center">
           <CardContent className="py-6 text-ellipsis ">
             <div className="flex">
-              <UserButton afterSignOutUrl="/" />
+              <Avatar />
               <div className="ml-3">
                 <p>{userName}</p>
                 <p className="text-ellipsis text-sm ">{userEmail}</p>

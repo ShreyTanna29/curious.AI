@@ -1,13 +1,15 @@
-import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import prismadb from "@/packages/api/prismadb";
+import { getServerSession } from "next-auth";
+import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth();
+    const session = await getServerSession(NEXT_AUTH_CONFIG);
+    const userId = session.user.id;
     const body = await req.json();
     const { prompt } = body;
 

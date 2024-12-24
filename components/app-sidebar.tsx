@@ -20,18 +20,18 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { useEffect } from "react"
-import { useUser } from "@clerk/nextjs"
+import { useSession } from "next-auth/react"
 
 
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
-  const user = useUser()
+  const session = useSession()
   const data = {
     user: {
-      name: user.user?.fullName!,
-      email: user.user?.emailAddresses[0].emailAddress!,
-      avatar: user.user?.imageUrl!,
+      name: session.data?.user?.name!,
+      email: session.data?.user?.email!,
+      avatar: session.data?.user?.image!,
     },
     teams: [
       {

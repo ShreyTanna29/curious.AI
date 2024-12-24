@@ -1,16 +1,15 @@
-import { useUser } from "@clerk/nextjs";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { AvatarFallback } from "./ui/avatar";
+import { useSession } from "next-auth/react";
 
 function UserAvatar() {
-  const user = useUser();
+  const session = useSession()
   return (
     <Avatar className="h-8 w-8">
-      <AvatarImage src={user.user?.imageUrl} />
+      <AvatarImage src={session.data?.user?.image || ""} />
       <AvatarFallback>
-        {user.user?.firstName?.charAt(0)}
-        {user.user?.lastName?.charAt(0)}
-        </AvatarFallback>
+        {session.data?.user?.name?.charAt(0)}
+      </AvatarFallback>
     </Avatar>
   )
 }
