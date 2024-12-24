@@ -22,7 +22,7 @@ export const NEXT_AUTH_CONFIG = {
       },
       async authorize(credentials: any) {
         if (!credentials.email || !credentials.password) {
-          return null;
+          throw new Error("Please enter email and password");
         }
         const user = await prismadb.user.findUnique({
           where: {
@@ -30,7 +30,7 @@ export const NEXT_AUTH_CONFIG = {
           },
         });
         if (!user) {
-          return null;
+          throw new Error("No user found with this email");
         }
 
         const isValid = await bcrypt.compare(
@@ -38,16 +38,16 @@ export const NEXT_AUTH_CONFIG = {
           user.password || ""
         );
 
-        if (isValid) {
-          return {
-            id: user.id,
-            email: user.email,
-            image: user.profilePic,
-            name: user.name,
-          };
+        if (!isValid) {
+          throw new Error("Incorrect password");
         }
 
-        return null;
+        return {
+          id: user.id,
+          email: user.email,
+          image: user.profilePic,
+          name: user.name,
+        };
       },
     }),
     GoogleProvider({

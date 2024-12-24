@@ -31,14 +31,22 @@ export function SignIn() {
         if (formData.email && formData.password) {
             try {
                 setLoading(true);
-                await SignInAuth("credentials", {
+                const result = await SignInAuth("credentials", {
                     email: formData.email,
                     password: formData.password,
-                    callbackUrl: "/dashboard"
+                    callbackUrl: "/dashboard",
+                    redirect: false // Add this to handle the error
                 })
+
+                if (result?.error) {
+                    setError(result.error);
+                } else {
+                    window.location.href = "/dashboard";
+                }
             } catch (ThisError: any) {
                 console.log(ThisError);
-                setError(ThisError.response?.message)
+
+                setError("Failed to sign in");
 
             } finally {
                 setLoading(false);
@@ -96,9 +104,10 @@ export function SignIn() {
                 <div className="flex flex-col space-y-4">
                     <button
                         className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
+                        type="button"
                         onClick={() => googleHandler()}
                     >
-                        {googleLoading ? <LoadingSpinner className="border-black" /> : <GoogleIcon />}
+                        {googleLoading ? <LoadingSpinner className="" /> : <GoogleIcon />}
                         <span className="text-neutral-700 dark:text-neutral-300 text-sm">
                             Google
                         </span>
