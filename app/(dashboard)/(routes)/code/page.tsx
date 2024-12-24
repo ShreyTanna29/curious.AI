@@ -46,6 +46,7 @@ function CodeGenerationPage() {
           ...prev,
           { role: "assistant", content: chat.response.toString("utf8") },
           { role: "user", content: chat.prompt },
+
         ])
       );
     }
@@ -71,7 +72,7 @@ function CodeGenerationPage() {
         content: String(response.data),
       };
 
-      setMessages((current) => [...current, newMessage, userMessage]);
+      setMessages((current) => [newMessage, userMessage, ...current,]);
       form.reset();
     } catch (error: any) {
       console.log(error);

@@ -1,0 +1,42 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:14
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: curiousAI
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: node_app
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: pk_test_ZW1pbmVudC1raW5nZmlz........................
+      CLERK_SECRET_KEY: sk_test_BBm5wqpSxhuS0J3qcm0SH............................
+      NEXT_PUBLIC_CLERK_SIGN_IN_URL: /sign-in
+      NEXT_PUBLIC_CLERK_SIGN_UP_URL: /sign-up
+      NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL: /dashboard
+      NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL: /dashboard
+      NEXT_PUBLIC_CLERK_AFTER_SIGN_OUT_URL: /
+      GEMINI_API_KEY: AIzaSyBE9UNXu........................
+      DATABASE_URL: postgresql://postgres:password@db:5432/curiousAI
+      DIRECT_URL: postgresql://postgres:password@db:5432/curiousAI
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      HIVE_API_KEY: qZdf67wO9Kl......................
+    command: >
+      sh -c "npx prisma migrate deploy && npm run dev"
+
+volumes:
+  postgres-data:

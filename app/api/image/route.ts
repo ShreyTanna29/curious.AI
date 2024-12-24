@@ -4,12 +4,14 @@ import prismadb from "@/packages/api/prismadb";
 import { getServerSession } from "next-auth";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 
+export const maxDuration = 20;
+export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(NEXT_AUTH_CONFIG);
     const userId = session.user.id;
     const body = await req.json();
-    const { prompt } = body;
+    const { prompt } = await body;
 
     const url = "https://api.thehive.ai/api/v3/black-forest-labs/flux-schnell";
 
@@ -51,7 +53,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json(await imgUrl);
   } catch (error) {
-    console.log("ERROR :: Image Generation API :: ", error);
+    console.log(
+      "ERROR :: Image Generation API :: ",
+      JSON.stringify(error, null, 2)
+    );
     return new NextResponse("Internal server error", { status: 500 });
   }
 }

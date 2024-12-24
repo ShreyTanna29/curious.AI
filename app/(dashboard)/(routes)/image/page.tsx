@@ -47,6 +47,7 @@ function ImagePage() {
   const [showPrevImages, setShowPrevImages] = useState(false);
   const [loadingImages, setLoadingImages] = useState(false)
   const [surpriseMeLoading, setSurpriseMeLoading] = useState(false)
+  const [surpriseMeDisabled, setSurpriseMeDisabled] = useState(false)
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
   }>({});
@@ -89,6 +90,7 @@ function ImagePage() {
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      setSurpriseMeDisabled(true);
       const response = await axios.post("/api/image", values);
       const output = await response.data;
 
@@ -100,6 +102,7 @@ function ImagePage() {
     }
     finally {
       router.refresh();
+      setSurpriseMeDisabled(false);
     }
   };
 
@@ -132,9 +135,7 @@ function ImagePage() {
       setSurpriseMeLoading(false)
 
     }
-
   }
-
 
   return (
     <div className="select-none h-full">
@@ -146,30 +147,37 @@ function ImagePage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className=" rounded-lg md:rounded-full border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
+              className=" rounded-[16px] border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
             >
               <FormField
                 name="prompt"
                 render={({ field }) => (
                   <FormItem className="col-span-12 lg:col-span-9">
-                    <FormControl className="m-0 p-2">
-                      <Textarea
-                        className="border-0 outline-none focus-visible:ring-0  focus-visible:ring-transparent resize-none"
+                    <div className="flex flex-col gap-2">
+                      <FormControl className="m-0 p-2">
+                        <Textarea
+                          className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent resize-none transition-all duration-200"
+                          disabled={isLoading}
+                          placeholder="e.g. A cute cat"
+                          {...field}
+                          rows={1} // Start with a single row
+                          onInput={(e) => {
+                            const textarea = e.target as HTMLTextAreaElement; // Cast EventTarget to HTMLTextAreaElement
+                            textarea.style.height = "auto"; // Reset height to calculate correctly
+                            textarea.style.height = `${textarea.scrollHeight}px`; // Adjust height based on content
+                          }}
+                        />
+                      </FormControl>
+                      <Button
+                        className="rounded-full  dark:hover:text-black bg-black dark:bg-white/10  text-white"
                         disabled={isLoading}
-                        placeholder="e.g. A cute cat with hat"
-                        {...field}
-                      />
-                    </FormControl>
+                      >
+                        {isLoading ? <Loader /> : "Create"}
+                      </Button>
+                    </div>
                   </FormItem>
                 )}
               />
-
-              <Button
-                className="rounded-full col-span-10 dark:text-white dark:hover:text-black lg:col-span-1  bg-black/10 dark:bg-white/10"
-                disabled={isLoading}
-              >
-                {isLoading ? <Loader /> : "Create"}
-              </Button>
 
 
             </form>
@@ -178,7 +186,7 @@ function ImagePage() {
         <div className="space-y-4 mt-4">
 
           <div className=" flex w-full flex-wrap gap-4 md:items-center md:justify-center">
-            <div className="" aria-disabled={surpriseMeLoading}>
+            <div className={`${surpriseMeDisabled ? 'pointer-events-none' : ''}`} aria-disabled={surpriseMeLoading}>
               <MovingBorderButton
                 className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800" borderRadius="2rem"
                 onClick={() => {
