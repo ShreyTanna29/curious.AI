@@ -3,10 +3,13 @@ import Heading from "@/components/heading";
 import Themes from "@/components/themes";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
-import { Settings } from "lucide-react";
+import { Settings, LogOut } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import LoadingSpinner from "@/components/loadingSpinner";
 
 export default function SettingsPage() {
+  const [loading, setLoading] = useState(false)
   return (
     <div>
       <Heading
@@ -37,23 +40,17 @@ export default function SettingsPage() {
             <Button
               variant={"destructive"}
               className="rounded-lg dark:border-white"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => {
+                setLoading(true)
+                signOut({ callbackUrl: "/" })
+              }}
             >
-              Logout
+              {loading ? <LoadingSpinner className="mr-2" /> : <LogOut className="mr-2 w-8" />} Logout
             </Button>
 
           </div>
         </div>
       </div>
-
-      {/* <div className="px-4 lg:px-8 space-y-4">
-        <div className="text-muted-foreground text-sm">
-          {isPro
-            ? "You are a curious PRO user"
-            : "You are not a curious PRO user"}
-        </div>
-        <SubscriptionButton isPro={isPro} />
-      </div> */}
     </div>
   );
 }

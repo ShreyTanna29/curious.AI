@@ -4,8 +4,11 @@ import { BackgroundBeams } from "./background-beams";
 import { Button } from "./ui/button";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import LoadingSpinner from "./loadingSpinner";
 
 export default function LandingHero() {
+  const [loading, setLoading] = useState(false)
   const { status } = useSession()
   const isSignedIn = status === "authenticated" ? true : false
   const router = useRouter()
@@ -24,14 +27,16 @@ export default function LandingHero() {
       <Button
         className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-transparent text-white "
         onClick={() => {
+          setLoading(true)
           if (isSignedIn) {
             router.push("/dashboard")
           } else {
+            setLoading(true)
             signIn(undefined, { callbackUrl: '/dashboard' });
           }
         }}
       >
-        {isSignedIn ? "Visit Dashboard" : "Get Started"} <ArrowRight />
+        {isSignedIn ? "Visit Dashboard" : "Get Started"} {loading ? <LoadingSpinner className="border-white" /> : <ArrowRight />}
       </Button>
 
       <BackgroundBeams />
