@@ -32,17 +32,21 @@ export const NEXT_AUTH_CONFIG = {
         if (!user) {
           return null;
         }
-        bcrypt.compare(credentials.password, user.password || "", (result) => {
-          if (result) {
-            return {
-              name: user.name,
-              email: user.email,
-              id: user.id,
-            };
-          } else {
-            return null;
-          }
-        });
+
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password || ""
+        );
+
+        if (isValid) {
+          return {
+            id: user.id,
+            email: user.email,
+            image: user.profilePic,
+            name: user.name,
+          };
+        }
+
         return null;
       },
     }),
