@@ -24,7 +24,7 @@ A powerful AI platform that combines conversation, code generation, and image ge
    git clone https://github.com/yourusername/curious.ai.git
    cd curious.ai
 3. Copy <mark>.env.example</mark> in your root folder and rename it to <mark>.env</mark>
-4. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get.
+4. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get. If you want google auth to work you need to get your own secret and client Id from their site ( google auth is optional, regular sign in and signup would work just fine, do it only your work is related to it.) 
 5. In your terminal, paste this command
    ```bash
    openssl rand -base64 32
@@ -62,7 +62,7 @@ npm install
 ```
 
 5. Copy <mark>.env.example</mark> in your root folder and rename it to <mark>.env</mark>
-6. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get. you will also need your postgresql DB url.
+6. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get. you will also need your postgresql DB url. If you want google auth to work you need to get your own secret and client Id from their site ( google auth is optional, regular sign in and signup would work just fine, do it only your work is related to it.) 
 7. In your terminal, paste this command
    ```bash
    openssl rand -base64 32
