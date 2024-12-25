@@ -10,47 +10,27 @@ A powerful AI platform that combines conversation, code generation, and image ge
 - **AI Conversation**: Engage in natural conversations using Google's Gemini Pro model
 - **Code Generation**: Generate code snippets with detailed explanations
 - **Image Generation**: Create images from text descriptions
-- **Authentication**: Secure user authentication with Clerk
+- **Authentication**: Secure user authentication with next-auth
 - **Modern UI**: Beautiful interface built with Next.js 14 and Tailwind CSS
 - **24X7 Customer Support**: resolve doubts or report issues with our dedicated chat support
 
 ## 🚀 Getting Started
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/curious.ai.git
-```
+### Setup using Docker. (Recommended)
 
-2. Go to the cloned repo.
-```bash
-cd curious.ai
-```
-3. Install the dependencies.
-```bash
-npm install
-```
-
-4. Set up environment variables:
-```bash
-GEMINI_API_KEY="Your Gemini API Key"
-HIVE_IMAGE_API_KEY="Your Hive AI Key for flux model"
-CLERK_SECRET_KEY"Your clerk secret key"
-CLERK_PUBLISHABLE_KEY="your clerk publishable key"
-POSTGRES_URL="Your Postgres DB url"
-```
-5. Run the development server:
-```bash
-npm run dev
-```
-
-### Steps (Docker)
-
-1. **Clone the Repository**
+1.  Fork this repository
+2. **Clone the Repository**
    ```bash
    git clone https://github.com/yourusername/curious.ai.git
    cd curious.ai
-2. **Fill the appropriate Environment Variables in the docker-compose.yml and environment file, with the help of .env.example**
-3. **Run**
+3. Copy <mark>.env.example</mark> in your root folder and rename it to <mark>.env</mark>
+4. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get.
+5. In your terminal, paste this command
+   ```bash
+   openssl rand -base64 32
+   ```
+   copy the result and paste it under <mark>NEXT_AUTH_SECRET</mark>
+6. **Run**
    ```bash
    docker-compose up --build
    ```
@@ -65,6 +45,35 @@ Sometimes you might face some unusual issue with Docker. In that case, go to `pa
    docker-compose up --build
    ```
 
+### Manual Setup 
+1. Fork this reopository
+2. Clone the repository:
+```bash
+git clone https://github.com/yourusername/curious.ai.git
+```
+
+3. Go to the cloned repo.
+```bash
+cd curious.ai
+```
+4. Install the dependencies.
+```bash
+npm install
+```
+
+5. Copy <mark>.env.example</mark> in your root folder and rename it to <mark>.env</mark>
+6. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get. you will also need your postgresql DB url.
+7. In your terminal, paste this command
+   ```bash
+   openssl rand -base64 32
+   ```
+   copy the result and paste it under <mark>NEXT_AUTH_SECRET</mark>
+   
+8. Run the development server:
+```bash
+npm run dev
+```
+
    
 Visit http://localhost:3000 to see the application.
 
@@ -73,7 +82,7 @@ Visit http://localhost:3000 to see the application.
 - TypeScript
 - Tailwind CSS
 - ShadCN ui
-- Clerk Authentication
+- Next Auth
 - Google Generative AI (Gemini)
 - Hive AI API
 - Zod
