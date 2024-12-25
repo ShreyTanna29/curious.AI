@@ -124,7 +124,7 @@ function ImagePage() {
   const surpriseMeHandler = async () => {
     try {
       setSurpriseMeLoading(true)
-      const response = await axios.post("/api/chat", {
+      const response = await axios.post("/api/chat/surprise-me", {
         prompt: "Give me a unique and amazing prompt for an image generation model. give me prompt directly without any extra text"
       })
       form.setValue("prompt", response.data)

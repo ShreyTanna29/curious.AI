@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import prismadb from "@/packages/api/prismadb";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
@@ -27,14 +26,6 @@ export async function POST(req: Request) {
     const chat = model.startChat();
     const result = await chat.sendMessage(prompt);
     const response = result.response.candidates?.[0].content.parts[0].text;
-
-    await prismadb.chat.create({
-      data: {
-        userId,
-        prompt,
-        response: String(response),
-      },
-    });
 
     return NextResponse.json(response);
   } catch (error) {
