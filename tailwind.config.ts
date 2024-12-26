@@ -28,7 +28,7 @@ const config: Config = {
       backgroundImage: {
         "image-page-bg": "url('/bg-image.png')",
         "landing-code-section-bg": "url('/landing-code-image.png')",
-        "landing-chat-section-bg": "url('/chat-image.png')",
+        "landing-chat-section-bg": "url('/landing-chat-image.png')",
       },
       colors: {
         background: "hsl(var(--background))",
