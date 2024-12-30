@@ -16,7 +16,7 @@ enum ThemeEnum {
   System = "System Theme",
 }
 
-export default function Themes() {
+export default function Themes({ children, borders = true }: { children?: React.ReactNode, borders?: boolean }) {
   const [theme, setTheme] = useState<ThemeEnum>(ThemeEnum.System);
 
   const handleThemeChange = (selectedTheme: ThemeEnum) => {
@@ -51,8 +51,10 @@ export default function Themes() {
     <div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="rounded-lg dark:border-white">
-            {theme}
+          <Button
+            variant="outline"
+            className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}>
+            {children || theme}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-20 text-center">
@@ -73,6 +75,6 @@ export default function Themes() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </div >
   );
 }

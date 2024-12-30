@@ -5,20 +5,10 @@ import LandingCodeSection from "@/components/landing-code-section";
 import LandingHero from "@/components/landing-hero";
 import LandingImageSection from "@/components/landing-image-section";
 import LandingNavbar from "@/components/landingNavbar";
-import { useEffect } from "react";
 
 function LandingPage() {
-
-  useEffect(() => {
-    document.body.style.backgroundColor = "black"
-
-    return () => {
-      document.body.style.backgroundColor = ''
-    }
-  }, [])
-
   return (
-    <div className="h-full w-full bg-black ">
+    <div className="h-full w-full bg-white dark:bg-black ">
       <LandingNavbar />
       <div className="h-full w-full">
         <LandingHero />
