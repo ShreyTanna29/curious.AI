@@ -6,6 +6,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import gsap from "gsap";
+import Themes from "./themes";
+import { Moon, Sun } from "lucide-react";
 
 const font = Montserrat({
   weight: "600",
@@ -31,6 +33,10 @@ export default function LandingNavbar() {
           Curious.AI
         </h1>
       </Link>
+      <Themes borders={false}>
+        <Moon className="hidden dark:block" />
+        <Sun className="block dark:hidden" />
+      </Themes>
     </nav>
   );
 }

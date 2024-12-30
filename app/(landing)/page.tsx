@@ -7,15 +7,6 @@ import LandingImageSection from "@/components/landing-image-section";
 import LandingNavbar from "@/components/landingNavbar";
 
 function LandingPage() {
-
-  // useEffect(() => {
-  //   document.body.style.backgroundColor = "black"
-
-  //   return () => {
-  //     document.body.style.backgroundColor = ''
-  //   }
-  // }, [])
-
   return (
     <div className="h-full w-full bg-white dark:bg-black ">
       <LandingNavbar />
