@@ -47,7 +47,7 @@ export default function LandingImageSection() {
     }, [])
 
     return (
-        <div className="w-full h-full bg-black" >
+        <div className="w-full h-full bg-white dark:bg-black" >
             <div className="w-full" >
                 <InfiniteMovingCards
                     items={images}
@@ -56,8 +56,8 @@ export default function LandingImageSection() {
                 />
             </div>
             <div className="relative w-full text-center mt-28">
-                <h1 className=" text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl AppearAnimation opacity-0">Level up your creativity</h1>
-                <p className="text-gray-400 mt-4 slideUp opacity-0 translate-y-10 ">Go beyond the limits of creativity with AI generated image </p>
+                <h1 className=" text-black/70 font-bold  dark:text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl AppearAnimation opacity-0">Level up your creativity</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-6 slideUp opacity-0 translate-y-10 ">Go beyond the limits of creativity with AI generated image </p>
             </div>
         </div>
     )

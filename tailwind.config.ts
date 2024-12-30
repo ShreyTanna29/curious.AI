@@ -27,8 +27,10 @@ const config: Config = {
       },
       backgroundImage: {
         "image-page-bg": "url('/bg-image.png')",
-        "landing-code-section-bg": "url('/landing-code-image.png')",
-        "landing-chat-section-bg": "url('/landing-chat-image.png')",
+        "landing-code-dark-section-bg": "url('/landing-code-dark-image.png')",
+        "landing-code-light-section-bg": "url('/landing-code-light-image.png')",
+        "landing-chat-light-section-bg": "url('/landing-chat-light-image.png')",
+        "landing-chat-dark-section-bg": "url('/landing-chat-dark-image.png')",
       },
       colors: {
         background: "hsl(var(--background))",

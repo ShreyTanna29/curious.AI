@@ -24,14 +24,14 @@ export default function LandingHero() {
 
     gsap.to(".slideUp", {
       opacity: 1,
-      duration: 3,
+      duration: 1,
       translateY: 0,
     })
   }, [])
 
 
   return (
-    <div className="h-full w-full bg-neutral-950 relative flex flex-col items-center justify-center antialiased ">
+    <div className="h-full w-full relative flex flex-col items-center justify-center antialiased ">
       <div className="max-w-full  p-4">
         <h1 className="relative z-10 text-2xl md:text-7xl  bg-clip-text text-transparent bg-gradient-to-b from-neutral-200 to-neutral-600  text-center font-sans font-bold opacity-0"
           id="hero-title"
@@ -44,7 +44,7 @@ export default function LandingHero() {
       </div>
 
       <Button
-        className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-transparent text-white slideUp opacity-0 translate-y-10"
+        className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-transparent dark:text-white slideUp opacity-0 translate-y-10"
         onClick={() => {
           setLoading(true)
           if (isSignedIn) {
