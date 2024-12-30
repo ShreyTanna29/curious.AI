@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 import { Montserrat } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
-import { slideAnimation } from "@/packages/features/animations/gsap-animations";
-import { useGSAP } from "@gsap/react";
+import { useEffect } from "react";
+import gsap from "gsap";
 
 const font = Montserrat({
   weight: "600",
@@ -13,8 +13,13 @@ const font = Montserrat({
 });
 
 export default function LandingNavbar() {
-  useGSAP(() => {
-    slideAnimation()
+  useEffect(() => {
+    gsap.to(".slideAnimation", {
+      opacity: 1,
+      duration: 1,
+      translateX: 0,
+    })
+
   }, [])
   return (
     <nav className="p-4 w-full absolute z-50 bg-transparent flex items-center justify-between" >

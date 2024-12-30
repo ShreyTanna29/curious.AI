@@ -1,7 +1,6 @@
 "use client"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { useGSAP } from "@gsap/react"
 import { InfiniteMovingCards } from "./infinite-moving-card";
 import { useEffect } from "react";
 
@@ -35,15 +34,16 @@ export default function LandingImageSection() {
     gsap.registerPlugin(ScrollTrigger)
 
     useEffect(() => {
-        gsap.to(".abc-5", {
+        gsap.to(".AppearAnimation", {
             opacity: 1,
             duration: 5,
-            scrollTrigger: {
-                trigger: ".abc-5",
-                scroller: "body",
-                markers: true,
-            },
-        });
+            scrollTrigger: ".AppearAnimation",
+        })
+        gsap.to(".slideUp", {
+            opacity: 1,
+            duration: 3,
+            translateY: 0,
+        })
     }, [])
 
     return (
@@ -56,8 +56,8 @@ export default function LandingImageSection() {
                 />
             </div>
             <div className="relative w-full text-center mt-28">
-                <h1 className=" text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl abc-5 opacity-0">Level up your creativity</h1>
-                <p className="text-gray-400 mt-4 ">Go beyond the limits of creativity with AI generated image </p>
+                <h1 className=" text-white text-4xl sm:text-5xl md:text-7xl lg:text-9xl AppearAnimation opacity-0">Level up your creativity</h1>
+                <p className="text-gray-400 mt-4 slideUp opacity-0 translate-y-10 ">Go beyond the limits of creativity with AI generated image </p>
             </div>
         </div>
     )
