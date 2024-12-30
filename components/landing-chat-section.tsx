@@ -1,3 +1,4 @@
+"use client"
 export default function LandingChatSection() {
     return (
         <section className="relative bg-black w-full h-full ">
