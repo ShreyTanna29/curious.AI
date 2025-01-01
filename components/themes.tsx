@@ -1,80 +1,42 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
 
 enum ThemeEnum {
   Dark = "Dark Theme",
   Light = "Light Theme",
-  System = "System Theme",
 }
 
-export default function Themes({ children, borders = true }: { children?: React.ReactNode, borders?: boolean }) {
-  const [theme, setTheme] = useState<ThemeEnum>(ThemeEnum.System);
+export default function Themes({ borders = true }: { borders?: boolean }) {
+  const [theme, setTheme] = useState<ThemeEnum>(ThemeEnum.Light);
 
-  const handleThemeChange = (selectedTheme: ThemeEnum) => {
-    setTheme(selectedTheme);
-    if (selectedTheme === ThemeEnum.Dark) {
-      localStorage.theme = "Dark Theme";
-      return;
-    }
-    if (selectedTheme === ThemeEnum.Light) {
-      localStorage.theme = "Light Theme";
-      return;
-    }
-
-    // if user has choosed system theme.
-    localStorage.removeItem("theme");
+  const handleThemeChange = () => {
+    const newTheme = theme === ThemeEnum.Light ? ThemeEnum.Dark : ThemeEnum.Light;
+    setTheme(newTheme);
+    localStorage.theme = newTheme;
   };
 
   useEffect(() => {
-    setTheme(localStorage.theme || ThemeEnum.System);
-  }, [])
+    const savedTheme = localStorage.theme as ThemeEnum;
+    if (savedTheme) {
+      setTheme(savedTheme);
+    } else {
+      const isDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setTheme(isDarkMode ? ThemeEnum.Dark : ThemeEnum.Light);
+    }
+  }, []);
 
   useEffect(() => {
-    document.documentElement.classList.toggle(
-      "dark",
-      localStorage.theme === "Dark Theme" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
-  }, [handleThemeChange]);
+    document.documentElement.classList.toggle("dark", theme === ThemeEnum.Dark);
+  }, [theme]);
 
   return (
-    <div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}>
-            {children || theme}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-20 text-center">
-          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => handleThemeChange(ThemeEnum.Light)}>
-            Light
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => handleThemeChange(ThemeEnum.Dark)}>
-            Dark
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onSelect={() => handleThemeChange(ThemeEnum.System)}
-          >
-            System
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div >
+    <Button
+      onClick={handleThemeChange}
+      variant="outline"
+      className={`rounded-full w-12 h-12 flex items-center justify-center ${borders ? "dark:border-white" : "border-none"}`}
+    >
+      {theme === ThemeEnum.Light ? "🌙" : "☀️"}
+    </Button>
   );
 }
