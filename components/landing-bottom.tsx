@@ -1,67 +1,69 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa';
+import { FaFacebook, FaXTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa6';
 
 const LandingFooter: React.FC = () => {
     return (
-        <footer className="flex flex-col items-center w-full py-2 mt-4 dark:text-white bg-zinc-100 dark:bg-white/10 text-center">
-            <div className='flex flex-col md:flex-row justify-between items-center w-full px-4'>
-                <div className='flex flex-col items-center md:items-start mx-10 mb-6 md:mb-0'>
-                    <div className='flex items-center'>
-                        <Image className='my-2 size-auto'
-                            src={"/logo.png"}
-                            alt="curious "
-                            width={25}
-                            height={1000}
+        // <footer className="w-full text-gray-300 border-t border-gray-200">
+        <footer className="flex-col items-center w-full py-2 mt-4 dark:text-white bg-zinc-100 dark:bg-white/10 text-center">
+            <div className="max-w-screen-xl mx-auto px-4 py-8 grid gap-8 md:grid-cols-3 items-start">
+                <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                        <Image
+                            src="/logo.png"
+                            alt="Curious.AI Logo"
+                            width={40}
+                            height={40}
+                            className="object-contain"
                         />
-                        <link rel="icon" href="/logo.png" sizes="any" />
-                        <div className='my-3 mx-2 font-semibold text-base'>Curious.AI</div>
+                        <span className="font-semibold text-lg">Curious.AI</span>
                     </div>
-                    <div className='my-2 text-start text-sm max-w-96 text-gray-400'>
-                        Unleash your creativity with our AI-powered platform! Whether you&#39;re exploring ideas or building something amazing, we&#39;re here to empower your imagination. Start creating today!
-                    </div>
-                    <div>
-                        <div className="flex space-x-4 mt-3">
-                            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600">
-                                <FaFacebook size={20} />
-                            </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600">
-                                <FaTwitter size={20} />
-                            </a>
-                            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600">
-                                <FaLinkedin size={20} />
-                            </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-gray-600">
-                                <FaInstagram size={20} />
-                            </a>
-                        </div>
+                    <p className="text-m leading-relaxed text-gray-400 text-justify">
+                        Unleash your creativity with our AI-powered platform! Whether you're exploring ideas or building something amazing, we're here to empower your imagination. Start creating today!
+                    </p>
+                    <div className="flex space-x-4">
+                        <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition duration-300 ease-in-out">
+                            <FaFacebook size={24} />
+                        </a>
+                        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-400 transition duration-300 ease-in-out">
+                            <FaXTwitter size={24} />
+                        </a>
+                        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-700 transition duration-300 ease-in-out">
+                            <FaLinkedin size={24} />
+                        </a>
+                        <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-pink-500 transition duration-300 ease-in-out">
+                            <FaInstagram size={24} />
+                        </a>
                     </div>
                 </div>
 
-                <div className='flex flex-col md:flex-row items-start justify-end w-full'>
-                    <div className='flex flex-col my-2 mx-5 md:mx-10 text-start'>
-                        <div className='my-2 font-semibold list-disc'>Services</div>
-                        <Link href={"/chat"}><li className='text-gray-400 text-sm hover:underline'>Chat With AI</li></Link>
-                        <Link href={"/image"}><li className='text-gray-400 text-sm hover:underline'>Generate Images</li></Link>
-                        <Link href={"/code"}><li className='text-gray-400 text-sm hover:underline'>Code Generation For Devs</li></Link>
-                        <Link href={"/marketplace"}><li className='text-gray-400 text-sm hover:underline'>Marketplace</li></Link>
-                    </div>
-                    <div className='flex flex-col my-2 mx-5 md:mx-10 text-start list-disc'>
-                        <div className='my-2 font-semibold'>Company</div>
-                        <Link href={"/"}><li className='text-gray-400 text-sm hover:underline'>About Us</li></Link>
-                        <Link href={"/"}><li className='text-gray-400 text-sm hover:underline'>Contact</li></Link>
-                        <Link href={"/"}><li className='text-gray-400 text-sm hover:underline'>Join Community</li></Link>
-                        <Link href={"/"}><li className='text-gray-400 text-sm hover:underline'>Blog Place</li></Link>
-                    </div>
+                <div className="space-y-4 md:ml-16">
+                    <h3 className="font-semibold text-lg">Services</h3>
+                    <ul className="space-y-2 text-m">
+                        <li><Link href="/chat" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Chat With AI</Link></li>
+                        <li><Link href="/image" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Generate Images</Link></li>
+                        <li><Link href="/code" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Code Generation For Devs</Link></li>
+                        <li><Link href="/marketplace" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Marketplace</Link></li>
+                    </ul>
+                </div>
+
+                <div className="space-y-4 md:ml-24">
+                    <h3 className="font-semibold text-lg">Company</h3>
+                    <ul className="space-y-2 text-m">
+                        <li><Link href="/about" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">About Us</Link></li>
+                        <li><Link href="/contact" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Contact</Link></li>
+                        <li><Link href="/community" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Join Community</Link></li>
+                        <li><Link href="/blog" className="text-gray-400 hover:text-blue-500 transition duration-300 ease-in-out">Blog Place</Link></li>
+                    </ul>
                 </div>
             </div>
 
-            <div className='h-[1px] w-[85%] bg-gray-500 my-7'></div>
-            <div className='flex flex-col md:flex-row justify-between items-center w-[90%]'>
-                <div className='text-gray-400 text-sm mb-3 md:mb-0'>&copy; 2024 All Rights Reserved</div>
-                <div className='text-gray-400 text-sm flex'>
-                    <Link href={"/"}><div className='underline mx-5 list-item'>Privacy Policy</div></Link>
-                    <Link href={"/"}><div className='underline mx-5 list-item'>Terms & Conditions</div></Link>
+            <div className="border-t border-gray-600 my-4"></div>
+            <div className="max-w-screen-xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 text-m">
+                <span className="text-gray-400">&copy; 2025 All Rights Reserved</span>
+                <div className="flex space-x-4">
+                    <Link href="/privacy-policy" className="hover:text-blue-500 transition duration-300 ease-in-out">Privacy Policy</Link>
+                    <Link href="/terms" className="hover:text-blue-500 transition duration-300 ease-in-out">Terms & Conditions</Link>
                 </div>
             </div>
         </footer>
