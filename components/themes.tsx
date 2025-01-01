@@ -9,15 +9,47 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 enum ThemeEnum {
-  Dark = "Dark Theme",
-  Light = "Light Theme",
-  System = "System Theme",
+  Dark = "Dark",
+  Light = "Light",
+  System = "System",
 }
 
-export default function Themes({ children, borders = true }: { children?: React.ReactNode, borders?: boolean }) {
-  const [theme, setTheme] = useState<ThemeEnum>(ThemeEnum.System);
+
+// mapping the icons with the theme style
+const themeIcons: Record<ThemeEnum, string> = {
+  [ThemeEnum.Dark]: "🌙",
+  [ThemeEnum.Light]: "☀️",
+  [ThemeEnum.System]: "💻",
+};
+
+const getDefaultTheme = (): ThemeEnum => {
+  const savedTheme = localStorage.getItem("theme") as ThemeEnum;
+  return (
+    savedTheme ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeEnum.Dark
+      : ThemeEnum.Light)
+  );
+};
+
+export default function Themes({
+  borders = true,
+  dropdownOn = true,
+}: {
+  borders?: boolean;
+  dropdownOn?: boolean;
+}) {
+  const [theme, setTheme] = useState<ThemeEnum>(getDefaultTheme);
 
   const handleThemeChange = (selectedTheme: ThemeEnum) => {
     setTheme(selectedTheme);
@@ -39,42 +71,54 @@ export default function Themes({ children, borders = true }: { children?: React.
   }, [])
 
   useEffect(() => {
-    document.documentElement.classList.toggle(
-      "dark",
-      localStorage.theme === "Dark Theme" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
-  }, [handleThemeChange]);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateTheme = () =>
+      document.documentElement.classList.toggle(
+        "dark",
+        theme === ThemeEnum.Dark ||
+        (theme === ThemeEnum.System && mediaQuery.matches)
+      );
 
-  return (
-    <div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}>
-            {children || theme}
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-20 text-center">
-          <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => handleThemeChange(ThemeEnum.Light)}>
-            Light
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => handleThemeChange(ThemeEnum.Dark)}>
-            Dark
-          </DropdownMenuItem>
-          <DropdownMenuSeparator />
+    mediaQuery.addEventListener("change", updateTheme);
+    updateTheme();
+
+    return () => mediaQuery.removeEventListener("change", updateTheme);
+  }, [theme]);
+
+  return dropdownOn ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}
+        >
+          {themeIcons[theme]}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-20 text-center">
+        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {Object.values(ThemeEnum).map((themeOption) => (
           <DropdownMenuItem
-            onSelect={() => handleThemeChange(ThemeEnum.System)}
+            key={themeOption}
+            onSelect={() => handleThemeChange(themeOption)}
           >
-            System
+            {themeIcons[themeOption]} {themeOption}
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div >
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    <Button
+      onClick={() =>
+        handleThemeChange(
+          theme === ThemeEnum.Light ? ThemeEnum.Dark : ThemeEnum.Light
+        )
+      }
+      variant="outline"
+      className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}
+    >
+      {themeIcons[theme]}
+    </Button>
   );
 }
