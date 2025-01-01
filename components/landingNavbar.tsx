@@ -33,7 +33,7 @@ export default function LandingNavbar() {
           Curious.AI
         </h1>
       </Link>
-      <Themes borders={false}>
+      <Themes borders={false} showDropDown={false}>
         <Moon className="hidden dark:block" />
         <Sun className="block dark:hidden" />
       </Themes>
