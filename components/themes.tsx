@@ -9,6 +9,14 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 enum ThemeEnum {
   Dark = "Dark Theme",
@@ -48,71 +56,54 @@ export default function Themes(
   }, [])
 
   useEffect(() => {
-    document.documentElement.classList.toggle(
-      "dark",
-      localStorage.theme === "Dark Theme" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    );
-  }, [handleThemeChange]);
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const updateTheme = () =>
+      document.documentElement.classList.toggle(
+        "dark",
+        theme === ThemeEnum.Dark ||
+        (theme === ThemeEnum.System && mediaQuery.matches)
+      );
 
-  const handleClick = () => {
-    if (showDropDown) {
-      return;
-    }
+    mediaQuery.addEventListener("change", updateTheme);
+    updateTheme();
 
-    if (theme === ThemeEnum.Dark) {
-      handleThemeChange(ThemeEnum.Light);
-      return;
-    }
-    if (theme === ThemeEnum.Light) {
-      handleThemeChange(ThemeEnum.Dark);
-      return;
-    }
-    if (theme === ThemeEnum.System) {
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        handleThemeChange(ThemeEnum.Light);
-        return;
-      } else {
-        handleThemeChange(ThemeEnum.Dark);
-        return;
-      }
-    }
-  }
+    return () => mediaQuery.removeEventListener("change", updateTheme);
+  }, [theme]);
 
-  return (
-    <div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}
-            onClick={() => handleClick()}
+  return dropdownOn ? (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}
+        >
+          {themeIcons[theme]}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-20 text-center">
+        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {Object.values(ThemeEnum).map((themeOption) => (
+          <DropdownMenuItem
+            key={themeOption}
+            onSelect={() => handleThemeChange(themeOption)}
           >
-            {children || theme}
-
-          </Button>
-        </DropdownMenuTrigger>
-        {showDropDown &&
-          <DropdownMenuContent className="w-20 text-center">
-            <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => handleThemeChange(ThemeEnum.Light)}>
-              Light
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => handleThemeChange(ThemeEnum.Dark)}>
-              Dark
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onSelect={() => handleThemeChange(ThemeEnum.System)}
-            >
-              System
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        }
-      </DropdownMenu>
-    </div >
+            {themeIcons[themeOption]} {themeOption}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  ) : (
+    <Button
+      onClick={() =>
+        handleThemeChange(
+          theme === ThemeEnum.Light ? ThemeEnum.Dark : ThemeEnum.Light
+        )
+      }
+      variant="outline"
+      className={`rounded-lg ${borders ? " dark:border-white" : "border-none"}`}
+    >
+      {themeIcons[theme]}
+    </Button>
   );
 }
