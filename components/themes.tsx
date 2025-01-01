@@ -19,22 +19,37 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 enum ThemeEnum {
-  Dark = "Dark Theme",
-  Light = "Light Theme",
-  System = "System Theme",
+  Dark = "Dark",
+  Light = "Light",
+  System = "System",
 }
 
-export default function Themes(
-  {
-    children,
-    borders = true,
-    showDropDown = true,
-  }: {
-    children?: React.ReactNode,
-    borders?: boolean,
-    showDropDown?: boolean
-  }) {
-  const [theme, setTheme] = useState<ThemeEnum>(ThemeEnum.System);
+
+// mapping the icons with the theme style
+const themeIcons: Record<ThemeEnum, string> = {
+  [ThemeEnum.Dark]: "🌙",
+  [ThemeEnum.Light]: "☀️",
+  [ThemeEnum.System]: "💻",
+};
+
+const getDefaultTheme = (): ThemeEnum => {
+  const savedTheme = localStorage.getItem("theme") as ThemeEnum;
+  return (
+    savedTheme ||
+    (window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeEnum.Dark
+      : ThemeEnum.Light)
+  );
+};
+
+export default function Themes({
+  borders = true,
+  dropdownOn = true,
+}: {
+  borders?: boolean;
+  dropdownOn?: boolean;
+}) {
+  const [theme, setTheme] = useState<ThemeEnum>(getDefaultTheme);
 
   const handleThemeChange = (selectedTheme: ThemeEnum) => {
     setTheme(selectedTheme);
