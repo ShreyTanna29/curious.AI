@@ -36,7 +36,7 @@ const getDefaultTheme = (): ThemeEnum => {
 
 export default function Themes({
   borders = true,
-  dropdownOn = false,
+  dropdownOn = true,
 }: {
   borders?: boolean;
   dropdownOn?: boolean;
