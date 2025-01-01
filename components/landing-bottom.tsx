@@ -4,7 +4,6 @@ import { FaFacebook, FaXTwitter, FaLinkedin, FaInstagram } from 'react-icons/fa6
 
 const LandingFooter: React.FC = () => {
     return (
-        // <footer className="w-full text-gray-300 border-t border-gray-200">
         <footer className="flex-col items-center w-full py-2 mt-4 dark:text-white bg-zinc-100 dark:bg-white/10 text-center">
             <div className="max-w-screen-xl mx-auto px-4 py-8 grid gap-8 md:grid-cols-3 items-start">
                 <div className="space-y-4">
