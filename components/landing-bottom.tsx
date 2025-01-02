@@ -18,7 +18,7 @@ const LandingFooter: React.FC = () => {
                         <span className="font-semibold text-lg">Curious.AI</span>
                     </div>
                     <p className="text-m leading-relaxed text-gray-400 text-justify">
-                        Unleash your creativity with our AI-powered platform! Whether you're exploring ideas or building something amazing, we're here to empower your imagination. Start creating today!
+                        Unleash your creativity with our AI-powered platform! Whether you&apos;re exploring ideas or building something amazing, we&apos;re here to empower your imagination. Start creating today!
                     </p>
                     <div className="flex space-x-4">
                         <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition duration-300 ease-in-out">
