@@ -103,22 +103,20 @@ const MobileSidebar = () => {
             </div>
             <div>
               {routes.map((route) => (
-
-                <Link
-                  key={route.href}
-                  href={route.href}
-                  className={cn(
-                    "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:bg-black/10  dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition",
-                    "text-black dark:text-zinc-400"
-                  )}
-                >
-                  <SheetClose >
+                <SheetClose key={route.href} asChild>
+                  <Link
+                    href={route.href}
+                    className={cn(
+                      "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:bg-black/10  dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition",
+                      "text-black dark:text-zinc-400"
+                    )}
+                  >
                     <div className="flex items-center flex-1">
                       <route.icon className={cn("h-5 w-5 mr-3", route.color)} />
                       {route.label}
                     </div>
-                  </SheetClose>
-                </Link>
+                  </Link>
+                </SheetClose>
               ))}
             </div>
           </div>
