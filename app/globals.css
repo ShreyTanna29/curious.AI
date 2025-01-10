@@ -11,6 +11,14 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+::selection {
+  background-color: rgb(167 139 250);
+}
+
+.dark ::selection {
+  background-color: rgb(167 139 250);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
