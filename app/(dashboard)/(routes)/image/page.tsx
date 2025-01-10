@@ -166,6 +166,12 @@ function ImagePage() {
                             textarea.style.height = "auto"; // Reset height to calculate correctly
                             textarea.style.height = `${textarea.scrollHeight}px`; // Adjust height based on content
                           }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              form.handleSubmit(onSubmit)()
+                            }
+                          }}
                         />
                       </FormControl>
                       <Button
