@@ -24,6 +24,7 @@ type Message = {
 function ConversationPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [previousMessages, setPreviuosMessages] = useState<Message[]>([]);
   const [gettingUserChats, setGettingUserChats] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -38,7 +39,7 @@ function ConversationPage() {
     const response = await axios.get("/api/chat/get-user-chat");
     if (response.data) {
       response.data.map((chat: any) =>
-        setMessages((prev) => [
+        setPreviuosMessages((prev) => [
           ...prev,
           { role: "assistant", content: chat.response.toString("utf8") },
           { role: "user", content: chat.prompt },
@@ -49,7 +50,6 @@ function ConversationPage() {
   };
 
   useEffect(() => {
-    getUserChats();
   }, []);
   const isLoading = form.formState.isSubmitting;
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -68,7 +68,7 @@ function ConversationPage() {
         content: String(response.data),
       };
 
-      setMessages((current) => [newMessage, userMessage, ...current]);
+      setMessages((current) => [...current, userMessage, newMessage]);
       form.reset();
     } catch (error: any) {
       console.log(error);
@@ -87,12 +87,12 @@ function ConversationPage() {
         </div>
       )}
       <div className="flex items-center justify-center">
-        <div className="px-4 lg:px-8 lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="space-y-4 mt-4 mx-auto">
             {messages.length === 0 && !gettingUserChats && (
               <Empty label="No conversation started."></Empty>
             )}
-            <div className="flex flex-col-reverse gap-y-6">
+            <div className="flex flex-col gap-y-6">
               {messages.map((message, index) => (
                 <div
                   key={index}
