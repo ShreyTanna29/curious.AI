@@ -15,6 +15,7 @@ import BotAvatar from "@/components/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
+import { History } from "lucide-react";
 
 type Message = {
   role: "user" | "assistant";
@@ -80,7 +81,9 @@ function ConversationPage() {
 
   return (
     <div className="w-full transition-all duration-300 ease-in-out ">
-
+      <Button className="right-10 absolute dark:bg-[#212121] dark:hover:bg-white/10 md:p-4 dark:text-white ">
+        <History className="mr-2" /> Show History
+      </Button>
       {gettingUserChats && (
         <div className="w-full flex items-center justify-center">
           <Loader />
@@ -135,7 +138,7 @@ function ConversationPage() {
         </div>
       </div>
       <div className="flex items-center justify-center">
-        <div className="flex  items-center px-4 md:w-[55%] backdrop-blur-lg fixed bottom-4">
+        <div className="flex items-center px-4 w-full md:w-[55%] backdrop-blur-lg fixed bottom-4">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -151,7 +154,7 @@ function ConversationPage() {
                         disabled={isLoading}
                         placeholder="Ask anything..."
                         {...field}
-                        rows={5} // Start with a single row
+                        rows={innerWidth < 500 ? 1 : 5} // Start with a single row
                         onInput={(e) => {
                           const textarea = e.target as HTMLTextAreaElement; // Cast EventTarget to HTMLTextAreaElement
                           textarea.style.height = "auto"; // Reset height to calculate correctly
