@@ -8,14 +8,13 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Empty from "@/components/empty";
 import Loader from "@/components/loader";
 import { cn } from "@/lib/utils";
 import BotAvatar from "@/components/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
-import { History } from "lucide-react";
+import { FileText, History, Newspaper, Quote, TrendingUp } from "lucide-react";
 
 type Message = {
   role: "user" | "assistant";
@@ -26,6 +25,7 @@ function ConversationPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
   const [previousMessages, setPreviuosMessages] = useState<Message[]>([]);
+  const [showHistory, setShowHistory] = useState(false)
   const [gettingUserChats, setGettingUserChats] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,7 +39,7 @@ function ConversationPage() {
     setGettingUserChats(true);
     const response = await axios.get("/api/chat/get-user-chat");
     if (response.data) {
-      response.data.map((chat: any) =>
+      await response.data.map((chat: any) =>
         setPreviuosMessages((prev) => [
           ...prev,
           { role: "assistant", content: chat.response.toString("utf8") },
@@ -47,12 +47,17 @@ function ConversationPage() {
         ])
       );
     }
+    if (!previousMessages) {
+      toast.error("You don't have any previous chats to show.")
+    }
     setGettingUserChats(false);
   };
 
   useEffect(() => {
   }, []);
+
   const isLoading = form.formState.isSubmitting;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const userMessage: Message = {
@@ -79,9 +84,16 @@ function ConversationPage() {
     }
   };
 
+  const historyHandler = async () => {
+    setShowHistory(!showHistory)
+    if (previousMessages.length === 0) {
+      await getUserChats()
+    }
+  }
+
   return (
     <div className="w-full transition-all duration-300 ease-in-out ">
-      <Button className="right-10 absolute dark:bg-[#212121] dark:hover:bg-white/10 md:p-4 dark:text-white ">
+      <Button variant={"dark"} className="right-10 absolute md:p-4" onClick={() => historyHandler()} >
         <History className="mr-2" /> Show History
       </Button>
       {gettingUserChats && (
@@ -92,10 +104,58 @@ function ConversationPage() {
       <div className="flex items-center justify-center">
         <div className="px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="space-y-4 mt-4 mx-auto">
-            {messages.length === 0 && !gettingUserChats && (
-              <Empty label="No conversation started."></Empty>
+            {messages.length === 0 && !showHistory && (
+              <div className="w-full h-[40vh] mt-auto flex flex-col items-center justify-end ">
+                <div className=" text-center text-3xl mb-6">
+                  <h1>How can I help you today?</h1>
+                </div>
+                <div className="w-full flex items-end justify-around">
+                  <Button variant={"dark"} className="border md:p-5 text-lg rounded-lg" > <TrendingUp className="mr-2 text-violet-500" /> What&apos;s trending?</Button>
+                  <Button variant={"dark"} className="border md:p-5 text-lg rounded-lg" > <Quote className="mr-2 text-green-500" /> Share a quote</Button>
+                  <Button variant={"dark"} className="border md:p-5 text-lg rounded-lg" > <FileText className="mr-2 text-orange-500 " /> Summarize text</Button>
+                  <Button variant={"dark"} className="border md:p-5 text-lg rounded-lg" > <Newspaper className="mr-2 text-blue-500 " /> Today&apos;s news</Button>
+                </div>
+
+              </div>
             )}
             <div className="flex flex-col gap-y-6">
+              {showHistory && previousMessages.map((message, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    "p-4 flex items-center gap-x-6 w-fit",
+                    message.role === "user"
+                      ? "bg-white rounded-xl ml-auto  md:p-5  max-w-[70%] dark:bg-[#212121] "
+                      : "bg-violet-500/10 md:p-6 max-w-[100%] rounded-r-2xl rounded-tl-2xl dark:bg-black"
+                  )}
+                >
+                  <p className="text-sm flex justify-center gap-3 md:text-xl text-muted-foreground dark:text-white">
+                    {message.role === "user" ? null : <BotAvatar />}
+                    {message.role === "user" ? (
+                      message.content
+                    ) : (
+                      <ReactMarkdown
+                        components={{
+                          pre: ({ ...props }) => (
+                            <div className=" overflow-auto w-full  my-2 bg-black/10 p-2 rounded-lg ">
+                              <pre {...props} />
+                            </div>
+                          ),
+                          code: ({ ...props }) => (
+                            <code
+                              className="bg-black/10 rounded-lg p-1"
+                              {...props}
+                            />
+                          ),
+                        }}
+                        className="text-sm md:text-xl overflow-hidden leading-7"
+                      >
+                        {message.content || ""}
+                      </ReactMarkdown>
+                    )}
+                  </p>
+                </div>
+              ))}
               {messages.map((message, index) => (
                 <div
                   key={index}
