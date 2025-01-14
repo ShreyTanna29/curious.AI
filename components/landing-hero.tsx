@@ -44,7 +44,7 @@ export default function LandingHero() {
       </div>
 
       <Button
-        className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-black/10 hover:text-black dark:text-white dark:hover:bg-white slideUp opacity-0 translate-y-10"
+        className="relative z-50 gap-4 flex bg-[#2a2a2a] hover:bg-black/70 hover:text-white dark:text-white dark:hover:bg-white/10 dark:hover:text-white slideUp opacity-0 translate-y-10"
         onClick={() => {
           setLoading(true)
           if (isSignedIn) {
@@ -55,7 +55,7 @@ export default function LandingHero() {
           }
         }}
       >
-        {isSignedIn ? "Visit Dashboard" : "Get Started"} {loading ? <LoadingSpinner className="border-white" /> : <ArrowRight />}
+        {isSignedIn ? "Visit Dashboard" : "Get Started"} {loading ? <LoadingSpinner className=" border-white" /> : <ArrowRight />}
       </Button>
 
       <BackgroundBeams />
