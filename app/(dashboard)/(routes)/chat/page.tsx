@@ -136,14 +136,14 @@ function ConversationPage() {
         </div>
       )}
       <div className="flex items-center justify-center">
-        <div className="px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
-          <div className="space-y-4 mt-4 mx-auto">
+        <div className="w-full px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <div className="w-full space-y-4 mt-4 mx-auto">
             {messages.length === 0 && !showHistory && (
               <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[40vh] lg:justify-end ">
-                <div className=" text-center  text-3xl mb-6">
+                <div className=" text-center text-3xl mb-6">
                   <h1> <Balancer> How can I help you today?</Balancer></h1>
                 </div>
-                <div className="w-full flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="w-full  flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
                   <Button
                     onClick={() => tabsHandler("trending")}
                     variant={"custom"}
