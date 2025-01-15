@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, History, Newspaper, Quote, TrendingUp } from "lucide-react";
+import Balancer from "react-wrap-balancer"
 
 type Message = {
   role: "user" | "assistant";
@@ -140,7 +141,7 @@ function ConversationPage() {
             {messages.length === 0 && !showHistory && (
               <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[40vh] lg:justify-end ">
                 <div className=" text-center  text-3xl mb-6">
-                  <h1>How can I help you today?</h1>
+                  <h1> <Balancer> How can I help you today?</Balancer></h1>
                 </div>
                 <div className="w-full flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
                   <Button
