@@ -86,9 +86,9 @@ const MobileSidebar = () => {
       </SheetTrigger>
 
       <SheetContent side="left" className="p-0">
-        <div className="space-y-4 py-4 flex text-black flex-col h-full bg-slate-100 dark:bg-[#0f0f0f] dark:text-white">
-          <div className="px-3 py-2 flex-1">
-            <Link href={"/dashboard"} className="flex items-center pl-3 mb-8 mt-6">
+        <div className="space-y-4 py-4 w-full flex text-black flex-col h-full bg-slate-100 dark:bg-[#0f0f0f] dark:text-white">
+          <div className="px-3 py-2 flex-1 w-full">
+            <Link href={"/"} className="flex items-center pl-3 mb-8 mt-6">
               <div className="relative w-8 h-8 mr-4">
                 <Image fill src="/logo.png" alt="Logo" />
               </div>
@@ -98,7 +98,7 @@ const MobileSidebar = () => {
                 </h1>
               </div>
             </Link>
-            <div className="mb-8">
+            <div className="mb-8 w-full ">
               <UserProfileCard />
             </div>
             <div>

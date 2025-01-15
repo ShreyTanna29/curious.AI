@@ -8,22 +8,22 @@ export default function UserProfileCard() {
   const userName = session.data?.user?.name;
   return (
     <>
-      <div className="">
-        <Card className="bg-black/10 dark:bg-white/10 border-0  dark:text-white overflow-clip flex items-center">
-          <CardContent className="py-6 text-ellipsis ">
-            <div className="flex">
-              <Avatar >
-                <AvatarImage src={session.data?.user?.image!} alt="User" />
-                <AvatarFallback>{userName?.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="ml-3">
-                <p>{userName}</p>
-                <p className="text-ellipsis text-sm ">{userEmail}</p>
-              </div>
+
+      <Card className="bg-black/10 w-full dark:bg-white/10 border-0  dark:text-white overflow-clip flex items-center">
+        <CardContent className="py-6 w-full ">
+          <div className="flex">
+            <Avatar >
+              <AvatarImage src={session.data?.user?.image!} alt="User" />
+              <AvatarFallback>{userName?.charAt(0)}</AvatarFallback>
+            </Avatar>
+            <div className="ml-3 overflow-hidden">
+              <p>{userName}</p>
+              <p className=" text-sm text-ellipsis overflow-hidden whitespace-nowrap ">{userEmail}</p>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
+
     </>
   );
 }
