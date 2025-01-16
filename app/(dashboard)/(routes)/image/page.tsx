@@ -178,7 +178,7 @@ function ImagePage() {
                         className="rounded-full  dark:hover:text-black bg-black dark:bg-white/10  text-white"
                         disabled={isLoading}
                       >
-                        {isLoading ? <Loader /> : "Create"}
+                        {isLoading ? <Loader className="w-7 h-7" /> : "Create"}
                       </Button>
                     </div>
                   </FormItem>

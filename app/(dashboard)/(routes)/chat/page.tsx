@@ -291,14 +291,9 @@ function ConversationPage() {
                 className="col-span-12 lg:col-span-2 w-full"
                 disabled={isLoading}
               >
-                Ask
+                {isLoading ? <Loader className="w-7 h-7" /> : "Ask"}
               </Button>
             </form>
-            {isLoading && (
-              <div className="hidden md:block w-10 h-10 ml-4">
-                <Loader />
-              </div>
-            )}
           </Form>
         </div>
       </div>
