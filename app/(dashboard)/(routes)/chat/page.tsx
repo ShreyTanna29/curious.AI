@@ -44,8 +44,8 @@ function ConversationPage() {
       response.data.map((chat: any) =>
         setPreviuosMessages((prev) => [
           ...prev,
-          { role: "assistant", content: chat.response.toString("utf8") },
           { role: "user", content: chat.prompt },
+          { role: "assistant", content: chat.response.toString("utf8") },
         ])
       );
     }
