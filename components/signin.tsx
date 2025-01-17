@@ -91,7 +91,7 @@ export function SignIn() {
                 >
                     <div className="flex items-center justify-center w-full h-full">
                         {loading ? (
-                            <LoadingSpinner />
+                            <LoadingSpinner className="border-white border-t-white/10" />
                         ) : (
                             <span>Sign in &rarr;</span>
                         )}
