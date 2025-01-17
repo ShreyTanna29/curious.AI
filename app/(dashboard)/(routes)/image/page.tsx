@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardFooter } from "@/components/ui/card";
 import toast from "react-hot-toast";
 import {
@@ -48,6 +48,8 @@ function ImagePage() {
   const [loadingImages, setLoadingImages] = useState(false)
   const [surpriseMeLoading, setSurpriseMeLoading] = useState(false)
   const [surpriseMeDisabled, setSurpriseMeDisabled] = useState(false)
+  const [deviceWidth, setDeviceWidth] = useState(0)
+
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
   }>({});
@@ -55,6 +57,18 @@ function ImagePage() {
   const [downloadingImages, setDownloadingImages] = useState<{
     [key: string]: boolean;
   }>({});
+
+  useEffect(() => {
+    setDeviceWidth(window.innerWidth)
+
+    const handelResize = () => {
+      setDeviceWidth(window.innerWidth)
+    }
+
+    window.addEventListener("resize", handelResize)
+
+    return window.removeEventListener("resize", handelResize)
+  }, [])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -194,6 +208,7 @@ function ImagePage() {
           <div className=" flex w-full flex-wrap gap-4 md:items-center md:justify-center">
             <div className={`${surpriseMeDisabled ? 'pointer-events-none' : ''}`} aria-disabled={surpriseMeLoading}>
               <MovingBorderButton
+                containerClassName={`${deviceWidth < 500 ? "h-12 w-32" : null}`}
                 className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800" borderRadius="2rem"
                 onClick={() => {
                   surpriseMeHandler()
@@ -203,10 +218,11 @@ function ImagePage() {
             </div>
 
 
-            <div className="cursor-pointer flex bg-black/10 text-sm md:text-lg rounded-lg p-4 items-center justify-center gap-2 dark:bg-white/10" onClick={() => {
-              setShowPrevImages(!showPrevImages)
-              userImages()
-            }}>
+            <div className={`cursor-pointer flex bg-black/10 text-sm md:text-lg rounded-lg ${deviceWidth < 500 ? "p-2" : "p-4"} items-center justify-center gap-2 dark:bg-white/10`}
+              onClick={() => {
+                setShowPrevImages(!showPrevImages)
+                userImages()
+              }}>
               My Previous Images  {loadingImages ? <LoadingSpinner /> : (showPrevImages ? <ChevronUp /> : <ChevronDown />)}
             </div>
           </div>
