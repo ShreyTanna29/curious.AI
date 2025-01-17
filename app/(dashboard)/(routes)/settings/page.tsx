@@ -5,11 +5,16 @@ import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import { Settings, LogOut } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingSpinner from "@/components/loadingSpinner";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)
+  const [deviceWidth, setDeviceWidth] = useState<number>(500)
+
+  useEffect(() => {
+    setDeviceWidth(window.innerWidth)
+  }, [deviceWidth])
   return (
     <div>
       <Heading
@@ -32,6 +37,7 @@ export default function SettingsPage() {
               <Button
                 variant={"outline"}
                 className="rounded-lg dark:border-white"
+                size={deviceWidth < 500 ? "sm" : "default"}
               >
                 Manage Account
               </Button>
@@ -44,6 +50,7 @@ export default function SettingsPage() {
                 setLoading(true)
                 signOut({ callbackUrl: "/" })
               }}
+              size={deviceWidth < 500 ? "sm" : "default"}
             >
               {loading ? <LoadingSpinner className="mr-2" /> : <LogOut className="mr-2 w-8" />} Logout
             </Button>
