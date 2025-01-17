@@ -16,6 +16,7 @@ import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, History, Newspaper, Quote, TrendingUp } from "lucide-react";
 import Balancer from "react-wrap-balancer"
+import gsap from "gsap";
 
 type Message = {
   role: "user" | "assistant";
@@ -24,7 +25,7 @@ type Message = {
 
 function ConversationPage() {
   const router = useRouter();
-  const [windowWidth, setWindowWidth] = useState(0);
+  const [windowWidth, setWindowWidth] = useState<number>(800);
   const [messages, setMessages] = useState<Message[]>([]);
   const [previousMessages, setPreviuosMessages] = useState<Message[]>([]);
   const [showHistory, setShowHistory] = useState(false)
@@ -56,6 +57,7 @@ function ConversationPage() {
     setGettingUserChats(false);
   };
 
+  // window width handler useEffect
   useEffect(() => {
     setWindowWidth(window.innerWidth);
 
@@ -66,6 +68,16 @@ function ConversationPage() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  //GSAP handler useEffect
+  useEffect(() => {
+    gsap.to(".slideUp", {
+      opacity: 1,
+      duration: 0.5,
+      stagger: 0.2,
+      y: 0,
+    })
+  }, [])
 
   const isLoading = form.formState.isSubmitting;
 
@@ -139,34 +151,34 @@ function ConversationPage() {
         <div className="w-full px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="w-full space-y-4 mt-4 mx-auto">
             {messages.length === 0 && !showHistory && (
-              <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[40vh] lg:justify-end ">
+              <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[50vh] lg:justify-end ">
                 <div className=" text-center text-3xl mb-6">
                   <h1> <Balancer> How can I help you today?</Balancer></h1>
                 </div>
-                <div className="w-full  flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="w-full  flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-y-hidden overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
                   <Button
                     onClick={() => tabsHandler("trending")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg" >
+                    className="md:p-5 text-lg rounded-lg opacity-0 slideUp translate-y-10 " >
                     <TrendingUp className="mr-2 text-violet-500" /> What&apos;s trending?
                   </Button>
                   <Button
                     onClick={() => tabsHandler("quote")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg" >
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 " >
                     <Quote className="mr-2 text-green-500" /> Share a quote
                   </Button>
                   <Button
                     onClick={() => tabsHandler("summarize")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg" >
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 " >
                     <FileText className="mr-2 text-orange-500 " />
                     Summarize text
                   </Button>
                   <Button
                     onClick={() => tabsHandler("news")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg" >
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 " >
                     <Newspaper className="mr-2 text-blue-500 " />
                     Today&apos;s news
                   </Button>
