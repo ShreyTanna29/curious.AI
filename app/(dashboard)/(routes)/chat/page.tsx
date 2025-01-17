@@ -77,7 +77,7 @@ function ConversationPage() {
       stagger: 0.2,
       y: 0,
     })
-  }, [])
+  }, [showHistory])
 
   const isLoading = form.formState.isSubmitting;
 
@@ -140,7 +140,10 @@ function ConversationPage() {
   return (
     <div className="w-full transition-all duration-300 ease-in-out ">
       <Button variant={"custom"} className="right-3 lg:right-10 bg-gray-100 rounded-lg absolute md:p-4" onClick={() => historyHandler()} >
-        <History className="mr-2" /> <span className="hidden md:block" >Show History</span>
+        <History className="mr-2" />
+        <span className="hidden md:block" >
+          {showHistory ? "Hide" : "Show"} History
+        </span>
       </Button>
       {gettingUserChats && (
         <div className="w-full flex items-center justify-center">
