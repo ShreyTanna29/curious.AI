@@ -1,7 +1,7 @@
 "use client"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { InfiniteMovingCards } from "./infinite-moving-card";
+import { InfiniteMovingCards } from "../features/infinite-moving-card"
 import { useEffect } from "react";
 
 const images = [

@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import GoogleIcon from "@/components/icons/google"
 import { signIn as SignInAuth } from "next-auth/react";
 import Link from "next/link";
-import LoadingSpinner from "./loadingSpinner";
+import LoadingSpinner from "../loaders/loadingSpinner";
 
 export function SignIn() {
     const [formData, setFormData] = useState({

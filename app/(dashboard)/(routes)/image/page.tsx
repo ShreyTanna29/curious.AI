@@ -28,12 +28,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { shareImage, downloadImage } from "@/packages/features";
 import { deleteImage } from "@/packages/features/deleteImage";
-import LoadingSpinner from "@/components/loadingSpinner";
+import LoadingSpinner from "@/components/loaders/loadingSpinner";
 import { Textarea } from "@/components/ui/textarea";
-import { TextGenerateEffect } from "@/components/text-generate-effect";
-import Loader from "@/components/loader";
-import { MovingBorderButton } from "@/components/moving-border";
-import CopyButton from "@/components/CopyButton";
+import { TextGenerateEffect } from "@/components/features/text-generate-effect";
+import Loader from "@/components/loaders/loader";
+import { MovingBorderButton } from "@/components/features/moving-border";
+import CopyButton from "@/components/extra/CopyButton";
 
 
 type imageType = {

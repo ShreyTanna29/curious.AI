@@ -1,10 +1,10 @@
 "use client"
-import LandingFooter from "@/components/landing-bottom";
-import LandingChatSection from "@/components/landing-chat-section";
-import LandingCodeSection from "@/components/landing-code-section";
-import LandingHero from "@/components/landing-hero";
-import LandingImageSection from "@/components/landing-image-section";
-import LandingNavbar from "@/components/landingNavbar";
+import LandingFooter from "@/components/landing/landing-bottom";
+import LandingChatSection from "@/components/landing/landing-chat-section";
+import LandingCodeSection from "@/components/landing/landing-code-section";
+import LandingHero from "@/components/landing/landing-hero";
+import LandingImageSection from "@/components/landing/landing-image-section";
+import LandingNavbar from "@/components/landing/landingNavbar";
 
 function LandingPage() {
   return (

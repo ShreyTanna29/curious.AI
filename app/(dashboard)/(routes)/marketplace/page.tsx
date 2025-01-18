@@ -1,5 +1,5 @@
 "use client";
-import Heading from "@/components/heading";
+import Heading from "@/components/extra/heading";
 import { Card, CardFooter } from "@/components/ui/card";
 import {
   DropdownMenu,
@@ -15,8 +15,8 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import InfiniteScroll from "react-infinite-scroll-component";
-import Loader from "@/components/loader";
-import CopyButton from "@/components/CopyButton";
+import Loader from "@/components/loaders/loader";
+import CopyButton from "@/components/extra/CopyButton";
 
 export default function MarketplacePage() {
   interface ImageInterface {

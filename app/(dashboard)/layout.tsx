@@ -1,5 +1,5 @@
-import MobileSidebar from "@/components/mobile-sidebar";
-import Sidebar from "@/components/sidebar";
+import MobileSidebar from "@/components/sidebar/mobile-sidebar";
+import Sidebar from "@/components/sidebar/sidebar";
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (

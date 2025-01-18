@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import GoogleIcon from "./icons/google";
-import LoadingSpinner from "./loadingSpinner";
+import GoogleIcon from "../icons/google";
+import LoadingSpinner from "../loaders/loadingSpinner";
 
 export function Signup() {
     const [formData, setFormData] = useState({

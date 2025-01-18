@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import Heading from "@/components/heading";
+import Heading from "@/components/extra/heading";
 import { Code } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -11,11 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import Empty from "@/components/empty";
-import Loader from "@/components/loader";
+import Empty from "@/components/extra/empty";
+import Loader from "@/components/loaders/loader";
 import { cn } from "@/lib/utils";
-import UserAvatar from "@/components/user.avatar";
-import BotAvatar from "@/components/bot.avatar";
+import UserAvatar from "@/components/extra/user.avatar";
+import BotAvatar from "@/components/extra/bot.avatar";
 import ReactMarkdown from "react-markdown";
 import toast from "react-hot-toast";
 

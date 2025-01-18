@@ -1,7 +1,7 @@
-import Footer from "@/components/landing-bottom"
-import NotFound from "@/components/PageNotFound";
-import Header from "@/components/landingNavbar"
-import { BackgroundBeams } from "@/components/background-beams";
+import Footer from "@/components/landing/landing-bottom"
+import NotFound from "@/components/extra/PageNotFound";
+import Header from "@/components/landing/landingNavbar"
+import { BackgroundBeams } from "@/components/features/background-beams";
 
 const NotFoundPage = () => {
     return (

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import gsap from "gsap";
-import Themes from "./themes";
+import Themes from "../extra/themes";
 import { Moon, Sun } from "lucide-react";
 
 const font = Montserrat({

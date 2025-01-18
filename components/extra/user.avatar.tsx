@@ -1,5 +1,5 @@
-import { Avatar, AvatarImage } from "./ui/avatar";
-import { AvatarFallback } from "./ui/avatar";
+import { Avatar, AvatarImage } from "../ui/avatar";
+import { AvatarFallback } from "../ui/avatar";
 import { useSession } from "next-auth/react";
 
 function UserAvatar() {

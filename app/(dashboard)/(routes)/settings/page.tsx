@@ -1,12 +1,12 @@
 "use client";
-import Heading from "@/components/heading";
-import Themes from "@/components/themes";
+import Heading from "@/components/extra/heading";
+import Themes from "@/components/extra/themes";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
 import { Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "@/components/loadingSpinner";
+import LoadingSpinner from "@/components/loaders/loadingSpinner";
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(false)

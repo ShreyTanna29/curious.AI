@@ -1,11 +1,11 @@
 "use client";
 import { signIn, useSession } from "next-auth/react";
-import { BackgroundBeams } from "./background-beams";
-import { Button } from "./ui/button";
+import { BackgroundBeams } from "../features/background-beams";
+import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "./loadingSpinner";
+import LoadingSpinner from "../loaders/loadingSpinner";
 import gsap from "gsap";
 
 export default function LandingHero() {

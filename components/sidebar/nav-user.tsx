@@ -28,7 +28,7 @@ import { CaretSortIcon } from "@radix-ui/react-icons"
 import Link from "next/link"
 import { signOut } from "next-auth/react"
 import { useState } from "react"
-import LoadingSpinner from "./loadingSpinner"
+import LoadingSpinner from "../loaders/loadingSpinner"
 export function NavUser({
   user,
 }: {

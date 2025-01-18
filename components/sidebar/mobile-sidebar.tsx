@@ -9,8 +9,8 @@ import {
   Code,
   Settings
 } from "lucide-react";
-import { Button } from "./ui/button";
-import { Sheet, SheetTrigger, SheetContent, SheetClose } from "./ui/sheet";
+import { Button } from "../ui/button";
+import { Sheet, SheetTrigger, SheetContent, SheetClose } from "../ui/sheet";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Montserrat } from "next/font/google";

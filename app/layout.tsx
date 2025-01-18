@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ToasterProvider } from "@/components/toaster.provider";
-import { CrispProvider } from "@/components/crisp-provider";
+import { ToasterProvider } from "@/components/extra/toaster.provider";
+import { CrispProvider } from "@/components/extra/crisp-provider";
 import NextTopLoader from 'nextjs-toploader';
 import { Provider } from "@/packages/provider";
 
