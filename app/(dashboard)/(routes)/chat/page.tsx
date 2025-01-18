@@ -100,8 +100,8 @@ function ConversationPage() {
         form.setValue("prompt", "Summarize this text :")
         break;
       }
-
     }
+    form.setFocus("prompt")
   }
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
