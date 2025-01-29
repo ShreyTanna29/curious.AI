@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import gsap from "gsap";
 import {
   ArrowRight,
   Code,
@@ -11,8 +12,18 @@ import {
   ShoppingBag,
 } from "lucide-react";
 import Link from "next/link";
+import { useEffect } from "react";
 
 function DashboardPage() {
+
+  useEffect(() => {
+    gsap.to(".slideUp", {
+      opacity: 1,
+      duration: 0.5,
+      y: 0,
+      stagger: 0.2
+    })
+  }, [])
 
   const tools = [
     {
@@ -65,9 +76,9 @@ function DashboardPage() {
 
       <div className="px-4 w-full space-y-4 ">
         {tools.map((tool) => (
-          <Link key={tool.href} href={tool.href}>
+          <Link key={tool.href} href={tool.href} className="opacity-0 translate-y-10 slideUp" >
             <Card
-              className="p-4 border-black/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer"
+              className="p-4 border-black/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer opacity-0 translate-y-10 slideUp"
             >
               <div className="flex items-center gap-x-4">
                 <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
