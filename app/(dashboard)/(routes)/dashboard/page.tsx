@@ -15,15 +15,13 @@ import Link from "next/link";
 import { useEffect } from "react";
 
 function DashboardPage() {
-
   useEffect(() => {
     gsap.to(".slideUp", {
       opacity: 1,
-      duration: 0.5,
-      y: 0,
-      stagger: 0.2
-    })
-  }, [])
+      duration: 0.3,
+      stagger: 0.1,
+    });
+  });
 
   const tools = [
     {
@@ -76,10 +74,8 @@ function DashboardPage() {
 
       <div className="px-4 w-full space-y-4 ">
         {tools.map((tool) => (
-          <Link key={tool.href} href={tool.href} className="opacity-0 translate-y-10 slideUp" >
-            <Card
-              className="p-4 border-black/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer opacity-0 translate-y-10 slideUp"
-            >
+          <Link key={tool.href} href={tool.href} className="opacity-0 slideUp">
+            <Card className="p-4 border-black/5 dark:border-white/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer opacity-0  slideUp">
               <div className="flex items-center gap-x-4">
                 <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
                   <tool.icon className={cn("w-8 h-8", tool.color)} />

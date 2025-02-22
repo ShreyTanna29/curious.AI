@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
+import Loader from "@/components/loaders/loader";
 
 interface FileStructure {
   name: string;
@@ -140,7 +141,7 @@ function CodeGenerationPage() {
               className="col-span-12 lg:col-span-2 w-full"
               disabled={isLoading}
             >
-              Generate
+              {!isLoading ? <Loader className="w-7 h-7" /> : "Generate"}
             </Button>
           </form>
         </Form>
