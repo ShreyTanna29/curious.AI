@@ -13,6 +13,7 @@
     "@google/generative-ai": "^0.21.0",
     "@gsap/react": "^2.1.1",
     "@hookform/resolvers": "^3.9.0",
+    "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^5.21.1",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-collapsible": "^1.1.1",

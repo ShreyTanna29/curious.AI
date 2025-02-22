@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import Heading from "@/components/extra/heading";
-import { Code } from "lucide-react";
+import { Code, File, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./constants";
@@ -9,25 +9,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import Empty from "@/components/extra/empty";
-import Loader from "@/components/loaders/loader";
-import { cn } from "@/lib/utils";
-import UserAvatar from "@/components/extra/user.avatar";
-import BotAvatar from "@/components/extra/bot.avatar";
-import ReactMarkdown from "react-markdown";
+import { useState } from "react";
+import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
 
-type Message = {
-  role: "user" | "assistant";
+interface FileStructure {
+  name: string;
   content: string;
-};
+  language: string;
+}
 
 function CodeGenerationPage() {
-  const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [gettingUserCode, setGettingUserCode] = useState(false);
+  const [files, setFiles] = useState<FileStructure[]>([]);
+  const [selectedFile, setSelectedFile] = useState<FileStructure | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,53 +32,81 @@ function CodeGenerationPage() {
 
   const isLoading = form.formState.isSubmitting;
 
-  const getUserCodes = async () => {
-    setGettingUserCode(true);
-    const response = await axios.get("/api/code/get-user-code");
-    if (response.data) {
-      response.data.map((chat: any) =>
-        setMessages((prev) => [
-          ...prev,
-          { role: "assistant", content: chat.response.toString("utf8") },
-          { role: "user", content: chat.prompt },
-
-        ])
-      );
-    }
-    setGettingUserCode(false);
+  const createNewFile = () => {
+    const newFile = {
+      name: `untitled-${files.length + 1}.js`,
+      content: "// Start coding here",
+      language: "javascript",
+    };
+    setFiles([...files, newFile]);
+    setSelectedFile(newFile);
   };
-
-  useEffect(() => {
-    getUserCodes();
-  }, []);
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      const userMessage: Message = {
-        role: "user",
-        content: values.prompt,
-      };
       const response = await axios.post("/api/code", {
         prompt: values.prompt,
       });
 
-      const newMessage: Message = {
-        role: "assistant",
-        content: String(response.data),
-      };
+      console.log(response.data);
 
-      setMessages((current) => [newMessage, userMessage, ...current,]);
+      const strings = response.data.split("```");
+
+      strings.map((string: any) => {
+        if (string) {
+          if (string.includes("json")) {
+            const newString = string
+              .replace("json", "")
+              .replace(/`/g, "'")
+              .trim();
+
+            console.log(newString);
+            const obj = JSON.parse(newString);
+
+            for (const key in obj) {
+              console.log(key);
+
+              const extension = key.split(".").pop()?.toLowerCase();
+              const languageMap: { [key: string]: string } = {
+                js: "javascript",
+                jsx: "javascript",
+                ts: "typescript",
+                tsx: "typescript",
+                html: "html",
+                css: "css",
+                json: "json",
+                py: "python",
+                java: "java",
+                cpp: "cpp",
+                c: "c",
+                go: "go",
+                rs: "rust",
+              };
+
+              const language = languageMap[extension || ""] || "plaintext";
+              const newfile = {
+                name: key,
+                content: obj[key],
+                language,
+              };
+              files.push(newfile);
+              setSelectedFile(newfile);
+            }
+            console.log(JSON.stringify(obj));
+          }
+        }
+      });
+      console.log(strings);
+
       form.reset();
-    } catch (error: any) {
-      console.log(error);
+    } catch (error) {
       toast.error("Something went wrong.");
-    } finally {
-      router.refresh();
+      console.log(error);
     }
   };
 
   return (
-    <div>
+    <div className="h-full">
       <Heading
         title="Code Generation"
         description="Get code for anything in any language."
@@ -91,75 +114,91 @@ function CodeGenerationPage() {
         iconColor="text-green-500"
         bgColor="bg-green-500/10"
       />
+
       <div className="px-4 lg:px-8">
-        <div>
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="rounded-lg border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-12 gap-2"
+          >
+            <FormField
+              name="prompt"
+              render={({ field }) => (
+                <FormItem className="col-span-12 lg:col-span-10">
+                  <FormControl className="m-0 p-0">
+                    <Input
+                      className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
+                      disabled={isLoading}
+                      placeholder="e.g. Write code for a Todo application in javascript."
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <Button
+              className="col-span-12 lg:col-span-2 w-full"
+              disabled={isLoading}
             >
-              <FormField
-                name="prompt"
-                render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-10">
-                    <FormControl className="m-0 p-0">
-                      <Input
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent"
-                        disabled={isLoading}
-                        placeholder="e.g. Write code for a Todo application in javascript."
-                        {...field}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <Button
-                className="col-span-12 lg:col-span-2 w-full"
-                disabled={isLoading}
-              >
-                Generate
+              Generate
+            </Button>
+          </form>
+        </Form>
+
+        <div className="flex h-[calc(100vh-300px)] mt-8">
+          <div className="w-64 bg-zinc-900 text-white p-4 rounded-l-lg">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">Files</h3>
+              <Button variant="ghost" size="icon" onClick={createNewFile}>
+                <Plus className="h-4 w-4" />
               </Button>
-            </form>
-          </Form>
-        </div>
-        <div className="space-y-4 mt-4">
-          {(isLoading || gettingUserCode) && (
-            <div className="p-8 rounded-lg w-full flex items-center justify-center bg-muted">
-              <Loader />
             </div>
-          )}
-          {messages.length === 0 && !isLoading && !gettingUserCode && (
-            <Empty label="No code generated yet."></Empty>
-          )}
-          <div className="flex flex-col-reverse gap-y-4 ">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={cn(
-                  "p-6 flex items-start gap-x-8 overflow-x-auto",
-                  message.role === "user"
-                    ? "bg-white border border-black/50 rounded-l-2xl rounded-tr-2xl ml-auto md:max-w-[40%] dark:bg-black dark:border-white "
-                    : "bg-green-500/5 mr-auto max-w-[100%] md:max-w-[60%] rounded-r-2xl rounded-tl-2xl dark:bg-white/10 "
-                )}
-              >
-                {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
-                <ReactMarkdown
-                  components={{
-                    pre: ({ ...props }) => (
-                      <div className=" overflow-auto w-full my-2  bg-black/10 p-4 rounded-lg ">
-                        <pre {...props} />
-                      </div>
-                    ),
-                    code: ({ ...props }) => (
-                      <code className=" rounded-lg p-1" {...props} />
-                    ),
-                  }}
-                  className="text-sm overflow-hidden leading-7"
+            <div className="space-y-2">
+              {files.map((file, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center space-x-2 p-2 rounded cursor-pointer ${
+                    selectedFile === file ? "bg-zinc-700" : "hover:bg-zinc-800"
+                  }`}
+                  onClick={() => setSelectedFile(file)}
                 >
-                  {message.content || ""}
-                </ReactMarkdown>
+                  <File className="h-4 w-4" />
+                  <span>{file.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-1 bg-[#1e1e1e] rounded-r-lg">
+            {selectedFile ? (
+              <Editor
+                height="100%"
+                theme="vs-dark"
+                language={selectedFile.language}
+                value={selectedFile.content}
+                onChange={(value) => {
+                  if (selectedFile && value) {
+                    const updatedFiles = files.map((f) =>
+                      f === selectedFile ? { ...f, content: value } : f
+                    );
+                    setFiles(updatedFiles);
+                    setSelectedFile({ ...selectedFile, content: value });
+                  }
+                }}
+                options={{
+                  minimap: { enabled: true },
+                  fontSize: 14,
+                  lineNumbers: "on",
+                  automaticLayout: true,
+                  formatOnPaste: true,
+                  formatOnType: true,
+                }}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                Select a file or generate code to begin
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>
