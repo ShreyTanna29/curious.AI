@@ -141,7 +141,7 @@ function CodeGenerationPage() {
               className="col-span-12 lg:col-span-2 w-full"
               disabled={isLoading}
             >
-              {!isLoading ? <Loader className="w-7 h-7" /> : "Generate"}
+              {isLoading ? <Loader className="w-7 h-7" /> : "Generate"}
             </Button>
           </form>
         </Form>
