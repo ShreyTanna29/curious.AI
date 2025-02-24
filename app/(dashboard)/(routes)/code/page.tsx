@@ -23,6 +23,8 @@ interface FileStructure {
 function CodeGenerationPage() {
   const [files, setFiles] = useState<FileStructure[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileStructure | null>(null);
+  const [userMessages, setUserMessages] = useState<{ text: string }[]>([]);
+  const [modelMessages, setModelMessages] = useState<{ text: string }[]>([]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,10 +49,18 @@ function CodeGenerationPage() {
     try {
       const response = await axios.post("/api/code", {
         prompt: values.prompt,
+        userMessages,
+        modelMessages,
       });
 
-      console.log(response.data);
+      setUserMessages((prev) => [...prev, { text: values.prompt }]);
+      setModelMessages((prev) => [...prev, { text: response.data }]);
 
+      console.log(response.data);
+      console.log("userMessages :: ", userMessages);
+      console.log("modelMessages :: ", modelMessages);
+
+      files.length = 0;
       const strings = response.data.split("```");
 
       strings.map((string: any) => {
@@ -70,9 +80,9 @@ function CodeGenerationPage() {
               const extension = key.split(".").pop()?.toLowerCase();
               const languageMap: { [key: string]: string } = {
                 js: "javascript",
-                jsx: "javascript",
+                jsx: "javascriptreact",
                 ts: "typescript",
-                tsx: "typescript",
+                tsx: "typescriptreact",
                 html: "html",
                 css: "css",
                 json: "json",
