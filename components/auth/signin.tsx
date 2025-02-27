@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "@/components/ui/SignupLabel";
 import { Input } from "@/components/ui/SignupInput";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,16 @@ export function SignIn() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.theme === "dark" || localStorage.theme === "Dark Theme") {
+      document.documentElement.classList.add("dark");
+    } else {
+      if (document.documentElement.classList.contains("dark")) {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  });
 
   const googleHandler = async () => {
     try {
@@ -56,7 +66,7 @@ export function SignIn() {
     }
   };
   return (
-    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input bg-white dark:bg-black">
+    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input dark:bg-black">
       <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
         Welcome to Curious.AI
       </h2>

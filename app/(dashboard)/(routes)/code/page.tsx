@@ -174,6 +174,7 @@ function CodeGenerationPage() {
       console.log("modelMessages :: ", modelMessages);
 
       filetree.length = 0;
+      setSelectedFile(null);
       const strings = response.data.split("```");
 
       strings.map((string: any) => {
