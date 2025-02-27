@@ -25,8 +25,8 @@ export async function POST(req: Request) {
 
     const systemPrompt =
       "You are an expert code generator. Generate clean, well-documented, and efficient code. Include comments explaining the code logic. " +
-      "your first line should be the file structure of the app in an json object" +
-      "this is an example of how your json object should look like : {index.html: code of index.html,style.css: code , 'index.js' : 'code'}, key of the object should be name of the file and it's value should be the code in that file, and use only double quotes, don't use any bad control characters, e.g. line breaks" +
+      "your first line should be the file structure of the app in an json object," +
+      "this is an example of how your json object should look like : {folder: {name: 'src', type: 'folder', children: [{name: 'index.html', type: 'file', content: 'content of the file', language: 'html'}, {name: 'components', type: 'folder', children: [{name: 'login.tsx', content: 'content of the file', language: 'typescriptreact'}],}], folder: {name: 'sample.ts', type: 'file', content: 'its content', language: 'typescript' } }}, key of the object should be files or folders of root folder, do not use any other name and values of that keys would be name of the node type of the node and then children of the node, if children is a file then it should also have content property and language property and type should be file but if the children is a folder then it should have type as folder and should have children property if it has more files or folders in it, also every file should have an id and " + "use only double quotes and single quotes dont use backticks and don't use any bad control characters, e.g. line breaks" +
       "Make sure to properly escape all double quotes within the code content using backslashes. " +
       "Whenever a user asks to make changes in code, send every files and updated code in it, don't send just parts to edit, send full code of the app again in the mentioned format";
 
