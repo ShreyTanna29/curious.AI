@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       return new NextResponse("prompt is required", { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const chat = model.startChat();
     const result = await chat.sendMessage(prompt);
