@@ -29,7 +29,15 @@ function CodeGenerationPage() {
   const [userMessages, setUserMessages] = useState<{ text: string }[]>([]);
   const [modelMessages, setModelMessages] = useState<{ text: string }[]>([]);
   const [openFolders, setOpenFolders] = useState<string[]>([]); // which ever folder needs to open, id of that folder will be in this array
+  const [currentTheme, setCurrentTheme] = useState<"light" | "dark">();
 
+  useEffect(() => {
+    if (document.documentElement.classList.contains("dark")) {
+      setCurrentTheme("dark");
+    } else {
+      setCurrentTheme("light");
+    }
+  });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,6 +55,14 @@ function CodeGenerationPage() {
     language?: string,
     children?: FileStructure[]
   ) => {
+    const assignIdToChildren = children?.map((child) => ({
+      ...child,
+      id: crypto.randomUUID(),
+      children: child.children
+        ? child.children.map((c) => ({ ...c, id: crypto.randomUUID() }))
+        : undefined,
+    }));
+
     // Node represent file or folder being created
     const newNode: FileStructure = {
       id: crypto.randomUUID(),
@@ -54,7 +70,7 @@ function CodeGenerationPage() {
       type,
       content,
       language,
-      children,
+      children: assignIdToChildren,
     };
 
     const updateFileTree = (nodes: FileStructure[]): FileStructure[] => {
@@ -107,9 +123,23 @@ function CodeGenerationPage() {
     setFiletree((prevTree) => updateTree(prevTree));
   };
 
-  useEffect(() => {
-    console.log("selected FIle: ", selectedFile);
-  }, [selectedFile]);
+  const handleSelectedFile = (node: FileStructure) => {
+    if (node.type === "file") {
+      if (node.id.trim() === "" || node.id === undefined) {
+        node.id = crypto.randomUUID();
+        setSelectedFile(node);
+      } else {
+        setSelectedFile(node);
+      }
+    } else {
+      setOpenFolders(
+        (prev) =>
+          prev.includes(node.id)
+            ? prev.filter((id) => id !== node.id) // Close folder
+            : [...prev, node.id] // Open folder
+      );
+    }
+  };
 
   const renderFileTree = (nodes: FileStructure[]) => {
     return (
@@ -119,19 +149,10 @@ function CodeGenerationPage() {
             <div
               className={`flex items-center space-x-2 p-2 rounded cursor-pointer ${
                 selectedFile?.id === node.id
-                  ? "bg-zinc-700"
-                  : "hover:bg-zinc-800"
+                  ? "bg-zinc-300 dark:bg-zinc-700"
+                  : " hover:bg-zinc-200 dark:hover:bg-zinc-800"
               }`}
-              onClick={() =>
-                node.type === "file"
-                  ? setSelectedFile(node)
-                  : setOpenFolders(
-                      (prev) =>
-                        prev.includes(node.id)
-                          ? prev.filter((id) => id !== node.id) // Close folder
-                          : [...prev, node.id] // Open folder
-                    )
-              }
+              onClick={() => handleSelectedFile(node)}
             >
               <div className="flex items-center gap-3">
                 {node.type === "file" ? (
@@ -169,9 +190,7 @@ function CodeGenerationPage() {
       setUserMessages((prev) => [...prev, { text: values.prompt }]);
       setModelMessages((prev) => [...prev, { text: response.data }]);
 
-      console.log(response.data);
-      console.log("userMessages :: ", userMessages);
-      console.log("modelMessages :: ", modelMessages);
+      // console.log(response.data);
 
       filetree.length = 0;
       setSelectedFile(null);
@@ -189,7 +208,7 @@ function CodeGenerationPage() {
             const parsedObj = JSON.parse(newString);
 
             for (const key in parsedObj) {
-              console.log(key);
+              // console.log("key: ",key);
 
               const addThisNode = (node: FileStructure) => {
                 addFileOrFolder(
@@ -204,7 +223,7 @@ function CodeGenerationPage() {
 
               addThisNode(parsedObj[key]);
             }
-            console.log(JSON.stringify(parsedObj));
+            // console.log(JSON.stringify(parsedObj));
           }
         }
       });
@@ -258,17 +277,17 @@ function CodeGenerationPage() {
         </Form>
 
         <div className="flex h-[calc(100vh-300px)] mt-8">
-          <div className="w-64 bg-zinc-900 text-white p-4 rounded-l-lg overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+          <div className="w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 rounded-l-lg overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Files</h3>
             </div>
             {renderFileTree(filetree)}
           </div>
-          <div className="flex-1 bg-[#1e1e1e] rounded-r-lg">
+          <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e] rounded-r-lg">
             {selectedFile && selectedFile.type === "file" ? (
               <Editor
                 height="100%"
-                theme="vs-dark"
+                theme={`${currentTheme === "dark" ? "vs-dark" : "light"}`}
                 language={selectedFile.language}
                 value={selectedFile.content}
                 onChange={(value) => {
