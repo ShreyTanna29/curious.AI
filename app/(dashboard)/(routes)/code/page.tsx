@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
 import Loader from "@/components/loaders/loader";
+import useWebContainer from "@/hooks/useWebContainer";
 
 interface FileStructure {
   id: string;
@@ -30,6 +31,9 @@ function CodeGenerationPage() {
   const [modelMessages, setModelMessages] = useState<{ text: string }[]>([]);
   const [openFolders, setOpenFolders] = useState<string[]>([]); // which ever folder needs to open, id of that folder will be in this array
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">();
+  const [iframeUrl, setIframeUrl] = useState<string>("");
+
+  const webContainer = useWebContainer();
 
   useEffect(() => {
     if (document.documentElement.classList.contains("dark")) {
@@ -90,7 +94,6 @@ function CodeGenerationPage() {
     setFiletree((prevTree) =>
       parentId ? updateFileTree(prevTree) : [...prevTree, newNode]
     );
-    console.log(filetree);
   };
 
   // const findFile = (
@@ -121,6 +124,76 @@ function CodeGenerationPage() {
     };
 
     setFiletree((prevTree) => updateTree(prevTree));
+  };
+
+  const loadFilesToWebContainer = async () => {
+    if (!webContainer) return;
+
+    const processFiles = async (nodes: FileStructure[], path = "") => {
+      return nodes.reduce((acc, node) => {
+        const fullPath = path ? `${path}/${node.name}` : node.name;
+
+        if (node.type === "file") {
+          acc[fullPath] = {
+            file: {
+              contents: node.content || "",
+            },
+          };
+        } else if (node.type === "folder") {
+          acc[fullPath] = {
+            directory: {},
+          };
+          if (node.children) {
+            Object.assign(acc, processFiles(node.children, fullPath));
+          }
+        }
+        return acc;
+      }, {});
+    };
+
+    console.log("file tree :: ", filetree);
+
+    const files = await processFiles(filetree);
+    if (webContainer) {
+      console.log("files mounted: ", files);
+      if (!files) console.log("FILES ARE EMPTY BITCH!!");
+
+      await webContainer.mount(files);
+      await startDevServer();
+    }
+  };
+
+  const startDevServer = async () => {
+    try {
+      if (!webContainer) return;
+
+      const installProcess = await webContainer.spawn("npm", ["install"]);
+      installProcess.output.pipeTo(
+        new WritableStream({
+          write(chunk) {
+            console.log(chunk);
+          },
+        })
+      );
+
+      const installExitCode = await installProcess.exit;
+
+      if (installExitCode !== 0) {
+        throw new Error(
+          "Unable to run npm install, Exit Code is not equal to 0."
+        );
+      }
+
+      await webContainer.spawn("npm", ["run", "dev"]);
+
+      webContainer.on("server-ready", (port, url) => {
+        console.log("url: ", url, "port: ", port);
+
+        setIframeUrl(url);
+      });
+    } catch (error) {
+      console.log("start DEV SEREVER : ", error);
+    }
   };
 
   const handleSelectedFile = (node: FileStructure) => {
@@ -192,7 +265,7 @@ function CodeGenerationPage() {
 
       // console.log(response.data);
 
-      filetree.length = 0;
+      setFiletree([]);
       setSelectedFile(null);
       const strings = response.data.split("```");
 
@@ -220,13 +293,15 @@ function CodeGenerationPage() {
                   node.type === "folder" ? node.children : undefined
                 );
               };
-
               addThisNode(parsedObj[key]);
             }
             // console.log(JSON.stringify(parsedObj));
           }
         }
       });
+      setTimeout(() => {
+        loadFilesToWebContainer();
+      }, 0);
       console.log(strings);
 
       form.reset();
@@ -309,6 +384,16 @@ function CodeGenerationPage() {
             )}
           </div>
         </div>
+        {
+          <div className="w-1/2 border">
+            <iframe
+              title="preview"
+              src={iframeUrl}
+              className="w-[80vw] h-[100vh]"
+              allow="cross-origin-isolated"
+            ></iframe>
+          </div>
+        }
       </div>
     </div>
   );
