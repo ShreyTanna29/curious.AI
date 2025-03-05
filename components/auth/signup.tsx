@@ -22,7 +22,7 @@ export function Signup() {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   useEffect(() => {
-    if (localStorage.theme === "dark" || localStorage.theme === "Dark Theme") {
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.documentElement.classList.add("dark");
     } else {
       if (document.documentElement.classList.contains("dark")) {
