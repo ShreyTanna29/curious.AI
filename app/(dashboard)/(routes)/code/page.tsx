@@ -14,6 +14,7 @@ import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
 import Loader from "@/components/loaders/loader";
 import useWebContainer from "@/hooks/useWebContainer";
+import { FileSystemTree } from "@webcontainer/api";
 
 interface FileStructure {
   id: string;
@@ -32,6 +33,7 @@ function CodeGenerationPage() {
   const [openFolders, setOpenFolders] = useState<string[]>([]); // which ever folder needs to open, id of that folder will be in this array
   const [currentTheme, setCurrentTheme] = useState<"light" | "dark">();
   const [iframeUrl, setIframeUrl] = useState<string>("");
+  const [showTab, setShowTab] = useState<"code" | "preview">("code");
 
   const webContainer = useWebContainer();
 
@@ -91,9 +93,15 @@ function CodeGenerationPage() {
       });
     };
 
-    setFiletree((prevTree) =>
-      parentId ? updateFileTree(prevTree) : [...prevTree, newNode]
-    );
+    if (parentId) {
+      updateFileTree(filetree);
+    } else {
+      filetree.push(newNode);
+    }
+
+    // setFiletree((prevTree) =>
+    //   parentId ? updateFileTree(prevTree) : [...prevTree, newNode]
+    // );
   };
 
   // const findFile = (
@@ -129,38 +137,67 @@ function CodeGenerationPage() {
   const loadFilesToWebContainer = async () => {
     if (!webContainer) return;
 
-    const processFiles = async (nodes: FileStructure[], path = "") => {
-      return nodes.reduce((acc, node) => {
-        const fullPath = path ? `${path}/${node.name}` : node.name;
+    const convertFilesToWebContainerFormat = (
+      nodes: FileStructure[]
+    ): FileSystemTree => {
+      const result: FileSystemTree = {};
 
-        if (node.type === "file") {
-          acc[fullPath] = {
+      const processNode = (node: FileStructure) => {
+        if (node.type === "folder") {
+          const folderContents: FileSystemTree = {};
+
+          if (node.children) {
+            node.children.forEach((child) => {
+              if (child.type === "folder") {
+                folderContents[child.name] = {
+                  directory: processNode(child),
+                };
+              } else {
+                folderContents[child.name] = {
+                  file: {
+                    contents: child.content || "",
+                  },
+                };
+              }
+            });
+          }
+          return folderContents;
+        }
+        return {
+          [node.name]: {
+            file: {
+              contents: node.content || "",
+            },
+          },
+        };
+      };
+
+      nodes.forEach((node) => {
+        if (node.type === "folder") {
+          result[node.name] = {
+            directory: processNode(node),
+          };
+        } else {
+          result[node.name] = {
             file: {
               contents: node.content || "",
             },
           };
-        } else if (node.type === "folder") {
-          acc[fullPath] = {
-            directory: {},
-          };
-          if (node.children) {
-            Object.assign(acc, processFiles(node.children, fullPath));
-          }
         }
-        return acc;
-      }, {});
+      });
+
+      return result;
     };
+
+    const files = convertFilesToWebContainerFormat(filetree);
 
     console.log("file tree :: ", filetree);
 
-    const files = await processFiles(filetree);
-    if (webContainer) {
-      console.log("files mounted: ", files);
-      if (!files) console.log("FILES ARE EMPTY BITCH!!");
+    console.log("files mounted: ", files);
+    if (!files) console.log("FILES ARE EMPTY BITCH!!");
 
-      await webContainer.mount(files);
-      await startDevServer();
-    }
+    await webContainer.mount(files);
+    await startDevServer();
   };
 
   const startDevServer = async () => {
@@ -184,17 +221,26 @@ function CodeGenerationPage() {
         );
       }
 
-      await webContainer.spawn("npm", ["run", "dev"]);
+      try {
+        await webContainer.spawn("npm", ["run", "dev"]);
 
-      webContainer.on("server-ready", (port, url) => {
-        console.log("url: ", url, "port: ", port);
-
-        setIframeUrl(url);
-      });
+        webContainer.on("server-ready", (port, url) => {
+          console.log("url: ", url, "port: ", port);
+          setIframeUrl(url);
+        });
+      } catch (error) {
+        console.log("npm run dev error : ", error);
+      }
     } catch (error) {
       console.log("start DEV SEREVER : ", error);
     }
   };
+
+  useEffect(() => {
+    if (showTab === "preview") {
+      startDevServer();
+    }
+  }, [showTab]);
 
   const handleSelectedFile = (node: FileStructure) => {
     if (node.type === "file") {
@@ -265,17 +311,14 @@ function CodeGenerationPage() {
 
       // console.log(response.data);
 
-      setFiletree([]);
+      filetree.length = 0;
       setSelectedFile(null);
       const strings = response.data.split("```");
 
       strings.map((string: any) => {
         if (string) {
           if (string.includes("json")) {
-            const newString = string
-              .replace("json", "")
-              .replace(/`/g, "'")
-              .trim();
+            const newString = string.replace("json", "").trim();
 
             console.log(newString);
             const parsedObj = JSON.parse(newString);
@@ -299,9 +342,9 @@ function CodeGenerationPage() {
           }
         }
       });
-      setTimeout(() => {
-        loadFilesToWebContainer();
-      }, 0);
+      console.log("file tree before calling loadfiles func :: ", filetree);
+
+      loadFilesToWebContainer();
       console.log(strings);
 
       form.reset();
@@ -351,49 +394,56 @@ function CodeGenerationPage() {
           </form>
         </Form>
 
-        <div className="flex h-[calc(100vh-300px)] mt-8">
-          <div className="w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 rounded-l-lg overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">Files</h3>
-            </div>
-            {renderFileTree(filetree)}
-          </div>
-          <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e] rounded-r-lg">
-            {selectedFile && selectedFile.type === "file" ? (
-              <Editor
-                height="100%"
-                theme={`${currentTheme === "dark" ? "vs-dark" : "light"}`}
-                language={selectedFile.language}
-                value={selectedFile.content}
-                onChange={(value) => {
-                  updateFileContent(selectedFile.id, value || "");
-                }}
-                options={{
-                  minimap: { enabled: true },
-                  fontSize: 14,
-                  lineNumbers: "on",
-                  automaticLayout: true,
-                  formatOnPaste: true,
-                  formatOnType: true,
-                }}
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-500">
-                Write a prompt to build your app.
-              </div>
-            )}
-          </div>
+        <div className="flex items-center gap-4">
+          <Button onClick={() => setShowTab("code")}>Code</Button>
+          <Button onClick={() => setShowTab("preview")}>Preview</Button>
         </div>
-        {
+
+        {showTab === "code" && (
+          <div className="flex h-[calc(100vh-300px)] mt-8">
+            <div className="w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 rounded-l-lg overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Files</h3>
+              </div>
+              {renderFileTree(filetree)}
+            </div>
+            <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e] rounded-r-lg">
+              {selectedFile && selectedFile.type === "file" ? (
+                <Editor
+                  height="100%"
+                  theme={`${currentTheme === "dark" ? "vs-dark" : "light"}`}
+                  language={selectedFile.language}
+                  value={selectedFile.content}
+                  onChange={(value) => {
+                    updateFileContent(selectedFile.id, value || "");
+                  }}
+                  options={{
+                    minimap: { enabled: true },
+                    fontSize: 14,
+                    lineNumbers: "on",
+                    automaticLayout: true,
+                    formatOnPaste: true,
+                    formatOnType: true,
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-500">
+                  Write a prompt to build your app.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+        {showTab === "preview" && (
           <div className="w-1/2 border">
             <iframe
               title="preview"
               src={iframeUrl}
-              className="w-[80vw] h-[100vh]"
+              className="w-[80vw] h-[80vh]"
               allow="cross-origin-isolated"
             ></iframe>
           </div>
-        }
+        )}
       </div>
     </div>
   );
