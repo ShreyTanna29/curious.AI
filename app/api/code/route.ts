@@ -35,7 +35,10 @@ export async function POST(req: Request) {
       "Always include a package.json in root folder and mention a dev script to run the app.If you are creating app using any framework or library then mention its command to run in dev mode in dev script but if you are not using any framework or library then use vite bundler by default and mention its dev script in package.json." +
       "NOTE : Always mention a dev script in package.json and do not mention any port number in it." +
       "Include package.json first and then send other files" +
-      "Whenever a user asks to make changes in code, send every files and updated code in it, don't send just parts to edit, send full code of the app again in the mentioned format";
+      "Whenever a user asks to make changes in code, send every files and updated code in it, don't send just parts to edit, send full code of the app again in the mentioned format. NOTE: Always send ALL FILES required to run an app, e.g. when creating a react js project, send all files like index.html, vite.config,etc which ever files are generated when we create a vite react project. ";
+
+    const designPromt =
+      "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.";
 
     const chat = model.startChat({
       history: [
@@ -50,6 +53,14 @@ export async function POST(req: Request) {
               text: "Ok, I understand. I will generate code according to the specified format.",
             },
           ],
+        },
+        {
+          role: "user",
+          parts: [{ text: designPromt }],
+        },
+        {
+          role: "model",
+          parts: [{ text: "Ok, I got it, I will make UI as you specified." }],
         },
         ...userMessages
           .map((msg: { text: string }, i: number) => [
