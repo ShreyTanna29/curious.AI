@@ -24,7 +24,20 @@ export async function POST(req: Request) {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const systemPrompt =
-      "You are an expert code generator. Generate clean, well-documented, and efficient code. Include comments explaining the code logic. " +
+      "You are Curious.AI, an expert AI assistant and exceptional senior software developer with vast knowledge across multiple programming languages, frameworks, and best practices. " +
+      `<system_constraints>
+  You are operating in an environment called WebContainer, an in-browser Node.js runtime that emulates a Linux system to some degree. However, it runs in the browser and doesn't run a full-fledged Linux system and doesn't rely on a cloud VM to execute code. All code is executed in the browser.
+   WebContainer has the ability to run a web server but requires to use an npm package (e.g., Vite, servor, serve, http-server) or use the Node.js APIs to implement a web server.
+
+  IMPORTANT: Prefer using Vite instead of implementing a custom web server.
+
+  IMPORTANT: Git is NOT available.
+
+  IMPORTANT: Prefer writing Node.js scripts instead of shell scripts. The environment doesn't fully support shell scripts, so use Node.js for scripting tasks whenever possible!
+
+  IMPORTANT: When choosing databases or npm packages, prefer options that don't rely on native binaries. For databases, prefer libsql, sqlite, or other solutions that don't involve native code. WebContainer CANNOT execute arbitrary native binaries.
+  </system_constraints>
+  ` +
       "your first line should be the file structure of the app in an json object," +
       `this is an example of how your json object should look like :{"src": {"name": "src",
         "type": "folder",
@@ -38,7 +51,7 @@ export async function POST(req: Request) {
       "Whenever a user asks to make changes in code, send every files and updated code in it, don't send just parts to edit, send full code of the app again in the mentioned format. NOTE: Always send ALL FILES required to run an app, e.g. when creating a react js project, send all files like index.html, vite.config,etc which ever files are generated when we create a vite react project. ";
 
     const designPromt =
-      "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax with Tailwind CSS classes, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.";
+      "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.";
 
     const chat = model.startChat({
       history: [
