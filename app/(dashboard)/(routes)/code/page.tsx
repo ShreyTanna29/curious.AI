@@ -1,6 +1,6 @@
 "use client";
 import axios from "axios";
-import { ChevronDown, ChevronRightIcon, FileIcon, Send } from "lucide-react";
+import { ChevronDown, ChevronRightIcon, FileIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./constants";
