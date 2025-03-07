@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ToasterProvider } from "@/components/extra/toaster.provider";
 import { CrispProvider } from "@/components/extra/crisp-provider";
-import NextTopLoader from 'nextjs-toploader';
+import NextTopLoader from "nextjs-toploader";
 import { Provider } from "@/packages/provider";
 
 const geistSans = localFont({
@@ -28,10 +28,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-
-
-
   return (
     <html lang="en">
       <link rel="icon" href="/logo.png" sizes="any" />
@@ -41,9 +37,7 @@ export default function RootLayout({
       >
         <NextTopLoader showSpinner={false} />
         <ToasterProvider />
-        <Provider>
-          {children}
-        </Provider>
+        <Provider>{children}</Provider>
       </body>
     </html>
   );
