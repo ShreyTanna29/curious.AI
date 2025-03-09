@@ -96,10 +96,6 @@ function CodeGenerationPage() {
     } else {
       filetree.push(newNode);
     }
-
-    // setFiletree((prevTree) =>
-    //   parentId ? updateFileTree(prevTree) : [...prevTree, newNode]
-    // );
   };
 
   // const findFile = (
@@ -230,14 +226,6 @@ function CodeGenerationPage() {
       console.log("start DEV SEREVER : ", error);
     }
   };
-
-  useEffect(() => {
-    if (showTab === "preview") {
-      if (!webcontainerCreated) {
-        startDevServer();
-      }
-    }
-  }, [showTab]);
 
   const handleSelectedFile = (node: FileStructure) => {
     if (node.type === "file") {
@@ -414,7 +402,7 @@ function CodeGenerationPage() {
                   Build Web Apps At Light Speed
                 </motion.h1>
                 <motion.p
-                  className="text-lg text-white/70"
+                  className="text-lg text-black/70 dark:text-white/70"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 1, delay: 0.4 }}
@@ -434,7 +422,7 @@ function CodeGenerationPage() {
                   backgroundSize: "300% 300%",
                 }}
               >
-                <div className="relative bg-[#0A0A0A] rounded-xl p-4 backdrop-blur-sm">
+                <div className="relative bg-white  dark:bg-[#0A0A0A] rounded-xl p-4 backdrop-blur-sm">
                   <div className="min-h-[200px]">
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -480,10 +468,10 @@ function CodeGenerationPage() {
                           }}
                         >
                           <div className="absolute w-full h-full border-2 border-white border-t-transparent rounded-full animate-pulse" />
-                          <div className="absolute w-full h-full border-2 border-white/30 rounded-full" />
+                          <div className="absolute w-full h-full border-2 border-black/30 dark:border-white/30 rounded-full" />
                         </motion.div>
                         <motion.span
-                          className="text-white/90"
+                          className="dark:text-white/90"
                           initial={{ opacity: 0, x: -5 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ duration: 0.2 }}
@@ -493,7 +481,7 @@ function CodeGenerationPage() {
                       </motion.div>
                     ) : (
                       <motion.div
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-2 cursor-pointer"
                         initial={{ x: -5 }}
                         whileHover={{ x: 0 }}
                       >
@@ -534,7 +522,7 @@ function CodeGenerationPage() {
         {!showPromptSection && (
           <div className="mt-8 ">
             <div className="p-2 w-full rounded-t-lg bg-neutral-100 dark:bg-zinc-900 dark:text-white border  border-black/10 dark:border-white/10">
-              <span className="dark:bg-black rounded-3xl gap-3 flex px-3 py-1 w-fit ">
+              <span className="bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
                 <span
                   className={`${
                     showTab === "code"

@@ -15,8 +15,9 @@ import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, History, Newspaper, Quote, TrendingUp } from "lucide-react";
-import Balancer from "react-wrap-balancer"
+import Balancer from "react-wrap-balancer";
 import gsap from "gsap";
+import remarkGfm from "remark-gfm";
 
 type Message = {
   role: "user" | "assistant";
@@ -28,7 +29,7 @@ function ConversationPage() {
   const [windowWidth, setWindowWidth] = useState<number>(800);
   const [messages, setMessages] = useState<Message[]>([]);
   const [previousMessages, setPreviuosMessages] = useState<Message[]>([]);
-  const [showHistory, setShowHistory] = useState(false)
+  const [showHistory, setShowHistory] = useState(false);
   const [gettingUserChats, setGettingUserChats] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -51,8 +52,8 @@ function ConversationPage() {
       );
     }
     if (!response.data || response.data.length === 0) {
-      toast.error("You don't have any previous chats.")
-      setShowHistory(false)
+      toast.error("You don't have any previous chats.");
+      setShowHistory(false);
     }
     setGettingUserChats(false);
   };
@@ -65,8 +66,8 @@ function ConversationPage() {
       setWindowWidth(window.innerWidth);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   //GSAP handler useEffect
@@ -76,33 +77,32 @@ function ConversationPage() {
       duration: 0.5,
       stagger: 0.2,
       y: 0,
-    })
-  }, [showHistory])
+    });
+  }, [showHistory]);
 
   const isLoading = form.formState.isSubmitting;
 
   const tabsHandler = (topic: "trending" | "news" | "quote" | "summarize") => {
-
     switch (topic) {
       case "trending": {
-        form.setValue("prompt", "What's trending today?")
+        form.setValue("prompt", "What's trending today?");
         break;
       }
       case "news": {
-        form.setValue("prompt", "Tell me today's latest news")
+        form.setValue("prompt", "Tell me today's latest news");
         break;
       }
       case "quote": {
-        form.setValue("prompt", "Share an motivating quote with me.")
+        form.setValue("prompt", "Share an motivating quote with me.");
         break;
       }
       case "summarize": {
-        form.setValue("prompt", "Summarize this text :")
+        form.setValue("prompt", "Summarize this text :");
         break;
       }
     }
-    form.setFocus("prompt")
-  }
+    form.setFocus("prompt");
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -131,17 +131,21 @@ function ConversationPage() {
   };
 
   const historyHandler = async () => {
-    setShowHistory(!showHistory)
+    setShowHistory(!showHistory);
     if (previousMessages.length === 0) {
-      await getUserChats()
+      await getUserChats();
     }
-  }
+  };
 
   return (
     <div className="w-full transition-all duration-300 ease-in-out ">
-      <Button variant={"custom"} className="right-3 lg:right-10 bg-gray-100 rounded-lg absolute md:p-4" onClick={() => historyHandler()} >
+      <Button
+        variant={"custom"}
+        className="right-3 lg:right-10 bg-gray-100 rounded-lg absolute md:p-4"
+        onClick={() => historyHandler()}
+      >
         <History className="mr-2" />
-        <span className="hidden md:block" >
+        <span className="hidden md:block">
           {showHistory ? "Hide" : "Show"} History
         </span>
       </Button>
@@ -156,77 +160,86 @@ function ConversationPage() {
             {messages.length === 0 && !showHistory && (
               <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[50vh] lg:justify-end ">
                 <div className=" text-center text-3xl mb-6">
-                  <h1> <Balancer> How can I help you today?</Balancer></h1>
+                  <h1>
+                    {" "}
+                    <Balancer> How can I help you today?</Balancer>
+                  </h1>
                 </div>
                 <div className="w-full  flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-y-hidden overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
                   <Button
                     onClick={() => tabsHandler("trending")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg opacity-0 slideUp translate-y-10 " >
-                    <TrendingUp className="mr-2 text-violet-500" /> What&apos;s trending?
+                    className="md:p-5 text-lg rounded-lg opacity-0 slideUp translate-y-10 "
+                  >
+                    <TrendingUp className="mr-2 text-violet-500" /> What&apos;s
+                    trending?
                   </Button>
                   <Button
                     onClick={() => tabsHandler("quote")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 " >
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 "
+                  >
                     <Quote className="mr-2 text-green-500" /> Share a quote
                   </Button>
                   <Button
                     onClick={() => tabsHandler("summarize")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 " >
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 "
+                  >
                     <FileText className="mr-2 text-orange-500 " />
                     Summarize text
                   </Button>
                   <Button
                     onClick={() => tabsHandler("news")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 " >
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 "
+                  >
                     <Newspaper className="mr-2 text-blue-500 " />
                     Today&apos;s news
                   </Button>
                 </div>
-
               </div>
             )}
             <div className="flex flex-col gap-y-6">
-              {showHistory && previousMessages.map((message, index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "p-4 flex items-center gap-x-6 w-fit",
-                    message.role === "user"
-                      ? "bg-neutral-200 rounded-xl ml-auto  md:p-5  max-w-[70%] dark:bg-[#212121] "
-                      : "bg-white md:p-6 max-w-[100%] rounded-r-2xl rounded-tl-2xl dark:bg-black"
-                  )}
-                >
-                  <p className="text-sm flex justify-center gap-3 md:text-xl text-muted-foreground dark:text-white">
-                    {message.role === "user" ? null : <BotAvatar />}
-                    {message.role === "user" ? (
-                      message.content
-                    ) : (
-                      <ReactMarkdown
-                        components={{
-                          pre: ({ ...props }) => (
-                            <div className=" overflow-auto w-full  my-2 bg-black/10 p-2 rounded-lg ">
-                              <pre {...props} />
-                            </div>
-                          ),
-                          code: ({ ...props }) => (
-                            <code
-                              className="bg-black/10 rounded-lg p-1"
-                              {...props}
-                            />
-                          ),
-                        }}
-                        className="text-sm md:text-xl overflow-hidden leading-7"
-                      >
-                        {message.content || ""}
-                      </ReactMarkdown>
+              {showHistory &&
+                previousMessages.map((message, index) => (
+                  <div
+                    key={index}
+                    className={cn(
+                      "p-4 flex items-center gap-x-6 w-fit",
+                      message.role === "user"
+                        ? "bg-neutral-200 rounded-xl ml-auto  md:p-5  max-w-[70%] dark:bg-[#212121] "
+                        : "bg-white md:p-6 max-w-[100%] rounded-r-2xl rounded-tl-2xl dark:bg-black"
                     )}
-                  </p>
-                </div>
-              ))}
+                  >
+                    <p className="text-sm flex justify-center gap-3 md:text-xl text-muted-foreground dark:text-white">
+                      {message.role === "user" ? null : <BotAvatar />}
+                      {message.role === "user" ? (
+                        message.content
+                      ) : (
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            pre: ({ ...props }) => (
+                              <div className=" overflow-auto w-full  my-2 bg-black/10 p-2 rounded-lg ">
+                                <pre {...props} />
+                              </div>
+                            ),
+                            code: ({ ...props }) => (
+                              <code
+                                className="bg-black/10 rounded-lg p-1"
+                                {...props}
+                              />
+                            ),
+                          }}
+                          className="text-sm md:text-xl overflow-hidden leading-7"
+                        >
+                          {message.content || ""}
+                        </ReactMarkdown>
+                      )}
+                    </p>
+                  </div>
+                ))}
               {messages.map((message, index) => (
                 <div
                   key={index}
@@ -292,7 +305,7 @@ function ConversationPage() {
                           textarea.style.height = `${textarea.scrollHeight}px`; // Adjust height based on content
                         }}
                         onKeyDown={(e) => {
-                          if (e.key === 'Enter' && !e.shiftKey) {
+                          if (e.key === "Enter" && !e.shiftKey) {
                             e.preventDefault();
                             form.handleSubmit(onSubmit)();
                           }

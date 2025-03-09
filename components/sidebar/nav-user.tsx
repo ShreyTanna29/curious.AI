@@ -1,15 +1,8 @@
-"use client"
+"use client";
 
-import {
-  LogOut,
-  Settings,
-} from "lucide-react"
+import { LogOut, Settings } from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,30 +10,30 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "@/components/ui/sidebar"
-import { CaretSortIcon } from "@radix-ui/react-icons"
-import Link from "next/link"
-import { signOut } from "next-auth/react"
-import { useState } from "react"
-import LoadingSpinner from "../loaders/loadingSpinner"
+} from "@/components/ui/sidebar";
+import { CaretSortIcon } from "@radix-ui/react-icons";
+import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { useState } from "react";
+import LoadingSpinner from "../loaders/loadingSpinner";
 export function NavUser({
   user,
 }: {
   user: {
-    name: string
-    email: string
-    avatar: string
-  }
+    name: string;
+    email: string;
+    avatar: string;
+  };
 }) {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
 
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -53,7 +46,7 @@ export function NavUser({
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
                 <AvatarFallback className="rounded-lg">
-                  {user?.name?.charAt(0) || "c"}
+                  {user?.name?.charAt(0).toLocaleUpperCase() || "c"}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -83,17 +76,19 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <Link href={"/settings"}>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => { }} >
+              <DropdownMenuItem className="cursor-pointer" onClick={() => {}}>
                 <Settings />
                 Settings
-              </DropdownMenuItem >
+              </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer"
+            <DropdownMenuItem
+              className="cursor-pointer"
               onClick={() => {
-                setLoading(true)
-                signOut({ callbackUrl: "/" })
-              }}>
+                setLoading(true);
+                signOut({ callbackUrl: "/" });
+              }}
+            >
               {loading ? <LoadingSpinner /> : <LogOut />}
               Log out
             </DropdownMenuItem>
@@ -101,5 +96,5 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
-  )
+  );
 }

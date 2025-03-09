@@ -158,11 +158,11 @@ function ImagePage() {
             words="Let's Imagify Your Thoughts ✨🎩"
           />
         </div>
-        <div className="flex w-full  mt-8">
+        <div className="flex justify-center">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className=" rounded-[16px] border w-full p-4 px-3 md:px-6 focus-within:shadow-sm grid grid-cols-10 gap-2"
+              className=" rounded-[16px] border p-4 w-full lg:w-[60%] focus-within:shadow-sm grid grid-cols-8 gap-2"
             >
               <FormField
                 name="prompt"
@@ -171,11 +171,11 @@ function ImagePage() {
                     <div className="flex flex-col gap-2">
                       <FormControl className="m-0 p-2">
                         <Textarea
-                          className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent resize-none transition-all duration-200"
+                          className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent resize-none transition-all dark:text-gray-100 duration-200"
                           disabled={isLoading}
-                          placeholder="e.g. A cute cat"
+                          placeholder="Enter your prompt here..."
                           {...field}
-                          rows={1} // Start with a single row
+                          rows={3}
                           onInput={(e) => {
                             const textarea = e.target as HTMLTextAreaElement; // Cast EventTarget to HTMLTextAreaElement
                             textarea.style.height = "auto"; // Reset height to calculate correctly
