@@ -64,7 +64,7 @@ function DashboardPage() {
   return (
     <div className="w-full">
       <div className="mb-8 w-full space-y-4">
-        <h2 className="text-2xl font-bold text-center md:text-4xl ">
+        <h2 className="text-2xl font-bold text-center md:text-4xl">
           Explore the power of AI
         </h2>
         <p className="text-muted-foreground text-sm text-center font-light md:text-lg">
@@ -75,7 +75,10 @@ function DashboardPage() {
       <div className="px-4 w-full space-y-4 ">
         {tools.map((tool) => (
           <Link key={tool.href} href={tool.href} className="opacity-0 slideUp">
-            <Card className="p-4 border-black/5 dark:border-white/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer opacity-0  slideUp">
+            <Card
+              onClick={() => (window.location.href = tool.href)}
+              className="p-4 border-black/5 dark:border-white/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer opacity-0  slideUp"
+            >
               <div className="flex items-center gap-x-4">
                 <div className={cn("p-2 w-fit rounded-md", tool.bgColor)}>
                   <tool.icon className={cn("w-8 h-8", tool.color)} />

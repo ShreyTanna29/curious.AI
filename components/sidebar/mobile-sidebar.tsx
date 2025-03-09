@@ -7,7 +7,7 @@ import {
   ImageIcon,
   ShoppingBag,
   Code,
-  Settings
+  Settings,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetClose } from "../ui/sheet";
@@ -64,8 +64,8 @@ const MobileSidebar = () => {
     document.documentElement.classList.toggle(
       "dark",
       localStorage.theme === "Dark Theme" ||
-      (!("theme" in localStorage) &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
+        (!("theme" in localStorage) &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches)
     );
   }, []);
 
@@ -106,6 +106,7 @@ const MobileSidebar = () => {
                 <SheetClose key={route.href} asChild>
                   <Link
                     href={route.href}
+                    onClick={() => (window.location.href = route.href)}
                     className={cn(
                       "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:bg-black/10  dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition",
                       "text-black dark:text-zinc-400"

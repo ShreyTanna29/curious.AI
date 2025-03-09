@@ -35,7 +35,6 @@ import Loader from "@/components/loaders/loader";
 import { MovingBorderButton } from "@/components/features/moving-border";
 import CopyButton from "@/components/extra/CopyButton";
 
-
 type imageType = {
   url: string;
   prompt: string;
@@ -45,10 +44,10 @@ function ImagePage() {
   const [newImages, setNewImages] = useState<imageType[]>([]);
   const [prevImages, setPrevImages] = useState<imageType[]>([]);
   const [showPrevImages, setShowPrevImages] = useState(false);
-  const [loadingImages, setLoadingImages] = useState(false)
-  const [surpriseMeLoading, setSurpriseMeLoading] = useState(false)
-  const [surpriseMeDisabled, setSurpriseMeDisabled] = useState(false)
-  const [deviceWidth, setDeviceWidth] = useState(0)
+  const [loadingImages, setLoadingImages] = useState(false);
+  const [surpriseMeLoading, setSurpriseMeLoading] = useState(false);
+  const [surpriseMeDisabled, setSurpriseMeDisabled] = useState(false);
+  const [deviceWidth, setDeviceWidth] = useState(0);
 
   const [deletingImages, setDeletingImages] = useState<{
     [key: string]: boolean;
@@ -59,16 +58,16 @@ function ImagePage() {
   }>({});
 
   useEffect(() => {
-    setDeviceWidth(window.innerWidth)
+    setDeviceWidth(window.innerWidth);
 
     const handelResize = () => {
-      setDeviceWidth(window.innerWidth)
-    }
+      setDeviceWidth(window.innerWidth);
+    };
 
-    window.addEventListener("resize", handelResize)
+    window.addEventListener("resize", handelResize);
 
-    return window.removeEventListener("resize", handelResize)
-  }, [])
+    return window.removeEventListener("resize", handelResize);
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -77,11 +76,11 @@ function ImagePage() {
     },
   });
 
-  const [loadedPreviousImages, setLoadedPreviousImages] = useState(false)
+  const [loadedPreviousImages, setLoadedPreviousImages] = useState(false);
   const userImages = async () => {
     try {
       if (!loadedPreviousImages) {
-        setLoadingImages(true)
+        setLoadingImages(true);
         const response = await axios.get("/api/image/get-user-images");
 
         if (response.data) {
@@ -90,15 +89,15 @@ function ImagePage() {
               return { url: img.url, prompt: img.prompt };
             })
           );
-          setLoadedPreviousImages(true)
+          setLoadedPreviousImages(true);
         }
       }
-
     } catch (error) {
       console.log("Error fetching user images:", error);
       toast.error("Failed to load images");
-    } finally { setLoadingImages(false) }
-
+    } finally {
+      setLoadingImages(false);
+    }
   };
 
   const isLoading = form.formState.isSubmitting;
@@ -113,8 +112,7 @@ function ImagePage() {
     } catch (error: any) {
       console.log(error);
       toast.error("Something went wrong. Please try again.");
-    }
-    finally {
+    } finally {
       router.refresh();
       setSurpriseMeDisabled(false);
     }
@@ -127,35 +125,38 @@ function ImagePage() {
   };
 
   const deleteImageHandler = async (url: string) => {
-    setDeletingImages((prev) => ({ ...prev, [url]: true }))
-    await deleteImage({ url })
-    const newImgs = newImages.filter(image => image.url !== url)
-    setNewImages(newImgs)
-    setPrevImages(prevImages.filter(img => img.url !== url))
-    setDeletingImages((prev) => ({ ...prev, [url]: false }))
-  }
+    setDeletingImages((prev) => ({ ...prev, [url]: true }));
+    await deleteImage({ url });
+    const newImgs = newImages.filter((image) => image.url !== url);
+    setNewImages(newImgs);
+    setPrevImages(prevImages.filter((img) => img.url !== url));
+    setDeletingImages((prev) => ({ ...prev, [url]: false }));
+  };
 
   const surpriseMeHandler = async () => {
     try {
-      setSurpriseMeLoading(true)
+      setSurpriseMeLoading(true);
       const response = await axios.post("/api/chat/surprise-me", {
-        prompt: "Give me a unique and amazing prompt for an image generation model. give me prompt directly without any extra text"
-      })
-      form.setValue("prompt", response.data)
+        prompt:
+          "Give me a unique and amazing prompt for an image generation model. give me prompt directly without any extra text",
+      });
+      form.setValue("prompt", response.data);
     } catch (error) {
       console.log("ERROR :: Image page :: ", error);
       toast.error("Please try again.");
     } finally {
-      setSurpriseMeLoading(false)
-
+      setSurpriseMeLoading(false);
     }
-  }
+  };
 
   return (
     <div className="select-none h-full">
       <div className=" px-4 lg:px-8 h-full w-full">
-        <div className="w-full h-[20%] md:h-[30%] flex items-center justify-center" >
-          <TextGenerateEffect className="text-3xl md:text-6xl" words="Let's Imagify Your Thoughts ✨🎩" />
+        <div className="w-full h-[20%] md:h-[30%] flex items-center justify-center">
+          <TextGenerateEffect
+            className="text-3xl md:text-6xl"
+            words="Let's Imagify Your Thoughts ✨🎩"
+          />
         </div>
         <div className="flex w-full  mt-8">
           <Form {...form}>
@@ -182,8 +183,8 @@ function ImagePage() {
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                              e.preventDefault()
-                              form.handleSubmit(onSubmit)()
+                              e.preventDefault();
+                              form.handleSubmit(onSubmit)();
                             }
                           }}
                         />
@@ -198,36 +199,53 @@ function ImagePage() {
                   </FormItem>
                 )}
               />
-
-
             </form>
           </Form>
         </div>
         <div className="space-y-4 mt-4">
-
           <div className=" flex w-full flex-wrap gap-4 md:items-center md:justify-center">
-            <div className={`${surpriseMeDisabled ? 'pointer-events-none' : ''}`} aria-disabled={surpriseMeLoading}>
+            <div
+              className={`${surpriseMeDisabled ? "pointer-events-none" : ""}`}
+              aria-disabled={surpriseMeLoading}
+            >
               <MovingBorderButton
                 containerClassName={`${deviceWidth < 500 ? "h-12 w-32" : null}`}
-                className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800" borderRadius="2rem"
+                className="bg-white rounded-lg  dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800"
+                borderRadius="2rem"
                 onClick={() => {
-                  surpriseMeHandler()
-                }}>
-                Surprise Me  { } {surpriseMeLoading ? <LoadingSpinner className="ml-2" /> : "✨"}
+                  surpriseMeHandler();
+                }}
+              >
+                Surprise Me {}{" "}
+                {surpriseMeLoading ? <LoadingSpinner className="ml-2" /> : "✨"}
               </MovingBorderButton>
             </div>
 
-
-            <div className={`cursor-pointer flex bg-black/10 text-sm md:text-lg rounded-lg ${deviceWidth < 500 ? "p-2" : "p-4"} items-center justify-center gap-2 dark:bg-white/10`}
+            <div
+              className={`cursor-pointer flex bg-black/10 text-sm md:text-lg rounded-lg ${
+                deviceWidth < 500 ? "p-2" : "p-4"
+              } items-center justify-center gap-2 dark:bg-white/10`}
               onClick={() => {
-                setShowPrevImages(!showPrevImages)
-                userImages()
-              }}>
-              My Previous Images  {loadingImages ? <LoadingSpinner /> : (showPrevImages ? <ChevronUp /> : <ChevronDown />)}
+                setShowPrevImages(!showPrevImages);
+                userImages();
+              }}
+            >
+              My Previous Images{" "}
+              {loadingImages ? (
+                <LoadingSpinner />
+              ) : showPrevImages ? (
+                <ChevronUp />
+              ) : (
+                <ChevronDown />
+              )}
             </div>
           </div>
 
-          <div className={` grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${showPrevImages ? "grid" : "hidden"} `}>
+          <div
+            className={` grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${
+              showPrevImages ? "grid" : "hidden"
+            } `}
+          >
             {prevImages &&
               prevImages.map((image) => (
                 <Card key={image.url} className="rounded-lg overflow-hidden">
@@ -236,7 +254,8 @@ function ImagePage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <div className="p-1 rounded-full bg-black/20    backdrop-blur-sm hover:bg-black/30  transition">
-                            {(downloadingImages[image.url] || deletingImages[image.url]) ? (
+                            {downloadingImages[image.url] ||
+                            deletingImages[image.url] ? (
                               <LoadingSpinner />
                             ) : (
                               <EllipsisVertical className="w-5 h-5 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" />
@@ -265,8 +284,7 @@ function ImagePage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="flex gap-2 cursor-pointer "
-                            onClick={() =>
-                              deleteImageHandler(image.url)}
+                            onClick={() => deleteImageHandler(image.url)}
                           >
                             <Trash2 />
                             Delete
@@ -288,12 +306,15 @@ function ImagePage() {
                         <CopyButton className="ml-auto" text={image.prompt} />
                       </div>
                     </h1>
-
                   </CardFooter>
                 </Card>
               ))}
           </div>
-          <div className={` grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${newImages ? "grid" : "hidden"} `}>
+          <div
+            className={` grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 ${
+              newImages ? "grid" : "hidden"
+            } `}
+          >
             {newImages &&
               newImages.map((image) => (
                 <Card key={image.url} className="rounded-lg overflow-hidden">
@@ -302,7 +323,8 @@ function ImagePage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <div className="p-1 rounded-full bg-black/20    backdrop-blur-sm hover:bg-black/30  transition">
-                            {(downloadingImages[image.url] || deletingImages[image.url]) ? (
+                            {downloadingImages[image.url] ||
+                            deletingImages[image.url] ? (
                               <LoadingSpinner />
                             ) : (
                               <EllipsisVertical className="w-5 h-5 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]" />
@@ -331,8 +353,7 @@ function ImagePage() {
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="flex gap-2 cursor-pointer "
-                            onClick={() =>
-                              deleteImageHandler(image.url)}
+                            onClick={() => deleteImageHandler(image.url)}
                           >
                             <Trash2 />
                             Delete
@@ -348,7 +369,6 @@ function ImagePage() {
                     />
                   </div>
                   <CardFooter className="justify-center p-4 bg-black/10 dark:bg-white/10 ">
-
                     <h1 className="font-bold w-full text-center ">
                       {image.prompt}
                       <div className="mt-1">
