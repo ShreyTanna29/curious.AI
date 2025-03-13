@@ -371,19 +371,6 @@ function CodeGenerationPage() {
     },
   };
 
-  const blobAnimation = {
-    animate: {
-      scale: isInView ? [1, 1.1, 0.9, 1] : 1,
-      x: isInView ? [0, 30, -20, 0] : 0,
-      y: isInView ? [0, -50, 20, 0] : 0,
-      transition: {
-        duration: 7,
-        repeat: isInView ? Infinity : 0,
-        ease: "easeInOut",
-      },
-    },
-  };
-
   const pageTransition = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 },
@@ -405,7 +392,7 @@ function CodeGenerationPage() {
     }),
   };
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full transition-all duration-300 ease-in-out">
       <AnimatePresence mode="wait">
         <div>
           {showPromptSection && (
@@ -416,147 +403,129 @@ function CodeGenerationPage() {
               exit="exit"
               variants={pageTransition}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="bg-gradient-to-br h-screen backdrop-blur-lg dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white"
+              className="bg-gradient-to-br h-screen backdrop-blur-lg dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white transition-all duration-300 ease-in-out"
             >
-              <div className="bg-gradient-to-br h-screen backdrop-blur-lg dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white">
-                <main ref={mainRef} className="pt-24 px-4 max-w-4xl mx-auto">
-                  <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={fadeIn}
-                    transition={{ duration: 0.8, delay: 0.2 }}
-                    className="text-center mb-12 space-y-4"
-                  >
-                    <motion.h1
-                      className="text-4xl md:text-5xl w-full font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text"
-                      animate={{
-                        backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                      }}
-                      transition={{
-                        duration: 8,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      style={{ backgroundSize: "200% 200%" }}
-                    >
-                      Build Web Apps At Light Speed
-                    </motion.h1>
-                    <motion.p
-                      className="text-lg text-black/70 dark:text-white/70"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 1, delay: 0.4 }}
-                    >
-                      Describe what you want to build, and let AI do the magic
-                    </motion.p>
-                  </motion.div>
-
-                  <motion.div
-                    initial="initial"
-                    animate="animate"
-                    variants={borderAnimation}
-                    className="relative rounded-xl p-[2px] overflow-hidden"
-                    style={{
-                      background:
-                        "linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #3B82F6)",
-                      backgroundSize: "300% 300%",
+              <main ref={mainRef} className="pt-24 px-4 max-w-4xl mx-auto">
+                <motion.div
+                  initial="hidden"
+                  animate="visible"
+                  variants={fadeIn}
+                  transition={{ duration: 0.8, delay: 0.2 }}
+                  className="text-center mb-12 space-y-4"
+                >
+                  <motion.h1
+                    className="text-4xl md:text-5xl w-full font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text"
+                    animate={{
+                      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                     }}
+                    transition={{
+                      duration: 8,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                    style={{ backgroundSize: "200% 200%" }}
                   >
-                    <div className="relative bg-white  dark:bg-[#0A0A0A] rounded-xl p-4 backdrop-blur-sm">
-                      <div className="min-h-[200px]">
+                    Build Web Apps At Light Speed
+                  </motion.h1>
+                  <motion.p
+                    className="text-lg text-black/70 dark:text-white/70"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 1, delay: 0.4 }}
+                  >
+                    Describe what you want to build, and let AI do the magic
+                  </motion.p>
+                </motion.div>
+
+                <motion.div
+                  initial="initial"
+                  animate="animate"
+                  variants={borderAnimation}
+                  className="relative rounded-xl p-[2px] overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #3B82F6)",
+                    backgroundSize: "300% 300%",
+                  }}
+                >
+                  <div className="relative bg-white  dark:bg-[#0A0A0A] rounded-xl p-4 backdrop-blur-sm">
+                    <div className="min-h-[200px]">
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 1, delay: 1 }}
+                      >
+                        <span className="dark:text-white/70">Start with: </span>
+                        <span className="text-blue-400">
+                          &quot;Create a modern landing page...&quot;
+                        </span>
+                      </motion.div>
+                      <textarea
+                        value={prompt}
+                        onChange={(e) => setPrompt(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            onSubmit();
+                          }
+                        }}
+                        placeholder="Describe what you want to build..."
+                        className="w-full h-[150px] mt-4 bg-transparent border-none outline-none resize-none dark:text-white placeholder-white/30"
+                      />
+                    </div>
+                    <div className="absolute bottom-4 right-4">
+                      {loading ? (
                         <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 1, delay: 1 }}
+                          className="flex items-center gap-2"
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.2 }}
                         >
-                          <span className="dark:text-white/70">
-                            Start with:{" "}
-                          </span>
-                          <span className="text-blue-400">
-                            &quot;Create a modern landing page...&quot;
-                          </span>
-                        </motion.div>
-                        <textarea
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              onSubmit();
-                            }
-                          }}
-                          placeholder="Describe what you want to build..."
-                          className="w-full h-[150px] mt-4 bg-transparent border-none outline-none resize-none dark:text-white placeholder-white/30"
-                        />
-                      </div>
-                      <div className="absolute bottom-4 right-4">
-                        {loading ? (
                           <motion.div
-                            className="flex items-center gap-2"
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
+                            className="relative w-5 h-5"
+                            animate={{
+                              rotate: 360,
+                              transition: {
+                                duration: 1,
+                                repeat: Infinity,
+                                ease: "linear",
+                                repeatType: "loop",
+                              },
+                            }}
+                          >
+                            <div className="absolute w-full h-full border-2 border-white border-t-transparent rounded-full animate-pulse" />
+                            <div className="absolute w-full h-full border-2 border-black/30 dark:border-white/30 rounded-full" />
+                          </motion.div>
+                          <motion.span
+                            className="dark:text-white/90"
+                            initial={{ opacity: 0, x: -5 }}
+                            animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.2 }}
                           >
-                            <motion.div
-                              className="relative w-5 h-5"
-                              animate={{
-                                rotate: 360,
-                                transition: {
-                                  duration: 1,
-                                  repeat: Infinity,
-                                  ease: "linear",
-                                  repeatType: "loop",
-                                },
-                              }}
-                            >
-                              <div className="absolute w-full h-full border-2 border-white border-t-transparent rounded-full animate-pulse" />
-                              <div className="absolute w-full h-full border-2 border-black/30 dark:border-white/30 rounded-full" />
-                            </motion.div>
-                            <motion.span
-                              className="dark:text-white/90"
-                              initial={{ opacity: 0, x: -5 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              Generating...
-                            </motion.span>
-                          </motion.div>
-                        ) : (
-                          <motion.div
-                            className="flex items-center gap-2 cursor-pointer"
-                            initial={{ x: -5 }}
-                            whileHover={{ x: 0 }}
-                          >
-                            <span>Generate</span>
-                            <ChevronRightIcon className="w-4 h-4" />
-                          </motion.div>
-                        )}
-                      </div>
+                            Generating...
+                          </motion.span>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          className="flex items-center gap-2 cursor-pointer"
+                          initial={{ x: -5 }}
+                          whileHover={{ x: 0 }}
+                        >
+                          <span>Generate</span>
+                          <ChevronRightIcon className="w-4 h-4" />
+                        </motion.div>
+                      )}
                     </div>
-                  </motion.div>
-                </main>
-
-                {/* Background Effects */}
-                <div className="fixed inset-0 -z-10 overflow-hidden">
-                  <div className="absolute -inset-[10px] opacity-50">
-                    <motion.div
-                      variants={blobAnimation}
-                      animate="animate"
-                      className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px]"
-                    />
-                    <motion.div
-                      variants={blobAnimation}
-                      animate="animate"
-                      transition={{ delay: 2 }}
-                      className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px]"
-                    />
-                    <motion.div
-                      variants={blobAnimation}
-                      animate="animate"
-                      transition={{ delay: 4 }}
-                      className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-[128px]"
-                    />
                   </div>
+                </motion.div>
+              </main>
+
+              {/* Background Effects */}
+              <div className="fixed inset-0 -z-10 overflow-hidden">
+                <div className="absolute -inset-[10px] opacity-50">
+                  <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px]" />
+                  <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px]" />
+                  <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-[128px]" />
                 </div>
               </div>
             </motion.div>
