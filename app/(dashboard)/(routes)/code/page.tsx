@@ -11,7 +11,7 @@ import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
 import useWebContainer from "@/hooks/useWebContainer";
 import { FileSystemTree } from "@webcontainer/api";
-import { motion, useInView } from "framer-motion";
+import { AnimatePresence, motion, useInView } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -38,6 +38,7 @@ function CodeGenerationPage() {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [explanations, setExplanations] = useState<string[]>([]);
+  const [swipeDirection, setSwipeDirection] = useState(0);
 
   const webContainer = useWebContainer();
 
@@ -383,383 +384,463 @@ function CodeGenerationPage() {
     },
   };
 
+  const pageTransition = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -20 },
+  };
+
+  const slideVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? "30%" : "-30%",
+      opacity: 0,
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+    },
+    exit: (direction: number) => ({
+      x: direction < 0 ? "30%" : "-30%",
+      opacity: 0,
+    }),
+  };
   return (
     <div className="h-full w-full">
-      <div>
-        {showPromptSection && (
-          <div className="bg-gradient-to-br dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white">
-            <main ref={mainRef} className="pt-24 px-4 max-w-4xl mx-auto">
-              <motion.div
-                initial="hidden"
-                animate="visible"
-                variants={fadeIn}
-                transition={{ duration: 0.8, delay: 0.2 }}
-                className="text-center mb-12 space-y-4"
-              >
-                <motion.h1
-                  className="text-4xl md:text-5xl w-full font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text"
-                  animate={{
-                    backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                  style={{ backgroundSize: "200% 200%" }}
-                >
-                  Build Web Apps At Light Speed
-                </motion.h1>
-                <motion.p
-                  className="text-lg text-black/70 dark:text-white/70"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.4 }}
-                >
-                  Describe what you want to build, and let AI do the magic
-                </motion.p>
-              </motion.div>
-
-              <motion.div
-                initial="initial"
-                animate="animate"
-                variants={borderAnimation}
-                className="relative rounded-xl p-[2px] overflow-hidden"
-                style={{
-                  background:
-                    "linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #3B82F6)",
-                  backgroundSize: "300% 300%",
-                }}
-              >
-                <div className="relative bg-white  dark:bg-[#0A0A0A] rounded-xl p-4 backdrop-blur-sm">
-                  <div className="min-h-[200px]">
-                    <motion.div
+      <AnimatePresence mode="wait">
+        <div>
+          {showPromptSection && (
+            <motion.div
+              key="prompt"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={pageTransition}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="bg-gradient-to-br h-screen backdrop-blur-lg dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white"
+            >
+              <div className="bg-gradient-to-br h-screen backdrop-blur-lg dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white">
+                <main ref={mainRef} className="pt-24 px-4 max-w-4xl mx-auto">
+                  <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={fadeIn}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                    className="text-center mb-12 space-y-4"
+                  >
+                    <motion.h1
+                      className="text-4xl md:text-5xl w-full font-bold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text"
+                      animate={{
+                        backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                      }}
+                      transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      style={{ backgroundSize: "200% 200%" }}
+                    >
+                      Build Web Apps At Light Speed
+                    </motion.h1>
+                    <motion.p
+                      className="text-lg text-black/70 dark:text-white/70"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ duration: 1, delay: 1 }}
+                      transition={{ duration: 1, delay: 0.4 }}
                     >
-                      <span className="dark:text-white/70">Start with: </span>
-                      <span className="text-blue-400">
-                        &quot;Create a modern landing page...&quot;
-                      </span>
-                    </motion.div>
+                      Describe what you want to build, and let AI do the magic
+                    </motion.p>
+                  </motion.div>
+
+                  <motion.div
+                    initial="initial"
+                    animate="animate"
+                    variants={borderAnimation}
+                    className="relative rounded-xl p-[2px] overflow-hidden"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, #3B82F6, #8B5CF6, #EC4899, #3B82F6)",
+                      backgroundSize: "300% 300%",
+                    }}
+                  >
+                    <div className="relative bg-white  dark:bg-[#0A0A0A] rounded-xl p-4 backdrop-blur-sm">
+                      <div className="min-h-[200px]">
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 1, delay: 1 }}
+                        >
+                          <span className="dark:text-white/70">
+                            Start with:{" "}
+                          </span>
+                          <span className="text-blue-400">
+                            &quot;Create a modern landing page...&quot;
+                          </span>
+                        </motion.div>
+                        <textarea
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              onSubmit();
+                            }
+                          }}
+                          placeholder="Describe what you want to build..."
+                          className="w-full h-[150px] mt-4 bg-transparent border-none outline-none resize-none dark:text-white placeholder-white/30"
+                        />
+                      </div>
+                      <div className="absolute bottom-4 right-4">
+                        {loading ? (
+                          <motion.div
+                            className="flex items-center gap-2"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <motion.div
+                              className="relative w-5 h-5"
+                              animate={{
+                                rotate: 360,
+                                transition: {
+                                  duration: 1,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                  repeatType: "loop",
+                                },
+                              }}
+                            >
+                              <div className="absolute w-full h-full border-2 border-white border-t-transparent rounded-full animate-pulse" />
+                              <div className="absolute w-full h-full border-2 border-black/30 dark:border-white/30 rounded-full" />
+                            </motion.div>
+                            <motion.span
+                              className="dark:text-white/90"
+                              initial={{ opacity: 0, x: -5 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.2 }}
+                            >
+                              Generating...
+                            </motion.span>
+                          </motion.div>
+                        ) : (
+                          <motion.div
+                            className="flex items-center gap-2 cursor-pointer"
+                            initial={{ x: -5 }}
+                            whileHover={{ x: 0 }}
+                          >
+                            <span>Generate</span>
+                            <ChevronRightIcon className="w-4 h-4" />
+                          </motion.div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                </main>
+
+                {/* Background Effects */}
+                <div className="fixed inset-0 -z-10 overflow-hidden">
+                  <div className="absolute -inset-[10px] opacity-50">
+                    <motion.div
+                      variants={blobAnimation}
+                      animate="animate"
+                      className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px]"
+                    />
+                    <motion.div
+                      variants={blobAnimation}
+                      animate="animate"
+                      transition={{ delay: 2 }}
+                      className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px]"
+                    />
+                    <motion.div
+                      variants={blobAnimation}
+                      animate="animate"
+                      transition={{ delay: 4 }}
+                      className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-[128px]"
+                    />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {!showPromptSection && (
+            <motion.div
+              key="editor"
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={pageTransition}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="flex gap-4"
+            >
+              {/* EXPLANATION SECTION  */}
+              <div className="w-[400px] border-r  border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-zinc-900">
+                <div className="p-4 border-b border-black/10 dark:border-white/10">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">Explanation</h2>
+                    <button
+                      onClick={() => setShowPromptSection(true)}
+                      className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+                <div className="px-4 pt-4 space-y-4 overflow-auto max-h-[calc(100vh-300px)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                  {explanations.map((explanation, index) => (
+                    <div
+                      key={index}
+                      className="prose dark:prose-invert prose-sm max-w-none"
+                    >
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code({ className, children, ...props }) {
+                            return (
+                              <code
+                                className={`${className} bg-black/10 dark:bg-white/10 rounded px-1 py-0.5`}
+                                {...props}
+                              >
+                                {children}
+                              </code>
+                            );
+                          },
+                          pre({ children, ...props }) {
+                            return (
+                              <pre
+                                className="bg-black/10 dark:bg-white/10 rounded-lg p-3 overflow-auto"
+                                {...props}
+                              >
+                                {children}
+                              </pre>
+                            );
+                          },
+                          h1: ({ ...props }) => (
+                            <h1 className="text-xl font-bold mt-4" {...props} />
+                          ),
+                          h2: ({ ...props }) => (
+                            <h2
+                              className="text-lg font-semibold mt-3"
+                              {...props}
+                            />
+                          ),
+                          h3: ({ ...props }) => (
+                            <h3
+                              className="text-base font-medium mt-2"
+                              {...props}
+                            />
+                          ),
+                          p: ({ ...props }) => (
+                            <p
+                              className="text-sm leading-relaxed my-2"
+                              {...props}
+                            />
+                          ),
+                          ul: ({ ...props }) => (
+                            <ul className="list-disc pl-4 my-2" {...props} />
+                          ),
+                          ol: ({ ...props }) => (
+                            <ol className="list-decimal pl-4 my-2" {...props} />
+                          ),
+                          li: ({ ...props }) => (
+                            <li className="text-sm my-1" {...props} />
+                          ),
+                          blockquote: ({ ...props }) => (
+                            <blockquote
+                              className="border-l-2 border-blue-500 pl-4 italic my-2"
+                              {...props}
+                            />
+                          ),
+                        }}
+                      >
+                        {explanation}
+                      </ReactMarkdown>
+                    </div>
+                  ))}
+                  <div className="sticky bottom-0 bg-neutral-50 dark:bg-zinc-900">
+                    {loading ? (
+                      <div
+                        aria-disabled={loading}
+                        className="p-4 w-full flex items-center justify-center disabled:opacity-30 "
+                      >
+                        <LoadingDots />
+                      </div>
+                    ) : null}
                     <textarea
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") {
+                        if (e.key === "Enter" && !e.shiftKey) {
                           e.preventDefault();
                           onSubmit();
                         }
                       }}
-                      placeholder="Describe what you want to build..."
-                      className="w-full h-[150px] mt-4 bg-transparent border-none outline-none resize-none dark:text-white placeholder-white/30"
+                      placeholder="Make changes to your app..."
+                      className="w-full h-24 p-2 bg-white/5 rounded-lg border border-black/10 dark:border-white/10 resize-none focus:outline-none ring-1 ring-blue-500 dark:text-white placeholder-black/50 dark:placeholder-white/50"
                     />
                   </div>
-                  <div className="absolute bottom-4 right-4">
-                    {loading ? (
-                      <motion.div
-                        className="flex items-center gap-2"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <motion.div
-                          className="relative w-5 h-5"
-                          animate={{
-                            rotate: 360,
-                            transition: {
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "linear",
-                              repeatType: "loop",
-                            },
-                          }}
-                        >
-                          <div className="absolute w-full h-full border-2 border-white border-t-transparent rounded-full animate-pulse" />
-                          <div className="absolute w-full h-full border-2 border-black/30 dark:border-white/30 rounded-full" />
-                        </motion.div>
-                        <motion.span
-                          className="dark:text-white/90"
-                          initial={{ opacity: 0, x: -5 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          Generating...
-                        </motion.span>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        className="flex items-center gap-2 cursor-pointer"
-                        initial={{ x: -5 }}
-                        whileHover={{ x: 0 }}
-                      >
-                        <span>Generate</span>
-                        <ChevronRightIcon className="w-4 h-4" />
-                      </motion.div>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            </main>
-
-            {/* Background Effects */}
-            <div className="fixed inset-0 -z-10 overflow-hidden">
-              <div className="absolute -inset-[10px] opacity-50">
-                <motion.div
-                  variants={blobAnimation}
-                  animate="animate"
-                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px]"
-                />
-                <motion.div
-                  variants={blobAnimation}
-                  animate="animate"
-                  transition={{ delay: 2 }}
-                  className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px]"
-                />
-                <motion.div
-                  variants={blobAnimation}
-                  animate="animate"
-                  transition={{ delay: 4 }}
-                  className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-[128px]"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!showPromptSection && (
-          <div className=" flex gap-4">
-            {/* EXPLANATION SECTION  */}
-            <div className="w-[400px] border-r  border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-zinc-900">
-              <div className="p-4 border-b border-black/10 dark:border-white/10">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-semibold">Explanation</h2>
-                  <button
-                    onClick={() => setShowPromptSection(true)}
-                    className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                  </button>
                 </div>
               </div>
-              <div className="px-4 pt-4 space-y-4 overflow-auto max-h-[calc(100vh-300px)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
-                {explanations.map((explanation, index) => (
-                  <div
-                    key={index}
-                    className="prose dark:prose-invert prose-sm max-w-none"
-                  >
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        code({ className, children, ...props }) {
-                          return (
-                            <code
-                              className={`${className} bg-black/10 dark:bg-white/10 rounded px-1 py-0.5`}
-                              {...props}
-                            >
-                              {children}
-                            </code>
-                          );
-                        },
-                        pre({ children, ...props }) {
-                          return (
-                            <pre
-                              className="bg-black/10 dark:bg-white/10 rounded-lg p-3 overflow-auto"
-                              {...props}
-                            >
-                              {children}
-                            </pre>
-                          );
-                        },
-                        h1: ({ ...props }) => (
-                          <h1 className="text-xl font-bold mt-4" {...props} />
-                        ),
-                        h2: ({ ...props }) => (
-                          <h2
-                            className="text-lg font-semibold mt-3"
-                            {...props}
-                          />
-                        ),
-                        h3: ({ ...props }) => (
-                          <h3
-                            className="text-base font-medium mt-2"
-                            {...props}
-                          />
-                        ),
-                        p: ({ ...props }) => (
-                          <p
-                            className="text-sm leading-relaxed my-2"
-                            {...props}
-                          />
-                        ),
-                        ul: ({ ...props }) => (
-                          <ul className="list-disc pl-4 my-2" {...props} />
-                        ),
-                        ol: ({ ...props }) => (
-                          <ol className="list-decimal pl-4 my-2" {...props} />
-                        ),
-                        li: ({ ...props }) => (
-                          <li className="text-sm my-1" {...props} />
-                        ),
-                        blockquote: ({ ...props }) => (
-                          <blockquote
-                            className="border-l-2 border-blue-500 pl-4 italic my-2"
-                            {...props}
-                          />
-                        ),
+              <div className="flex-1">
+                <div className="p-2 w-full rounded-t-lg bg-neutral-100 dark:bg-zinc-900 dark:text-white border  border-black/10 dark:border-white/10">
+                  <span className=" bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
+                    <span
+                      className={`${
+                        showTab === "code"
+                          ? "bg-blue-500/20 text-[#2BA6FF]"
+                          : "opacity-50"
+                      }  px-3 py-1 text-sm rounded-3xl cursor-pointer `}
+                      onClick={() => {
+                        setSwipeDirection(-1);
+                        setShowTab("code");
                       }}
                     >
-                      {explanation}
-                    </ReactMarkdown>
-                  </div>
-                ))}
-                <div className="sticky bottom-0 bg-neutral-50 dark:bg-zinc-900">
-                  {loading ? (
-                    <div
-                      aria-disabled={loading}
-                      className="p-4 w-full flex items-center justify-center disabled:opacity-30 "
+                      Code
+                    </span>
+                    <span
+                      className={`${
+                        showTab === "preview"
+                          ? "bg-blue-500/20 text-[#2BA6FF]"
+                          : "opacity-70"
+                      }  px-3 py-1 text-sm rounded-3xl cursor-pointer`}
+                      onClick={() => {
+                        setSwipeDirection(1);
+                        setShowTab("preview");
+                      }}
                     >
-                      <LoadingDots />
-                    </div>
-                  ) : null}
-                  <textarea
-                    value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        onSubmit();
-                      }
-                    }}
-                    placeholder="Make changes to your app..."
-                    className="w-full h-24 p-2 bg-white/5 rounded-lg border border-black/10 dark:border-white/10 resize-none focus:outline-none ring-1 ring-blue-500 dark:text-white placeholder-black/50 dark:placeholder-white/50"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex-1">
-              <div className="p-2 w-full rounded-t-lg bg-neutral-100 dark:bg-zinc-900 dark:text-white border  border-black/10 dark:border-white/10">
-                <span className=" bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
-                  <span
-                    className={`${
-                      showTab === "code"
-                        ? "bg-blue-500/20 text-[#2BA6FF]"
-                        : "opacity-50"
-                    }  px-3 py-1 text-sm rounded-3xl cursor-pointer `}
-                    onClick={() => setShowTab("code")}
-                  >
-                    Code
+                      Preview
+                    </span>
                   </span>
-                  <span
-                    className={`${
-                      showTab === "preview"
-                        ? "bg-blue-500/20 text-[#2BA6FF]"
-                        : "opacity-70"
-                    }  px-3 py-1 text-sm rounded-3xl cursor-pointer`}
-                    onClick={() => setShowTab("preview")}
-                  >
-                    Preview
-                  </span>
-                </span>
-              </div>
-              {showTab === "code" && (
-                <div className="flex h-[calc(100vh-300px)] ">
-                  <div className="lg:w-[20%] w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-lg font-semibold">Files</h3>
-                    </div>
-                    {renderFileTree(filetree)}
-                  </div>
-                  <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e]">
-                    {selectedFile && selectedFile.type === "file" ? (
-                      <Editor
-                        height="100%"
-                        theme={`${
-                          currentTheme === "dark" ? "vs-dark" : "light"
-                        }`}
-                        language={selectedFile.language}
-                        value={selectedFile.content}
-                        onChange={(value) => {
-                          updateFileContent(selectedFile.id, value || "");
-                        }}
-                        options={{
-                          minimap: { enabled: true },
-                          fontSize: 14,
-                          lineNumbers: "on",
-                          automaticLayout: true,
-                          formatOnPaste: true,
-                          formatOnType: true,
-                        }}
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-gray-500">
-                        Write a prompt to build your app.
-                      </div>
-                    )}
-                  </div>
                 </div>
-              )}
-              {showTab === "preview" && (
-                <div className="w-full">
-                  {!webcontainerCreated ? (
-                    <div className="h-[70vh] flex items-center justify-center bg-neutral-100 dark:bg-zinc-900">
-                      <motion.div className="relative flex items-center justify-center">
-                        {/* Outer spinning ring */}
-                        <motion.div
-                          className="absolute border-4 border-blue-500/30 rounded-full w-40 h-40"
-                          animate={{
-                            rotate: 360,
-                            scale: [1, 1.1, 1],
-                          }}
-                          transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: "linear",
-                          }}
-                        />
-
-                        {/* Inner pulsing circle */}
-                        <motion.div
-                          className="absolute bg-gradient-to-r from-blue-400 to-purple-500 rounded-full w-32 h-32"
-                          animate={{
-                            scale: [0.8, 1.1, 0.8],
-                            opacity: [0.6, 1, 0.6],
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                          }}
-                        />
-
-                        {/* Loading text */}
-                        <motion.div
-                          className="absolute top-24 left-1/2 -translate-x-1/2 whitespace-nowrap"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <span className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-                            Starting Preview Server...
-                          </span>
-                        </motion.div>
+                <div className="relative overflow-hidden">
+                  <AnimatePresence
+                    initial={false}
+                    custom={swipeDirection}
+                    mode="popLayout"
+                  >
+                    {showTab === "code" && (
+                      <motion.div
+                        key={"code"}
+                        variants={slideVariants}
+                        custom={swipeDirection}
+                        initial="enter"
+                        animate="center"
+                        exit={"exit"}
+                        transition={{
+                          x: { type: "spring", stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="flex h-[calc(100vh-300px)] "
+                      >
+                        <div className="lg:w-[20%] w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
+                          <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-semibold">Files</h3>
+                          </div>
+                          {renderFileTree(filetree)}
+                        </div>
+                        <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e]">
+                          {selectedFile && selectedFile.type === "file" ? (
+                            <Editor
+                              height="100%"
+                              theme={`${
+                                currentTheme === "dark" ? "vs-dark" : "light"
+                              }`}
+                              language={selectedFile.language}
+                              value={selectedFile.content}
+                              onChange={(value) => {
+                                updateFileContent(selectedFile.id, value || "");
+                              }}
+                              options={{
+                                minimap: { enabled: true },
+                                fontSize: 14,
+                                lineNumbers: "on",
+                                automaticLayout: true,
+                                formatOnPaste: true,
+                                formatOnType: true,
+                              }}
+                            />
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-gray-500">
+                              Write a prompt to build your app.
+                            </div>
+                          )}
+                        </div>
                       </motion.div>
-                    </div>
-                  ) : (
-                    <iframe
-                      title="preview"
-                      src={iframeUrl}
-                      className="w-full h-[70vh]"
-                      allow="cross-origin-isolated"
-                    />
-                  )}
+                    )}
+                    {showTab === "preview" && (
+                      <motion.div
+                        key="preview"
+                        variants={slideVariants}
+                        initial="enter"
+                        custom={swipeDirection}
+                        animate="center"
+                        exit="exit"
+                        transition={{
+                          x: { type: "spring", stiffness: 300, damping: 30 },
+                          opacity: { duration: 0.2 },
+                        }}
+                        className="w-full"
+                      >
+                        {!webcontainerCreated ? (
+                          <div className="h-[70vh] flex items-center justify-center bg-neutral-100 dark:bg-zinc-900">
+                            <motion.div className="relative flex items-center justify-center">
+                              {/* Outer spinning ring */}
+                              <motion.div
+                                className="absolute border-4 border-blue-500/30 rounded-full w-40 h-40"
+                                animate={{
+                                  rotate: 360,
+                                  scale: [1, 1.1, 1],
+                                }}
+                                transition={{
+                                  duration: 2,
+                                  repeat: Infinity,
+                                  ease: "linear",
+                                }}
+                              />
+
+                              {/* Inner pulsing circle */}
+                              <motion.div
+                                className="absolute bg-gradient-to-r from-blue-400 to-purple-500 rounded-full w-32 h-32"
+                                animate={{
+                                  scale: [0.8, 1.1, 0.8],
+                                  opacity: [0.6, 1, 0.6],
+                                }}
+                                transition={{
+                                  duration: 1.5,
+                                  repeat: Infinity,
+                                  ease: "easeInOut",
+                                }}
+                              />
+
+                              {/* Loading text */}
+                              <motion.div
+                                className="absolute top-24 left-1/2 -translate-x-1/2 whitespace-nowrap"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ duration: 0.3 }}
+                              >
+                                <span className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+                                  Starting Preview Server...
+                                </span>
+                              </motion.div>
+                            </motion.div>
+                          </div>
+                        ) : (
+                          <iframe
+                            title="preview"
+                            src={iframeUrl}
+                            className="w-full h-[70vh]"
+                            allow="cross-origin-isolated"
+                          />
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </AnimatePresence>
     </div>
   );
 }
