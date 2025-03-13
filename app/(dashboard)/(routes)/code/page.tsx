@@ -6,10 +6,6 @@ import {
   FileIcon,
   RefreshCw,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { formSchema } from "./constants";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useRef, useState } from "react";
 import Editor from "@monaco-editor/react";
 import toast from "react-hot-toast";
@@ -45,18 +41,30 @@ function CodeGenerationPage() {
 
   const webContainer = useWebContainer();
 
+  const LoadingDots = () => (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3].map((dot) => (
+        <motion.div
+          key={dot}
+          className="w-2 h-2 rounded-full bg-black"
+          initial={{ y: 0 }}
+          animate={{ y: [-3, 0, -3] }}
+          transition={{
+            duration: 1.2,
+            repeat: Infinity,
+            delay: dot * 0.2,
+            ease: "easeInOut",
+          }}
+        />
+      ))}
+    </div>
+  );
   useEffect(() => {
     if (document.documentElement.classList.contains("dark")) {
       setCurrentTheme("dark");
     } else {
       setCurrentTheme("light");
     }
-  });
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      prompt: "",
-    },
   });
 
   const addFileOrFolder = (
@@ -105,20 +113,6 @@ function CodeGenerationPage() {
       filetree.push(newNode);
     }
   };
-
-  // const findFile = (
-  //   nodes: FileStructure[],
-  //   fileId: string
-  // ): FileStructure | null => {
-  //   for (const node of nodes) {
-  //     if (node.id === fileId) return node;
-  //     if (node.children) {
-  //       const found = findFile(node.children, fileId);
-  //       if (found) return found;
-  //     }
-  //   }
-  //   return null;
-  // };
 
   const updateFileContent = (fileId: string, newContent: string) => {
     const updateTree = (nodes: FileStructure[]): FileStructure[] => {
@@ -348,7 +342,7 @@ function CodeGenerationPage() {
       loadFilesToWebContainer();
       console.log(strings);
 
-      form.reset();
+      setPrompt("");
     } catch (error) {
       toast.error("Something went wrong.");
       setLoading(false);
@@ -393,7 +387,7 @@ function CodeGenerationPage() {
     <div className="h-full w-full">
       <div>
         {showPromptSection && (
-          <div className="min-h-screen bg-gradient-to-br dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white">
+          <div className="bg-gradient-to-br dark:from-[#0A0A0A] dark:to-[#1A1A1A] text-black dark:text-white">
             <main ref={mainRef} className="pt-24 px-4 max-w-4xl mx-auto">
               <motion.div
                 initial="hidden"
@@ -535,7 +529,7 @@ function CodeGenerationPage() {
         )}
 
         {!showPromptSection && (
-          <div className="mt-8 flex gap-4">
+          <div className=" flex gap-4">
             {/* EXPLANATION SECTION  */}
             <div className="w-[400px] border-r  border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-zinc-900">
               <div className="p-4 border-b border-black/10 dark:border-white/10">
@@ -549,7 +543,7 @@ function CodeGenerationPage() {
                   </button>
                 </div>
               </div>
-              <div className="p-4 space-y-4 overflow-auto max-h-[calc(100vh-300px)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+              <div className="px-4 pt-4 space-y-4 overflow-auto max-h-[calc(100vh-300px)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
                 {explanations.map((explanation, index) => (
                   <div
                     key={index}
@@ -620,11 +614,33 @@ function CodeGenerationPage() {
                     </ReactMarkdown>
                   </div>
                 ))}
+                <div className="sticky bottom-0 bg-neutral-50 dark:bg-zinc-900">
+                  {loading ? (
+                    <div
+                      aria-disabled={loading}
+                      className="p-4 w-full flex items-center justify-center disabled:opacity-30 "
+                    >
+                      <LoadingDots />
+                    </div>
+                  ) : null}
+                  <textarea
+                    value={prompt}
+                    onChange={(e) => setPrompt(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        onSubmit();
+                      }
+                    }}
+                    placeholder="Make changes to your app..."
+                    className="w-full h-24 p-2 bg-white/5 rounded-lg border border-black/10 dark:border-white/10 resize-none focus:outline-none ring-1 ring-blue-500 dark:text-white placeholder-black/50 dark:placeholder-white/50"
+                  />
+                </div>
               </div>
             </div>
             <div className="flex-1">
               <div className="p-2 w-full rounded-t-lg bg-neutral-100 dark:bg-zinc-900 dark:text-white border  border-black/10 dark:border-white/10">
-                <span className="bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
+                <span className=" bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
                   <span
                     className={`${
                       showTab === "code"
@@ -687,7 +703,7 @@ function CodeGenerationPage() {
               {showTab === "preview" && (
                 <div className="w-full">
                   {!webcontainerCreated ? (
-                    <div className="h-[80vh] flex items-center justify-center bg-neutral-100 dark:bg-zinc-900">
+                    <div className="h-[70vh] flex items-center justify-center bg-neutral-100 dark:bg-zinc-900">
                       <motion.div className="relative flex items-center justify-center">
                         {/* Outer spinning ring */}
                         <motion.div
@@ -734,7 +750,7 @@ function CodeGenerationPage() {
                     <iframe
                       title="preview"
                       src={iframeUrl}
-                      className="w-full h-[80vh]"
+                      className="w-full h-[70vh]"
                       allow="cross-origin-isolated"
                     />
                   )}
