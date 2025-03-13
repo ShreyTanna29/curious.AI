@@ -1,6 +1,11 @@
 "use client";
 import axios from "axios";
-import { ChevronDown, ChevronRightIcon, FileIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRightIcon,
+  FileIcon,
+  RefreshCw,
+} from "lucide-react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { formSchema } from "./constants";
@@ -11,6 +16,8 @@ import toast from "react-hot-toast";
 import useWebContainer from "@/hooks/useWebContainer";
 import { FileSystemTree } from "@webcontainer/api";
 import { motion, useInView } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface FileStructure {
   id: string;
@@ -34,6 +41,7 @@ function CodeGenerationPage() {
   const [webcontainerCreated, setWebContainerCreated] = useState(false);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
+  const [explanations, setExplanations] = useState<string[]>([]);
 
   const webContainer = useWebContainer();
 
@@ -303,7 +311,8 @@ function CodeGenerationPage() {
 
       strings.map((string: any) => {
         if (string) {
-          if (string.includes("json")) {
+          const firstLine = string.split("\n")[0].trim().toLowerCase();
+          if (firstLine.includes("json")) {
             const newString = string.replace("json", "").trim();
 
             console.log(newString);
@@ -326,6 +335,11 @@ function CodeGenerationPage() {
             }
             // console.log(JSON.stringify(parsedObj));
           }
+          if (firstLine.includes("explanation")) {
+            console.log("EXPLANATION :: ", string);
+            const newString = string.replace("explanation", "").trim();
+            setExplanations((prev) => [...prev, newString]);
+          }
         }
       });
       console.log("file tree before calling loadfiles func :: ", filetree);
@@ -337,6 +351,7 @@ function CodeGenerationPage() {
       form.reset();
     } catch (error) {
       toast.error("Something went wrong.");
+      setLoading(false);
       console.log(error);
     }
   };
@@ -520,122 +535,212 @@ function CodeGenerationPage() {
         )}
 
         {!showPromptSection && (
-          <div className="mt-8 ">
-            <div className="p-2 w-full rounded-t-lg bg-neutral-100 dark:bg-zinc-900 dark:text-white border  border-black/10 dark:border-white/10">
-              <span className="bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
-                <span
-                  className={`${
-                    showTab === "code"
-                      ? "bg-blue-500/20 text-[#2BA6FF]"
-                      : "opacity-50"
-                  }  px-3 py-1 text-sm rounded-3xl cursor-pointer `}
-                  onClick={() => setShowTab("code")}
-                >
-                  Code
-                </span>
-                <span
-                  className={`${
-                    showTab === "preview"
-                      ? "bg-blue-500/20 text-[#2BA6FF]"
-                      : "opacity-70"
-                  }  px-3 py-1 text-sm rounded-3xl cursor-pointer`}
-                  onClick={() => setShowTab("preview")}
-                >
-                  Preview
-                </span>
-              </span>
-            </div>
-            {showTab === "code" && (
-              <div className="flex h-[calc(100vh-300px)] ">
-                <div className="lg:w-[20%] w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-semibold">Files</h3>
-                  </div>
-                  {renderFileTree(filetree)}
+          <div className="mt-8 flex gap-4">
+            {/* EXPLANATION SECTION  */}
+            <div className="w-[400px] border-r  border-black/10 dark:border-white/10 bg-neutral-50 dark:bg-zinc-900">
+              <div className="p-4 border-b border-black/10 dark:border-white/10">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-semibold">Explanation</h2>
+                  <button
+                    onClick={() => setShowPromptSection(true)}
+                    className="p-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-full transition"
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e]">
-                  {selectedFile && selectedFile.type === "file" ? (
-                    <Editor
-                      height="100%"
-                      theme={`${currentTheme === "dark" ? "vs-dark" : "light"}`}
-                      language={selectedFile.language}
-                      value={selectedFile.content}
-                      onChange={(value) => {
-                        updateFileContent(selectedFile.id, value || "");
+              </div>
+              <div className="p-4 space-y-4 overflow-auto max-h-[calc(100vh-300px)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                {explanations.map((explanation, index) => (
+                  <div
+                    key={index}
+                    className="prose dark:prose-invert prose-sm max-w-none"
+                  >
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code({ className, children, ...props }) {
+                          return (
+                            <code
+                              className={`${className} bg-black/10 dark:bg-white/10 rounded px-1 py-0.5`}
+                              {...props}
+                            >
+                              {children}
+                            </code>
+                          );
+                        },
+                        pre({ children, ...props }) {
+                          return (
+                            <pre
+                              className="bg-black/10 dark:bg-white/10 rounded-lg p-3 overflow-auto"
+                              {...props}
+                            >
+                              {children}
+                            </pre>
+                          );
+                        },
+                        h1: ({ ...props }) => (
+                          <h1 className="text-xl font-bold mt-4" {...props} />
+                        ),
+                        h2: ({ ...props }) => (
+                          <h2
+                            className="text-lg font-semibold mt-3"
+                            {...props}
+                          />
+                        ),
+                        h3: ({ ...props }) => (
+                          <h3
+                            className="text-base font-medium mt-2"
+                            {...props}
+                          />
+                        ),
+                        p: ({ ...props }) => (
+                          <p
+                            className="text-sm leading-relaxed my-2"
+                            {...props}
+                          />
+                        ),
+                        ul: ({ ...props }) => (
+                          <ul className="list-disc pl-4 my-2" {...props} />
+                        ),
+                        ol: ({ ...props }) => (
+                          <ol className="list-decimal pl-4 my-2" {...props} />
+                        ),
+                        li: ({ ...props }) => (
+                          <li className="text-sm my-1" {...props} />
+                        ),
+                        blockquote: ({ ...props }) => (
+                          <blockquote
+                            className="border-l-2 border-blue-500 pl-4 italic my-2"
+                            {...props}
+                          />
+                        ),
                       }}
-                      options={{
-                        minimap: { enabled: true },
-                        fontSize: 14,
-                        lineNumbers: "on",
-                        automaticLayout: true,
-                        formatOnPaste: true,
-                        formatOnType: true,
-                      }}
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-gray-500">
-                      Write a prompt to build your app.
+                    >
+                      {explanation}
+                    </ReactMarkdown>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="p-2 w-full rounded-t-lg bg-neutral-100 dark:bg-zinc-900 dark:text-white border  border-black/10 dark:border-white/10">
+                <span className="bg-black text-white  rounded-3xl gap-3 flex px-3 py-1 w-fit ">
+                  <span
+                    className={`${
+                      showTab === "code"
+                        ? "bg-blue-500/20 text-[#2BA6FF]"
+                        : "opacity-50"
+                    }  px-3 py-1 text-sm rounded-3xl cursor-pointer `}
+                    onClick={() => setShowTab("code")}
+                  >
+                    Code
+                  </span>
+                  <span
+                    className={`${
+                      showTab === "preview"
+                        ? "bg-blue-500/20 text-[#2BA6FF]"
+                        : "opacity-70"
+                    }  px-3 py-1 text-sm rounded-3xl cursor-pointer`}
+                    onClick={() => setShowTab("preview")}
+                  >
+                    Preview
+                  </span>
+                </span>
+              </div>
+              {showTab === "code" && (
+                <div className="flex h-[calc(100vh-300px)] ">
+                  <div className="lg:w-[20%] w-[30%] bg-neutral-100 dark:bg-zinc-900 dark:text-white p-4 overflow-auto scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent border-r border-black/10 dark:border-white/10">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-lg font-semibold">Files</h3>
                     </div>
+                    {renderFileTree(filetree)}
+                  </div>
+                  <div className="flex-1 bg-neutral-100 dark:bg-[#1e1e1e]">
+                    {selectedFile && selectedFile.type === "file" ? (
+                      <Editor
+                        height="100%"
+                        theme={`${
+                          currentTheme === "dark" ? "vs-dark" : "light"
+                        }`}
+                        language={selectedFile.language}
+                        value={selectedFile.content}
+                        onChange={(value) => {
+                          updateFileContent(selectedFile.id, value || "");
+                        }}
+                        options={{
+                          minimap: { enabled: true },
+                          fontSize: 14,
+                          lineNumbers: "on",
+                          automaticLayout: true,
+                          formatOnPaste: true,
+                          formatOnType: true,
+                        }}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-gray-500">
+                        Write a prompt to build your app.
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {showTab === "preview" && (
+                <div className="w-full">
+                  {!webcontainerCreated ? (
+                    <div className="h-[80vh] flex items-center justify-center bg-neutral-100 dark:bg-zinc-900">
+                      <motion.div className="relative flex items-center justify-center">
+                        {/* Outer spinning ring */}
+                        <motion.div
+                          className="absolute border-4 border-blue-500/30 rounded-full w-40 h-40"
+                          animate={{
+                            rotate: 360,
+                            scale: [1, 1.1, 1],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                        />
+
+                        {/* Inner pulsing circle */}
+                        <motion.div
+                          className="absolute bg-gradient-to-r from-blue-400 to-purple-500 rounded-full w-32 h-32"
+                          animate={{
+                            scale: [0.8, 1.1, 0.8],
+                            opacity: [0.6, 1, 0.6],
+                          }}
+                          transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                        />
+
+                        {/* Loading text */}
+                        <motion.div
+                          className="absolute top-24 left-1/2 -translate-x-1/2 whitespace-nowrap"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          <span className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+                            Starting Preview Server...
+                          </span>
+                        </motion.div>
+                      </motion.div>
+                    </div>
+                  ) : (
+                    <iframe
+                      title="preview"
+                      src={iframeUrl}
+                      className="w-full h-[80vh]"
+                      allow="cross-origin-isolated"
+                    />
                   )}
                 </div>
-              </div>
-            )}
-            {showTab === "preview" && (
-              <div className="w-full">
-                {!webcontainerCreated ? (
-                  <div className="h-[80vh] flex items-center justify-center bg-neutral-100 dark:bg-zinc-900">
-                    <motion.div className="relative flex items-center justify-center">
-                      {/* Outer spinning ring */}
-                      <motion.div
-                        className="absolute border-4 border-blue-500/30 rounded-full w-40 h-40"
-                        animate={{
-                          rotate: 360,
-                          scale: [1, 1.1, 1],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "linear",
-                        }}
-                      />
-
-                      {/* Inner pulsing circle */}
-                      <motion.div
-                        className="absolute bg-gradient-to-r from-blue-400 to-purple-500 rounded-full w-32 h-32"
-                        animate={{
-                          scale: [0.8, 1.1, 0.8],
-                          opacity: [0.6, 1, 0.6],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      />
-
-                      {/* Loading text */}
-                      <motion.div
-                        className="absolute top-24 left-1/2 -translate-x-1/2 whitespace-nowrap"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        <span className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
-                          Starting Preview Server...
-                        </span>
-                      </motion.div>
-                    </motion.div>
-                  </div>
-                ) : (
-                  <iframe
-                    title="preview"
-                    src={iframeUrl}
-                    className="w-full h-[80vh]"
-                    allow="cross-origin-isolated"
-                  />
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>
