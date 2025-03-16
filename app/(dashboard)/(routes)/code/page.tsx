@@ -47,7 +47,7 @@ function CodeGenerationPage() {
       {[1, 2, 3].map((dot) => (
         <motion.div
           key={dot}
-          className="w-2 h-2 rounded-full bg-black"
+          className="w-2 h-2 rounded-full dark:bg-white bg-black"
           initial={{ y: 0 }}
           animate={{ y: [-3, 0, -3] }}
           transition={{
@@ -190,7 +190,7 @@ function CodeGenerationPage() {
 
     console.log("file tree :: ", filetree);
     await webContainer.mount(files);
-    await startDevServer();
+    // await startDevServer();
   };
 
   const startDevServer = async () => {
@@ -294,7 +294,7 @@ function CodeGenerationPage() {
         userMessages,
         modelMessages,
       });
-
+      console.log(response.data);
       setUserMessages((prev) => [...prev, { text: prompt }]);
       setModelMessages((prev) => [...prev, { text: response.data }]);
 
@@ -344,8 +344,12 @@ function CodeGenerationPage() {
       console.log(strings);
 
       setPrompt("");
-    } catch (error) {
-      toast.error("Something went wrong.");
+    } catch (error: any) {
+      if (error.status === 401) {
+        toast.error("Please login to continue");
+      } else {
+        toast.error("Something went wrong.");
+      }
       setLoading(false);
       console.log(error);
     }
@@ -419,7 +423,7 @@ function CodeGenerationPage() {
                       backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                     }}
                     transition={{
-                      duration: 8,
+                      duration: 3,
                       repeat: Infinity,
                       ease: "linear",
                     }}

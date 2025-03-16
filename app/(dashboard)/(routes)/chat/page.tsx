@@ -231,6 +231,48 @@ function ConversationPage() {
                                 {...props}
                               />
                             ),
+                            h1: ({ ...props }) => (
+                              <h1
+                                className="text-xl font-bold mt-4"
+                                {...props}
+                              />
+                            ),
+                            h2: ({ ...props }) => (
+                              <h2
+                                className="text-lg font-semibold mt-3"
+                                {...props}
+                              />
+                            ),
+                            h3: ({ ...props }) => (
+                              <h3
+                                className="text-base font-medium mt-2"
+                                {...props}
+                              />
+                            ),
+                            p: ({ ...props }) => (
+                              <p
+                                className="text-sm leading-relaxed my-2"
+                                {...props}
+                              />
+                            ),
+                            ul: ({ ...props }) => (
+                              <ul className="list-disc pl-4 my-2" {...props} />
+                            ),
+                            ol: ({ ...props }) => (
+                              <ol
+                                className="list-decimal pl-4 my-2"
+                                {...props}
+                              />
+                            ),
+                            li: ({ ...props }) => (
+                              <li className="text-sm my-1" {...props} />
+                            ),
+                            blockquote: ({ ...props }) => (
+                              <blockquote
+                                className="border-l-2 border-blue-500 pl-4 italic my-2"
+                                {...props}
+                              />
+                            ),
                           }}
                           className="text-sm md:text-xl overflow-hidden leading-7"
                         >
