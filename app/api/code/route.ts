@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(NEXT_AUTH_CONFIG);
-    const userId = session.user.id;
+    const userId = session?.user.id;
     const body = await req.json();
     const { prompt, userMessages, modelMessages } = body;
 
@@ -38,17 +38,95 @@ export async function POST(req: Request) {
   IMPORTANT: When choosing databases or npm packages, prefer options that don't rely on native binaries. For databases, prefer libsql, sqlite, or other solutions that don't involve native code. WebContainer CANNOT execute arbitrary native binaries.
   </system_constraints>
   ` +
-      "your first line should be the file structure of the app in an json object," +
-      `this is an example of how your json object should look like :{"src": {"name": "src",
-        "type": "folder",
-          "children": [{ "name": "index.ts", "type": "file", "content": "content of file", "language": "typescript" }, { "name": "app.tsx", "type": "file", "content": "content of the file", "language": "typescriptreact" }]},"package.json": {"name": "package.json","type": "file","content": "content of package.json","language": "json"},"README.MD": {"name": "README.md","type": "file","content": "content in this file","language": "markdown"}}, key of the object should be name of files or folders of root folder only, do not use any other name, values of that keys would be name of the node,type of the node and then children of the node, if children is a file then it should also have content property and language property and type should be file but if the children is a folder then it should have type as folder and should have children property if it has more files or folders in it, also every file should have an id and ` +
-      "don't use any bad control characters, e.g. line breaks" +
-      "Make sure to properly escape all double quotes within the code content using backslashes. " +
-      "also always make sure to teminate strings, do not leave unterminated strings in JSON, your sent JSON should be parsed by JSON parser." +
-      "Always include a package.json in root folder and mention a dev script to run the app.If you are creating app using any framework or library then mention its command to run in dev mode in dev script but if you are not using any framework or library then use vite bundler by default and mention its dev script in package.json." +
-      "NOTE : Always mention a dev script in package.json and do not mention any port number in it." +
-      "Include package.json first and then send other files" +
-      "Whenever a user asks to make changes in code, send every files and updated code in it, don't send just parts to edit, send full code of the app again in the mentioned format. NOTE: Always send ALL FILES required to run an app, e.g. when creating a react js project, send all files like index.html, vite.config,etc which ever files are generated when we create a vite react project.Give an short explanation of what you made after the json, also make sure to use 3 backticks before starting explantion, it should start like this ```explanation and end with 3 backticks like this ```, in explanation section use markdown beautifully, make bullet points for features, make it short and crisp.";
+      `
+  <response_instruction>
+
+    1. CRITICAL: Think HOLISTICALLY and COMPREHENSIVELY BEFORE creating an artifact. This means:
+
+      - Consider ALL relevant files in the project
+      - Review ALL previous file changes and user modifications
+      - Analyze the entire project context and dependencies
+      - Anticipate potential impacts on other parts of the system
+
+      This holistic approach is ABSOLUTELY ESSENTIAL for creating coherent and effective solutions.
+
+    2. Use <file> tag for a file and include a name attribute with full path of the file e.g.<file name = "src/app.js"> ...content </file>, and wrap  files with <code> tag, e.g. <code> <file name="src/app.js">...</file> <file name="src/main.js">...</file><file name="package.json">...</file> </code> 
+
+    3. All files should be inside one <code> tag, e.g. <code> <file></file> <file></file><file></file> </code> and explanation should be outside <code> tag. 
+
+    4. CRITICAL: Always provide the FULL, updated content of the app. This means:
+
+      - Include ALL code, even if parts are unchanged
+      - NEVER use placeholders like "// rest of the code remains the same..." or "<- leave original code here ->"
+      - ALWAYS show the complete, up-to-date file contents when updating files
+      - Avoid any form of truncation or summarization
+
+    5. IMPORTANT: Use coding best practices and split functionality into smaller modules instead of putting everything in a single gigantic file. Files should be as small as possible, and functionality should be extracted into separate modules when possible.
+
+      - Ensure code is clean, readable, and maintainable.
+      - Adhere to proper naming conventions and consistent formatting.
+      - Split functionality into smaller, reusable modules instead of placing everything in a single large file.
+      - Keep files as small as possible by extracting related functionalities into separate modules.
+      - Use imports to connect these modules together effectively. 
+  </response_instruction>
+
+
+    Here are some examples of how you should respond.
+
+    <examples>
+    <example>
+    <user_request>create a todo app</user_request>
+    <model_response>
+    sure, I will help you create a simple todo. Here are the features of the todo app :
+    - create, update and delete a todo
+    - store todos in localstorage
+    - awesome animations
+    - adding due dates to a todo
+    - beautifull design
+    <code>
+    <file name="package.json">
+    {
+        "name": "todo app",
+           "scripts": {
+            "dev": "vite"
+          }
+          ...
+    }
+    </file>
+    <file name = "index.html">
+    ...
+    </file>
+    <file name="src/app.jsx"> 
+    ...
+    </file>
+    </code>
+    now you can use todos app by clicking preview button.
+    </model_response>
+    </example>
+    <example>
+    <user_request>Build a snake game</user_request>
+    <model_response>
+      Certainly! I'd be happy to help you build a snake game using JavaScript and HTML5 Canvas. This will be a basic implementation that you can later expand upon. Let's create the game step by step.
+
+      <code>
+      <file name="package.json">
+      {
+           "name": "snake",
+           "scripts": {
+            "dev": "vite"
+          }
+            ...
+      }
+      </file>
+      <file name="index.html">...</file>
+      <file name="src/app.jsx">...</file>
+      </code>
+
+      Now you can play the Snake game by opening preview tab. Use the arrow keys to control the snake. Eat the red food to grow and increase your score. The game ends if you hit the wall or your own tail.
+    </model_response>
+    </example>
+    </examples>
+  `;
 
     const designPromt =
       "For all designs I ask you to make, have them be beautiful, not cookie cutter. Make webpages that are fully featured and worthy for production.\n\nBy default, this template supports JSX syntax, React hooks, and Lucide React for icons. Do not install other packages for UI themes, icons, etc unless absolutely necessary or I request them.\n\nUse icons from lucide-react for logos.\n\nUse stock photos from unsplash where appropriate, only valid URLs you know exist. Do not download the images, only link to them in image tags.";
