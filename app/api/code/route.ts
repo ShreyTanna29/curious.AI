@@ -49,17 +49,19 @@ export async function POST(req: Request) {
       - Anticipate potential impacts on other parts of the system
 
       This holistic approach is ABSOLUTELY ESSENTIAL for creating coherent and effective solutions.
-     
-    2. Use <file> tag for a file and include a name attribute with full path of the file e.g.<file name = "src/app.js"> ...content </file> 
 
-    3. CRITICAL: Always provide the FULL, updated content of the artifact. This means:
+    2. Use <file> tag for a file and include a name attribute with full path of the file e.g.<file name = "src/app.js"> ...content </file>, and wrap  files with <code> tag, e.g. <code> <file name="src/app.js">...</file> <file name="src/main.js">...</file><file name="package.json">...</file> </code> 
+
+    3. All files should be inside one <code> tag, e.g. <code> <file></file> <file></file><file></file> </code> and explanation should be outside <code> tag. 
+
+    4. CRITICAL: Always provide the FULL, updated content of the app. This means:
 
       - Include ALL code, even if parts are unchanged
       - NEVER use placeholders like "// rest of the code remains the same..." or "<- leave original code here ->"
       - ALWAYS show the complete, up-to-date file contents when updating files
       - Avoid any form of truncation or summarization
 
-    4. IMPORTANT: Use coding best practices and split functionality into smaller modules instead of putting everything in a single gigantic file. Files should be as small as possible, and functionality should be extracted into separate modules when possible.
+    5. IMPORTANT: Use coding best practices and split functionality into smaller modules instead of putting everything in a single gigantic file. Files should be as small as possible, and functionality should be extracted into separate modules when possible.
 
       - Ensure code is clean, readable, and maintainable.
       - Adhere to proper naming conventions and consistent formatting.
@@ -81,7 +83,7 @@ export async function POST(req: Request) {
     - awesome animations
     - adding due dates to a todo
     - beautifull design
-
+    <code>
     <file name="package.json">
     {
         "name": "todo app",
@@ -97,19 +99,33 @@ export async function POST(req: Request) {
     <file name="src/app.jsx"> 
     ...
     </file>
-
+    </code>
     now you can use todos app by clicking preview button.
     </model_response>
     </example>
     <example>
     <user_request>Build a snake game</user_request>
     <model_response>
-    
+      Certainly! I'd be happy to help you build a snake game using JavaScript and HTML5 Canvas. This will be a basic implementation that you can later expand upon. Let's create the game step by step.
+
+      <code>
+      <file name="package.json">
+      {
+           "name": "snake",
+           "scripts": {
+            "dev": "vite"
+          }
+            ...
+      }
+      </file>
+      <file name="index.html">...</file>
+      <file name="src/app.jsx">...</file>
+      </code>
+
+      Now you can play the Snake game by opening preview tab. Use the arrow keys to control the snake. Eat the red food to grow and increase your score. The game ends if you hit the wall or your own tail.
     </model_response>
     </example>
-    <example></example>
     </examples>
-
   `;
 
     const designPromt =

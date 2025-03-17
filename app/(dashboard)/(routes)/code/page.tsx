@@ -68,52 +68,151 @@ function CodeGenerationPage() {
     }
   });
 
-  const addFileOrFolder = (
-    parentId: string | null,
-    name: string,
-    type: "file" | "folder",
-    content?: string,
-    language?: string,
-    children?: FileStructure[]
-  ) => {
-    const assignIdToChildren = children?.map((child) => ({
-      ...child,
-      id: crypto.randomUUID(),
-      children: child.children
-        ? child.children.map((c) => ({ ...c, id: crypto.randomUUID() }))
-        : undefined,
-    }));
-
-    // Node represent file or folder being created
-    const newNode: FileStructure = {
-      id: crypto.randomUUID(),
-      name,
-      type,
-      content,
-      language,
-      children: assignIdToChildren,
+  const getLanguageFromExtension = (extension: string): string => {
+    const extensionMap: Record<string, string> = {
+      js: "javascript",
+      ts: "typescript",
+      jsx: "javascript",
+      tsx: "typescript",
+      html: "html",
+      css: "css",
+      json: "json",
+      md: "markdown",
+      // Add more mappings as needed
     };
 
-    const updateFileTree = (nodes: FileStructure[]): FileStructure[] => {
-      // node refers to file or folder.
-      return nodes.map((node) => {
-        if (node.id === parentId) {
-          return { ...node, children: [...(node.children || []), newNode] };
-        }
-        if (node.children) {
-          // using recursion to update file strucutre if node has children
-          return { ...node, children: updateFileTree(node.children) };
-        }
-        return node;
-      });
-    };
-
-    if (parentId) {
-      updateFileTree(filetree);
-    } else {
-      filetree.push(newNode);
-    }
+    return extensionMap[extension.toLowerCase()] || "plaintext";
   };
+  const mergeFileIntoTree = (
+    filePath: string,
+    content: string,
+    language?: string
+  ) => {
+    const segments = filePath.split("/");
+    const fileName = segments.pop() || "";
+
+    // Determine language from file extension
+    const extension = fileName.split(".").pop() || "";
+    const fileLanguage = language || getLanguageFromExtension(extension);
+
+    // Create the file node
+    const fileNode: FileStructure = {
+      id: crypto.randomUUID(),
+      name: fileName,
+      type: "file",
+      content: content,
+      language: fileLanguage,
+    };
+
+    // If there are no directory segments, add the file at the root level
+    if (segments.length === 0) {
+      filetree.push(fileNode);
+      return;
+    }
+
+    // Function to recursively find or create folders in the tree
+    const findOrCreateFolder = (
+      tree: FileStructure[],
+      folderPath: string[],
+      fileToAdd: FileStructure
+    ): FileStructure[] => {
+      // If we've processed all folders, add the file and return
+      if (folderPath.length === 0) {
+        return [...tree, fileToAdd];
+      }
+
+      const currentFolder = folderPath[0];
+      const remainingPath = folderPath.slice(1);
+
+      // Check if the current folder already exists in the tree
+      const existingFolderIndex = tree.findIndex(
+        (node) => node.type === "folder" && node.name === currentFolder
+      );
+
+      // If folder exists, recursively process the remaining path
+      if (existingFolderIndex !== -1) {
+        const updatedTree = [...tree];
+        const folder = updatedTree[existingFolderIndex];
+
+        updatedTree[existingFolderIndex] = {
+          ...folder,
+          children: findOrCreateFolder(
+            folder.children || [],
+            remainingPath,
+            fileToAdd
+          ),
+        };
+
+        return updatedTree;
+      }
+      // If folder doesn't exist, create it and process the remaining path
+      else {
+        const newFolder: FileStructure = {
+          id: crypto.randomUUID(),
+          name: currentFolder,
+          type: "folder",
+          children:
+            remainingPath.length === 0
+              ? [fileToAdd]
+              : findOrCreateFolder([], remainingPath, fileToAdd),
+        };
+
+        return [...tree, newFolder];
+      }
+    };
+
+    // Update the file tree with the new file
+    const updatedTree = findOrCreateFolder(filetree, segments, fileNode);
+    filetree.length = 0; // Clear the existing array
+    updatedTree.forEach((node) => filetree.push(node));
+  };
+
+  // const addFileOrFolder = (
+  //   parentId: string | null,
+  //   name: string,
+  //   type: "file" | "folder",
+  //   content?: string,
+  //   language?: string,
+  //   children?: FileStructure[]
+  // ) => {
+  //   const assignIdToChildren = children?.map((child) => ({
+  //     ...child,
+  //     id: crypto.randomUUID(),
+  //     children: child.children
+  //       ? child.children.map((c) => ({ ...c, id: crypto.randomUUID() }))
+  //       : undefined,
+  //   }));
+
+  //   // Node represent file or folder being created
+  //   const newNode: FileStructure = {
+  //     id: crypto.randomUUID(),
+  //     name,
+  //     type,
+  //     content,
+  //     language,
+  //     children: assignIdToChildren,
+  //   };
+
+  //   const updateFileTree = (nodes: FileStructure[]): FileStructure[] => {
+  //     // node refers to file or folder.
+  //     return nodes.map((node) => {
+  //       if (node.id === parentId) {
+  //         return { ...node, children: [...(node.children || []), newNode] };
+  //       }
+  //       if (node.children) {
+  //         // using recursion to update file strucutre if node has children
+  //         return { ...node, children: updateFileTree(node.children) };
+  //       }
+  //       return node;
+  //     });
+  //   };
+
+  //   if (parentId) {
+  //     updateFileTree(filetree);
+  //   } else {
+  //     filetree.push(newNode);
+  //   }
+  // };
 
   const updateFileContent = (fileId: string, newContent: string) => {
     const updateTree = (nodes: FileStructure[]): FileStructure[] => {
@@ -188,9 +287,9 @@ function CodeGenerationPage() {
 
     const files = convertFilesToWebContainerFormat(filetree);
 
-    console.log("file tree :: ", filetree);
+    // console.log("file tree :: ", filetree);
     await webContainer.mount(files);
-    // await startDevServer();
+    await startDevServer();
   };
 
   const startDevServer = async () => {
@@ -286,6 +385,51 @@ function CodeGenerationPage() {
     );
   };
 
+  const extractCodeBlocks = (responseText: string): string[] => {
+    const codeRegex = /<code>([\s\S]*?)<\/code>/g;
+    const matches: string[] = [];
+    let match;
+
+    while ((match = codeRegex.exec(responseText)) !== null) {
+      // match[0] contains the full match including tags
+      // match[1] contains just the content between the tags
+      matches.push(match[1]);
+    }
+
+    return matches;
+  };
+
+  const extractFileBlocks = (
+    responseText: string
+  ): Array<{ name: string; content: string }> => {
+    const fileRegex = /<file name="(.*?)">([\s\S]*?)<\/file>/g;
+    const matches: Array<{ name: string; content: string }> = [];
+    let match;
+
+    while ((match = fileRegex.exec(responseText)) !== null) {
+      matches.push({
+        name: match[1],
+        content: match[2],
+      });
+    }
+
+    return matches;
+  };
+
+  const extractExplanation = (responseText: string): string => {
+    // First, remove all code blocks from the response
+    const textWithoutCodeBlocks = responseText.replace(
+      /<code>[\s\S]*?<\/code>/g,
+      ""
+    );
+
+    // Clean up any remaining HTML tags if needed
+    const cleanedText = textWithoutCodeBlocks.replace(/<[^>]*>/g, "");
+
+    // Trim whitespace
+    return cleanedText.trim();
+  };
+
   const onSubmit = async () => {
     try {
       setLoading(true);
@@ -298,50 +442,21 @@ function CodeGenerationPage() {
       setUserMessages((prev) => [...prev, { text: prompt }]);
       setModelMessages((prev) => [...prev, { text: response.data }]);
 
-      // console.log(response.data);
-
       filetree.length = 0;
       setSelectedFile(null);
-      const strings = response.data.split("```");
+      const code = extractCodeBlocks(response.data);
+      const explanation = extractExplanation(response.data);
+      setExplanations((prev) => [...prev, explanation]);
+      const files = extractFileBlocks(code[0]);
 
-      strings.map((string: any) => {
-        if (string) {
-          const firstLine = string.split("\n")[0].trim().toLowerCase();
-          if (firstLine.includes("json")) {
-            const newString = string.replace("json", "").trim();
-
-            console.log(newString);
-            const parsedObj = JSON.parse(newString);
-
-            for (const key in parsedObj) {
-              // console.log("key: ",key);
-
-              const addThisNode = (node: FileStructure) => {
-                addFileOrFolder(
-                  null,
-                  node.name || "",
-                  node.type,
-                  node.type === "file" ? node.content : undefined,
-                  node.type === "file" ? node.language : undefined,
-                  node.type === "folder" ? node.children : undefined
-                );
-              };
-              addThisNode(parsedObj[key]);
-            }
-            // console.log(JSON.stringify(parsedObj));
-          }
-          if (firstLine.includes("explanation")) {
-            console.log("EXPLANATION :: ", string);
-            const newString = string.replace("explanation", "").trim();
-            setExplanations((prev) => [...prev, newString]);
-          }
-        }
+      files.forEach((file) => {
+        mergeFileIntoTree(file.name, file.content);
       });
+
       console.log("file tree before calling loadfiles func :: ", filetree);
       setShowPromptSection(false);
       setLoading(false);
-      loadFilesToWebContainer();
-      console.log(strings);
+      await loadFilesToWebContainer();
 
       setPrompt("");
     } catch (error: any) {
