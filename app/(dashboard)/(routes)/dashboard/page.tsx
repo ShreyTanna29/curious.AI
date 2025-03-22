@@ -76,7 +76,11 @@ function DashboardPage() {
         {tools.map((tool) => (
           <Link key={tool.href} href={tool.href} className="opacity-0 slideUp">
             <Card
-              onClick={() => (window.location.href = tool.href)}
+              onClick={() =>
+                tool.href === "/code" || tool.href === "/image"
+                  ? (window.location.href = tool.href)
+                  : null
+              }
               className="p-4 border-black/5 dark:border-white/5 flex w-full mb-5 items-center justify-between hover:shadow-md transition cursor-pointer opacity-0  slideUp"
             >
               <div className="flex items-center gap-x-4">

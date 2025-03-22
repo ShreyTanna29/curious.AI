@@ -31,7 +31,11 @@ export function NavMain({
             <SidebarMenuItem>
               <Link href={item.url}>
                 <SidebarMenuButton
-                  onClick={() => (window.location.href = item.url)}
+                  onClick={() =>
+                    item.url === "/code" || item.url === "/image"
+                      ? (window.location.href = item.url)
+                      : null
+                  }
                   tooltip={item.title}
                 >
                   {item.icon && <item.icon />}
