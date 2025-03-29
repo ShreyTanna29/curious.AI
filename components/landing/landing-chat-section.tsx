@@ -16,6 +16,7 @@ import {
   Lock,
   RefreshCw,
 } from "lucide-react";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -351,14 +352,15 @@ export default function LandingChatSection() {
           >
             {/* Glow effect behind button */}
             <div className="absolute -inset-1 bg-primary/20 rounded-xl blur-md"></div>
-
-            <Button
-              size="lg"
-              className="relative hover:bg-primary/90 text-white bg-black dark:bg-white dark:text-black cursor-pointer group px-8 py-7 h-auto text-base rounded-xl"
-            >
-              Experience AI Chat
-              <Zap className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
-            </Button>
+            <Link href={"/signup"}>
+              <Button
+                size="lg"
+                className="relative hover:bg-primary/90 text-white bg-black dark:bg-white dark:text-black cursor-pointer group px-8 py-7 h-auto text-base rounded-xl"
+              >
+                Experience AI Chat
+                <Zap className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
+              </Button>
+            </Link>
             <p className="text-gray-400 text-sm mt-4">
               No technical knowledge required. Start chatting with our AI
               assistant instantly.

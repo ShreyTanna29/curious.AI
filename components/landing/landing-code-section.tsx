@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Code, Sparkles, Terminal, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, useInView } from "framer-motion";
+import Link from "next/link";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -400,13 +401,15 @@ export default function LandingCodeSection() {
                 transition={{ duration: 0.5 }}
                 viewport={{ once: true }}
               >
-                <Button
-                  size="lg"
-                  className="hover:bg-primary/90 text-white bg-black dark:text-black dark:bg-white group px-6 py-6 h-auto text-base"
-                >
-                  Try Code Generation
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
+                <Link href={"/signup"}>
+                  <Button
+                    size="lg"
+                    className="hover:bg-primary/90 text-white bg-black dark:text-black dark:bg-white group px-6 py-6 h-auto text-base"
+                  >
+                    Try Code Generation
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
                 <p className="text-muted-foreground text-sm mt-4">
                   No credit card required. Start generating code in seconds.
                 </p>

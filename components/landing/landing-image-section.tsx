@@ -11,6 +11,7 @@ import AstronautOnHorse from "../../public/landing-images/An astronaut riding a 
 import CyberPunkStreet from "../../public/landing-images/A cyberpunk street market in t.png";
 import UnderwaterCity from "../../public/landing-images/An underwater city with merfol.png";
 import Image, { StaticImageData } from "next/image";
+import Link from "next/link";
 
 // Sample prompts that users might enter
 const samplePrompts = [
@@ -299,20 +300,23 @@ export default function LandingImageSection() {
         </div>
 
         {/* CTA */}
-        <div className="text-center">
+
+        <div className="text-center relative">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
           >
-            <Button
-              size="lg"
-              className="hover:bg-primary/90 text-white bg-black dark:text-black dark:bg-white group px-6 py-6 h-auto text-base"
-            >
-              Start Creating Images
-              <Wand2 className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
-            </Button>
+            <Link href={"/signup"}>
+              <Button
+                size="lg"
+                className="hover:bg-primary/90 text-white bg-black dark:text-black dark:bg-white group px-6 py-6 h-auto text-base"
+              >
+                Start Creating Images
+                <Wand2 className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
+              </Button>
+            </Link>
             <p className="text-gray-600 dark:text-gray-400 text-sm mt-4">
               No design skills required. Start generating beautiful images
               instantly.
