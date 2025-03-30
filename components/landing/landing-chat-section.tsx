@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
@@ -23,6 +23,11 @@ gsap.registerPlugin(ScrollTrigger);
 export default function LandingChatSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const featureCardsRef = useRef<HTMLDivElement>(null);
+  const [isLightMode, setIsLightMode] = useState(false);
+
+  useEffect(() => {
+    setIsLightMode(!window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }, []);
 
   // Initialize animations
   useEffect(() => {
@@ -60,7 +65,9 @@ export default function LandingChatSection() {
 
     // Pulse animation for the orb
     gsap.to(".ai-orb", {
-      boxShadow: "0 0 30px 5px rgba(var(--color-primary), 0.6)",
+      boxShadow: isLightMode
+        ? "0 0 30px 5px rgba(var(--color-primary), 0.4)"
+        : "0 0 30px 5px rgba(var(--color-primary), 0.6)",
       scale: 1.05,
       duration: 2,
       repeat: -1,
@@ -122,12 +129,16 @@ export default function LandingChatSection() {
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, []);
+  }, [isLightMode]);
 
   return (
     <section
       ref={sectionRef}
-      className="w-full bg-gradient-to-b from-black via-black/95 to-black/90 relative overflow-hidden py-24 md:py-32"
+      className={`w-full ${
+        isLightMode
+          ? "bg-gradient-to-b from-white via-gray-50 to-gray-100"
+          : "bg-gradient-to-b from-black via-black/95 to-black/90"
+      } relative overflow-hidden py-24 md:py-32`}
     >
       {/* Particle background */}
       <div className="absolute inset-0 overflow-hidden">
@@ -136,21 +147,29 @@ export default function LandingChatSection() {
             key={i}
             className={`particle absolute w-${
               Math.floor(Math.random() * 4) + 2
-            } h-${
-              Math.floor(Math.random() * 4) + 2
-            } rounded-full bg-primary/10`}
+            } h-${Math.floor(Math.random() * 4) + 2} rounded-full ${
+              isLightMode ? "bg-primary/5" : "bg-primary/10"
+            }`}
             style={{
               top: `${Math.random() * 100}%`,
               left: `${Math.random() * 100}%`,
-              opacity: Math.random() * 0.3,
+              opacity: Math.random() * (isLightMode ? 0.2 : 0.3),
             }}
           />
         ))}
       </div>
 
       {/* Glowing accent lines */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div
+        className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/${
+          isLightMode ? "20" : "30"
+        } to-transparent`}
+      />
+      <div
+        className={`absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/${
+          isLightMode ? "20" : "30"
+        } to-transparent`}
+      />
 
       <div className="container mx-auto px-4 relative z-10">
         {/* Header section */}
@@ -164,7 +183,11 @@ export default function LandingChatSection() {
             </span>
           </div>
 
-          <h1 className="chat-title text-white font-bold text-4xl md:text-6xl lg:text-7xl text-center mb-6 tracking-tight">
+          <h1
+            className={`chat-title ${
+              isLightMode ? "text-gray-900" : "text-white"
+            } font-bold text-4xl md:text-6xl lg:text-7xl text-center mb-6 tracking-tight`}
+          >
             <span className="inline-block">Think Smarter.</span>{" "}
             <span className="inline-block">Chat</span>{" "}
             <span className="inline-block relative">
@@ -175,7 +198,11 @@ export default function LandingChatSection() {
             </span>
           </h1>
 
-          <p className="text-gray-400 text-lg md:text-xl text-center max-w-2xl mb-12">
+          <p
+            className={`${
+              isLightMode ? "text-gray-600" : "text-gray-400"
+            } text-lg md:text-xl text-center max-w-2xl mb-12`}
+          >
             Experience limitless AI conversations with our advanced neural
             engine. From simple questions to complex code generation, we&apos;ve
             got you covered.
@@ -194,16 +221,40 @@ export default function LandingChatSection() {
               <Brain size={48} className="text-white" />
 
               {/* Floating feature icons */}
-              <div className="floating-element absolute -top-16 -left-8 w-12 h-12 rounded-full bg-black/80 border border-gray-800 flex items-center justify-center">
+              <div
+                className={`floating-element absolute -top-16 -left-8 w-12 h-12 rounded-full ${
+                  isLightMode
+                    ? "bg-white/90 border border-gray-200"
+                    : "bg-black/80 border border-gray-800"
+                } flex items-center justify-center`}
+              >
                 <MessageSquare size={20} className="text-primary" />
               </div>
-              <div className="floating-element absolute top-8 -right-16 w-12 h-12 rounded-full bg-black/80 border border-gray-800 flex items-center justify-center">
+              <div
+                className={`floating-element absolute top-8 -right-16 w-12 h-12 rounded-full ${
+                  isLightMode
+                    ? "bg-white/90 border border-gray-200"
+                    : "bg-black/80 border border-gray-800"
+                } flex items-center justify-center`}
+              >
                 <Code size={20} className="text-primary" />
               </div>
-              <div className="floating-element absolute -bottom-12 -right-4 w-12 h-12 rounded-full bg-black/80 border border-gray-800 flex items-center justify-center">
+              <div
+                className={`floating-element absolute -bottom-12 -right-4 w-12 h-12 rounded-full ${
+                  isLightMode
+                    ? "bg-white/90 border border-gray-200"
+                    : "bg-black/80 border border-gray-800"
+                } flex items-center justify-center`}
+              >
                 <Sparkles size={20} className="text-primary" />
               </div>
-              <div className="floating-element absolute -bottom-4 -left-16 w-12 h-12 rounded-full bg-black/80 border border-gray-800 flex items-center justify-center">
+              <div
+                className={`floating-element absolute -bottom-4 -left-16 w-12 h-12 rounded-full ${
+                  isLightMode
+                    ? "bg-white/90 border border-gray-200"
+                    : "bg-black/80 border border-gray-800"
+                } flex items-center justify-center`}
+              >
                 <Lightbulb size={20} className="text-primary" />
               </div>
             </div>
@@ -221,7 +272,9 @@ export default function LandingChatSection() {
                   y1="60"
                   x2="30"
                   y2="30"
-                  stroke="rgba(var(--color-primary), 0.3)"
+                  stroke={`rgba(var(--color-primary), ${
+                    isLightMode ? "0.2" : "0.3"
+                  })`}
                   strokeWidth="1"
                   strokeDasharray="3,3"
                 />
@@ -230,7 +283,9 @@ export default function LandingChatSection() {
                   y1="60"
                   x2="170"
                   y2="30"
-                  stroke="rgba(var(--color-primary), 0.3)"
+                  stroke={`rgba(var(--color-primary), ${
+                    isLightMode ? "0.2" : "0.3"
+                  })`}
                   strokeWidth="1"
                   strokeDasharray="3,3"
                 />
@@ -239,7 +294,9 @@ export default function LandingChatSection() {
                   y1="140"
                   x2="170"
                   y2="170"
-                  stroke="rgba(var(--color-primary), 0.3)"
+                  stroke={`rgba(var(--color-primary), ${
+                    isLightMode ? "0.2" : "0.3"
+                  })`}
                   strokeWidth="1"
                   strokeDasharray="3,3"
                 />
@@ -248,7 +305,9 @@ export default function LandingChatSection() {
                   y1="140"
                   x2="30"
                   y2="170"
-                  stroke="rgba(var(--color-primary), 0.3)"
+                  stroke={`rgba(var(--color-primary), ${
+                    isLightMode ? "0.2" : "0.3"
+                  })`}
                   strokeWidth="1"
                   strokeDasharray="3,3"
                 />
@@ -302,15 +361,35 @@ export default function LandingChatSection() {
           ].map((feature, index) => (
             <motion.div
               key={index}
-              className="feature-card bg-gray-900/30 backdrop-blur-sm p-6 rounded-xl border border-gray-800/50 hover:border-primary/30 transition-all duration-300 group hover:bg-gray-900/50 hover:translate-y-[-5px]"
+              className={`feature-card ${
+                isLightMode
+                  ? "bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-gray-200/50 hover:border-primary/30 transition-all duration-300 group hover:bg-white hover:shadow-md"
+                  : "bg-gray-900/30 backdrop-blur-sm p-6 rounded-xl border border-gray-800/50 hover:border-primary/30 transition-all duration-300 group hover:bg-gray-900/50"
+              } hover:translate-y-[-5px]`}
             >
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-5 group-hover:bg-primary/20 transition-colors border border-primary/20">
+              <div
+                className={`w-14 h-14 rounded-xl ${
+                  isLightMode
+                    ? "bg-primary/5 group-hover:bg-primary/10"
+                    : "bg-primary/10 group-hover:bg-primary/20"
+                } transition-colors border border-primary/20 flex items-center justify-center mb-5`}
+              >
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-white group-hover:text-primary transition-colors">
+              <h3
+                className={`text-xl font-semibold mb-3 ${
+                  isLightMode
+                    ? "text-gray-900 group-hover:text-primary"
+                    : "text-white group-hover:text-primary"
+                } transition-colors`}
+              >
                 {feature.title}
               </h3>
-              <p className="text-gray-400 leading-relaxed">
+              <p
+                className={`${
+                  isLightMode ? "text-gray-600" : "text-gray-400"
+                } leading-relaxed`}
+              >
                 {feature.description}
               </p>
             </motion.div>
@@ -331,12 +410,22 @@ export default function LandingChatSection() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-gray-900/20 backdrop-blur-sm p-6 rounded-xl border border-gray-800/30"
+              className={`${
+                isLightMode
+                  ? "bg-white/70 backdrop-blur-sm border border-gray-200/30"
+                  : "bg-gray-900/20 backdrop-blur-sm border border-gray-800/30"
+              } p-6 rounded-xl`}
             >
               <div className="text-3xl md:text-4xl font-bold text-primary mb-2">
                 {stat.value}
               </div>
-              <div className="text-gray-400 text-sm">{stat.label}</div>
+              <div
+                className={`text-sm ${
+                  isLightMode ? "text-gray-600" : "text-gray-400"
+                }`}
+              >
+                {stat.label}
+              </div>
             </motion.div>
           ))}
         </div>
@@ -355,13 +444,21 @@ export default function LandingChatSection() {
             <Link href={"/signup"}>
               <Button
                 size="lg"
-                className="relative hover:bg-primary/90 text-white bg-black dark:bg-white dark:text-black cursor-pointer group px-8 py-7 h-auto text-base rounded-xl"
+                className={`relative ${
+                  isLightMode
+                    ? "hover:bg-primary/90 text-white bg-primary"
+                    : "hover:bg-primary/90 text-white bg-black dark:bg-white dark:text-black"
+                } cursor-pointer group px-8 py-7 h-auto text-base rounded-xl`}
               >
                 Experience AI Chat
                 <Zap className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
               </Button>
             </Link>
-            <p className="text-gray-400 text-sm mt-4">
+            <p
+              className={`${
+                isLightMode ? "text-gray-600" : "text-gray-400"
+              } text-sm mt-4`}
+            >
               No technical knowledge required. Start chatting with our AI
               assistant instantly.
             </p>
@@ -370,7 +467,11 @@ export default function LandingChatSection() {
 
         {/* Testimonials */}
         <div className="mt-24 max-w-5xl mx-auto">
-          <h2 className="text-center text-white text-2xl md:text-3xl font-bold mb-12">
+          <h2
+            className={`text-center ${
+              isLightMode ? "text-gray-900" : "text-white"
+            } text-2xl md:text-3xl font-bold mb-12`}
+          >
             What Our Users Are Saying
           </h2>
 
@@ -401,12 +502,20 @@ export default function LandingChatSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-gray-900/30 backdrop-blur-sm p-6 rounded-xl border border-gray-800/50 relative"
+                className={`${
+                  isLightMode
+                    ? "bg-white/80 backdrop-blur-sm border border-gray-200/50"
+                    : "bg-gray-900/30 backdrop-blur-sm border border-gray-800/50"
+                } p-6 rounded-xl relative`}
               >
                 <div className="absolute -top-3 -left-3 text-4xl text-primary opacity-30">
                   &quot;
                 </div>
-                <p className="text-gray-300 mb-4 relative z-10">
+                <p
+                  className={`${
+                    isLightMode ? "text-gray-700" : "text-gray-300"
+                  } mb-4 relative z-10`}
+                >
                   {testimonial.quote}
                 </p>
                 <div className="flex items-center">
@@ -416,7 +525,11 @@ export default function LandingChatSection() {
                     </span>
                   </div>
                   <div>
-                    <p className="text-white font-medium">
+                    <p
+                      className={`${
+                        isLightMode ? "text-gray-900" : "text-white"
+                      } font-medium`}
+                    >
                       {testimonial.author}
                     </p>
                     <p className="text-gray-500 text-sm">{testimonial.role}</p>
