@@ -10,6 +10,7 @@ import {
   MessageSquare,
   Settings,
   ShoppingBag,
+  Mic,
 } from "lucide-react";
 
 function DashboardPage() {
@@ -30,6 +31,14 @@ function DashboardPage() {
       href: "/image",
       color: "text-pink-700",
       bgColor: "bg-pink-700/10",
+    },
+    {
+      label: "Generate Speech",
+      description: "Convert text to natural-sounding speech with AI",
+      icon: Mic,
+      href: "/speech",
+      color: "text-blue-600",
+      bgColor: "bg-blue-600/10",
     },
     {
       label: "Build Web Apps",
@@ -112,28 +121,31 @@ function DashboardPage() {
   return (
     <AnimatePresence mode="wait">
       <motion.div
-        className="w-full"
+        className="w-full min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 relative"
         initial="initial"
         animate="animate"
         variants={pageVariants}
       >
-        <div className="w-full max-w-5xl mx-auto px-4 py-8">
+        {/* Background pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02] dark:opacity-[0.03]" />
+        
+        <div className="w-full max-w-6xl mx-auto px-4 py-12 relative">
           <motion.div
-            className="mb-12 w-full space-y-6 text-center"
+            className="mb-16 w-full space-y-8 text-center"
             initial="hidden"
             animate="visible"
             variants={headerVariants}
           >
-            <h2 className="text-3xl font-bold md:text-5xl bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
+            <h2 className="text-4xl font-bold md:text-6xl bg-gradient-to-r from-purple-600 via-blue-500 to-violet-500 bg-clip-text text-transparent">
               Explore the Power of AI
             </h2>
-            <p className="text-muted-foreground text-sm md:text-lg max-w-2xl mx-auto">
-              Unlock limitless possibilities with our suite of AI-powered tools
+            <p className="text-muted-foreground text-base md:text-xl max-w-3xl mx-auto leading-relaxed">
+              Unlock limitless possibilities with our suite of AI-powered tools designed to enhance your creativity and productivity
             </p>
           </motion.div>
 
           <motion.div
-            className="grid grid-cols-1 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
             variants={container}
             initial="hidden"
             animate="show"
@@ -142,21 +154,22 @@ function DashboardPage() {
               <motion.div key={tool.href} variants={item}>
                 <Card
                   className={cn(
-                    "p-6 border-2 border-transparent hover:border-primary/20",
-                    "hover:shadow-lg hover:shadow-primary/5 transition-all duration-300",
+                    "p-8 border-2 border-transparent hover:border-primary/20",
+                    "hover:shadow-xl hover:shadow-primary/10 transition-all duration-300",
                     "bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-950",
-                    "cursor-pointer relative overflow-hidden group"
+                    "cursor-pointer relative overflow-hidden group backdrop-blur-sm",
+                    "hover:scale-[1.02] transform-gpu"
                   )}
                   onClick={() => (window.location.href = tool.href)}
                 >
                   <div className="flex items-center justify-between z-10 relative">
-                    <div className="flex items-center gap-x-4">
-                      <div className={cn("p-3 rounded-xl", tool.bgColor)}>
+                    <div className="flex items-center gap-x-6">
+                      <div className={cn("p-4 rounded-2xl", tool.bgColor, "group-hover:scale-110 transition-transform duration-300")}>
                         <tool.icon className={cn("w-8 h-8", tool.color)} />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">{tool.label}</h3>
-                        <p className="text-muted-foreground text-sm mt-1">
+                        <h3 className="font-semibold text-xl mb-2">{tool.label}</h3>
+                        <p className="text-muted-foreground text-sm leading-relaxed">
                           {tool.description}
                         </p>
                       </div>
@@ -173,15 +186,17 @@ function DashboardPage() {
                     </motion.div>
                   </div>
 
-                  {/* Background gradient effect on hover */}
+                  {/* Enhanced background gradient effect on hover */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-10 transition-opacity duration-300"
+                    className="absolute inset-0 bg-gradient-to-r opacity-0 group-hover:opacity-20 transition-opacity duration-500"
                     style={{
                       background: `linear-gradient(45deg, ${
                         tool.color.includes("violet")
                           ? "#8b5cf6"
                           : tool.color.includes("pink")
                           ? "#ec4899"
+                          : tool.color.includes("blue")
+                          ? "#2563eb"
                           : tool.color.includes("green")
                           ? "#10b981"
                           : tool.color.includes("orange")
@@ -196,7 +211,7 @@ function DashboardPage() {
           </motion.div>
 
           <motion.div
-            className="mt-12 text-center"
+            className="mt-16 text-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.2 }}
@@ -209,6 +224,22 @@ function DashboardPage() {
       </motion.div>
     </AnimatePresence>
   );
+}
+
+// Add this at the end of the file, before the export
+const styles = `
+  .bg-grid-pattern {
+    background-image: linear-gradient(to right, #80808012 1px, transparent 1px),
+      linear-gradient(to bottom, #80808012 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+`;
+
+// Add the styles to the document
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
 }
 
 export default DashboardPage;

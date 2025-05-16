@@ -8,6 +8,7 @@ import {
   ShoppingBag,
   Code,
   Settings,
+  Mic,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetClose } from "../ui/sheet";
@@ -36,6 +37,12 @@ const routes = [
     icon: ImageIcon,
     href: "/image",
     color: "text-pink-700",
+  },
+  {
+    label: "Speech Generation",
+    icon: Mic,
+    href: "/speech",
+    color: "text-blue-600",
   },
   {
     label: "Code Generation",

@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { VOICE_PRESETS, type VoicePreset, type VoiceGender } from "@/app/api/speech/route";
 
 import {
   Form,
@@ -27,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { VOICE_PRESETS, VoiceGender } from "@/lib/voice_presets";
 
 // Loading spinner component
 const Loader = ({ size = "default" }: { size?: "default" | "lg" }) => (
@@ -81,7 +81,7 @@ const SpeechPage = () => {
     defaultValues: {
       text: "",
       gender: "male",
-      voicePreset: "male",
+      voicePreset: "Deep_Voice_Man",
     },
   });
 
@@ -114,7 +114,7 @@ const SpeechPage = () => {
       }
 
       const data = await response.json();
-      
+
       if (!data.audioUrl) {
         throw new Error("No audio URL received");
       }
@@ -141,7 +141,8 @@ const SpeechPage = () => {
           AI Voice Generator
         </h1>
         <p className="text-center text-muted-foreground">
-          Transform your text into natural-sounding speech with AI-powered voices
+          Transform your text into natural-sounding speech with AI-powered
+          voices
         </p>
       </motion.div>
 
@@ -205,7 +206,9 @@ const SpeechPage = () => {
                         <FormLabel>Voice Gender</FormLabel>
                         <FormControl>
                           <RadioGroup
-                            onValueChange={(value: VoiceGender) => onGenderChange(value)}
+                            onValueChange={(value: VoiceGender) =>
+                              onGenderChange(value)
+                            }
                             defaultValue={field.value}
                             className="flex space-x-4"
                           >
@@ -247,7 +250,11 @@ const SpeechPage = () => {
                           <FormControl>
                             <SelectTrigger className="bg-background/50 backdrop-blur-sm h-auto py-2">
                               <SelectValue placeholder="Select a voice">
-                                {VOICE_PRESETS[currentGender].find(v => v.id === field.value)?.name}
+                                {
+                                  VOICE_PRESETS[currentGender].find(
+                                    (v) => v.id === field.value
+                                  )?.name
+                                }
                               </SelectValue>
                             </SelectTrigger>
                           </FormControl>
@@ -276,8 +283,6 @@ const SpeechPage = () => {
                       </FormItem>
                     )}
                   />
-
-                  
 
                   <Button
                     type="submit"
