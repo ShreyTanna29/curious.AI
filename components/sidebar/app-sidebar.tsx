@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   MessageSquare,
   ShoppingBag,
+  Mic,
 } from "lucide-react"
 
 import { NavMain } from "@/components/sidebar/nav-main"
@@ -57,6 +58,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Image Generation",
         url: "/image",
         icon: ImageIcon,
+      },
+      {
+        title: "Speech Generation",
+        url: "/speech",
+        icon: Mic,
       },
       {
         title: "Code Generation",
