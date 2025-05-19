@@ -22,8 +22,17 @@ model Image {
   createdAt DateTime @default(now())
 }
 
-model chat {
+model groupChat {
   id        String   @id @default(uuid())
+  chats     chat[]
+  title     String 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt 
+}
+model chat {
+  id        String   @id @default(uuid()) 
+  groupId   String
+  groupChat groupChat @relation(fields: [groupId], references: [id])
   userId    String
   prompt    String
   response  String

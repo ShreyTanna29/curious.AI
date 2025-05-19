@@ -28,6 +28,12 @@ export async function POST(req: Request) {
     const result = await chat.sendMessage(prompt);
     const response = result.response.candidates?.[0].content.parts[0].text;
 
+    // whenever the chat starts we need to know the title of the chat
+
+    await prismadb.groupChat.create({
+      
+    })
+
     await prismadb.chat.create({
       data: {
         userId,
