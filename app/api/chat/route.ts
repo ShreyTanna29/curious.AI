@@ -50,7 +50,6 @@ export async function POST(req: Request) {
       prompt,
       response: String(response),
     };
-
     if (groupChatId) {
       await prismadb.groupChat.update({
         where: { id: groupChatId },
