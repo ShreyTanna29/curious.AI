@@ -117,7 +117,7 @@ function ConversationPage() {
 
       const newMessage: Message = {
         role: "assistant",
-        content: String(response.data),
+        content: String(response.data.response),
       };
 
       setMessages((current) => [...current, userMessage, newMessage]);
