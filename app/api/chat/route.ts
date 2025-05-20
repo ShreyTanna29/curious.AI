@@ -22,7 +22,11 @@ export interface GroupChat {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
+type Props = {
+  params: {
+    id: string;
+  };
+};
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(NEXT_AUTH_CONFIG!);
@@ -38,15 +42,17 @@ export async function POST(req: Request) {
     if (!prompt) {
       return new NextResponse("prompt is required", { status: 400 });
     }
-
+    console.log("here working")
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
+    
+    console.log("here working 2")
     const chat = model.startChat();
     const result = await chat.sendMessage(prompt);
+    console.log("here working 3")
     const response = result.response.candidates?.[0].content.parts[0].text;
+    console.log("here working 4")
     // whenever the chat starts we need to know the title of the chat
     const chatData = {
-      userId,
       prompt,
       response: String(response),
     };
@@ -66,6 +72,7 @@ export async function POST(req: Request) {
         data: {
           title: String(title),
           chats: { create: chatData },
+          userId
         },
       });
       if(!groupChatId || groupChatId==='') groupChatId = responseOfGroupChat.id
@@ -77,6 +84,36 @@ export async function POST(req: Request) {
   });
   } catch (error) {
     console.log("[CONVERSATION_ERROR]", error);
+    return new NextResponse("Internal error", { status: 500 });
+  }
+}
+
+
+export async function GET({ params }: Props) {
+  const groupChatId = params.id;
+
+  try {
+    const session = await getServerSession(NEXT_AUTH_CONFIG);
+    const userId = session?.user?.id;
+
+    if (!userId) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    const groupChat = await prismadb.groupChat.findUnique({
+      where: { id: groupChatId },
+      include: {
+        chats: true, // include related chats if you want
+      },
+    });
+      console.log("gruopchats ", groupChat)
+    if (!groupChat || groupChat.userId !== userId) {
+      return new NextResponse("Not found or forbidden", { status: 403 });
+    }
+
+    return NextResponse.json(groupChat);
+  } catch (error) {
+    console.error("[GROUP_CHAT_GET_ERROR]", error);
     return new NextResponse("Internal error", { status: 500 });
   }
 }

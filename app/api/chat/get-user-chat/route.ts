@@ -6,16 +6,17 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const session = await getServerSession(NEXT_AUTH_CONFIG);
   const userId = session.user.id;
+  console.log("user id ", userId)
 
   if (!userId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const userChat = await prismadb.chat.findMany({
+  const userChat = await prismadb.groupChat.findMany({
     where: {
       userId,
     },
   });
-
+  console.log("user chat is ", userChat)
   return NextResponse.json(userChat);
 }

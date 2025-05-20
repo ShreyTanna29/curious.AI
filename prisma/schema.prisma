@@ -22,18 +22,20 @@ model Image {
   createdAt DateTime @default(now())
 }
 
-model groupChat {
+model GroupChat {
   id        String   @id @default(uuid())
-  chats     chat[]
-  title     String 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt 
-}
-model chat {
-  id        String   @id @default(uuid()) 
-  groupId   String
-  groupChat groupChat @relation(fields: [groupId], references: [id])
+  title     String
   userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  chats     Chat[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  groupId   String
+  groupChat GroupChat @relation(fields: [groupId], references: [id])
   prompt    String
   response  String
   createdAt DateTime @default(now())
@@ -55,4 +57,5 @@ model User {
   provider   String
   profilePic String?
   createdAt  DateTime @default(now())
+  groupChat GroupChat[]
 }
