@@ -89,31 +89,3 @@ export async function POST(req: Request) {
 }
 
 
-export async function GET({ params }: Props) {
-  const groupChatId = params.id;
-
-  try {
-    const session = await getServerSession(NEXT_AUTH_CONFIG);
-    const userId = session?.user?.id;
-
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
-    const groupChat = await prismadb.groupChat.findUnique({
-      where: { id: groupChatId },
-      include: {
-        chats: true, // include related chats if you want
-      },
-    });
-      console.log("gruopchats ", groupChat)
-    if (!groupChat || groupChat.userId !== userId) {
-      return new NextResponse("Not found or forbidden", { status: 403 });
-    }
-
-    return NextResponse.json(groupChat);
-  } catch (error) {
-    console.error("[GROUP_CHAT_GET_ERROR]", error);
-    return new NextResponse("Internal error", { status: 500 });
-  }
-}
