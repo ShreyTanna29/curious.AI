@@ -22,11 +22,6 @@ export interface GroupChat {
   createdAt?: Date;
   updatedAt?: Date;
 }
-type Props = {
-  params: {
-    id: string;
-  };
-};
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(NEXT_AUTH_CONFIG!);
@@ -42,15 +37,11 @@ export async function POST(req: Request) {
     if (!prompt) {
       return new NextResponse("prompt is required", { status: 400 });
     }
-    console.log("here working")
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
-    console.log("here working 2")
     const chat = model.startChat();
     const result = await chat.sendMessage(prompt);
-    console.log("here working 3")
     const response = result.response.candidates?.[0].content.parts[0].text;
-    console.log("here working 4")
     // whenever the chat starts we need to know the title of the chat
     const chatData = {
       prompt,
@@ -77,7 +68,6 @@ export async function POST(req: Request) {
       });
       if(!groupChatId || groupChatId==='') groupChatId = responseOfGroupChat.id
     }
-    console.log("response ", response, groupChatId)
   return NextResponse.json({ 
     response, 
     groupChatId

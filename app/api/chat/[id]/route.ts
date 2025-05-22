@@ -1,14 +1,13 @@
 import prismadb from "@/packages/api/prismadb";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 
-
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+ { params }: { params: Promise<{ id: string }> }
 ) {
-  const groupChatId = context.params.id;
+  const groupChatId = (await params).id
 
   try {
     const session = await getServerSession(NEXT_AUTH_CONFIG);
