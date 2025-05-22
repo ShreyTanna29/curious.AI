@@ -6,7 +6,6 @@ import { formSchema } from "../constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Loader from "@/components/loaders/loader";
 import { cn } from "@/lib/utils";
@@ -14,7 +13,6 @@ import BotAvatar from "@/components/extra/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
-import { History } from "lucide-react";
 import remarkGfm from "remark-gfm";
 import { useParams } from 'next/navigation';
 import gsap from "gsap";
@@ -26,7 +24,6 @@ type Message = {
 };
 
 export default function ConversationPage() {
-  const router = useRouter();
   const params = useParams();
   const id = params.id;
   const [windowWidth, setWindowWidth] = useState<number>(800);
@@ -55,6 +52,7 @@ export default function ConversationPage() {
         }
       } catch (error) {
         toast.error("Failed to load conversation");
+        console.log(error)
       } finally {
         setLoading(false);
       }
@@ -84,29 +82,26 @@ export default function ConversationPage() {
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const userMessage: Message = {
+      role: "user",
+      content: values.prompt,
+    };
     try {
-      const userMessage: Message = {
-        role: "user",
-        content: values.prompt,
-      };
-
-      // Optimistic update
-      setMessages(current => [...current, userMessage]);
-      form.reset();
-
       const response = await axios.post("/api/chat", {
         prompt: values.prompt,
         groupChatId: id
       });
-
-      const botMessage: Message = {
+      
+      const newMessage: Message = {
         role: "assistant",
         content: String(response.data.response),
       };
-
-      setMessages(current => [...current, botMessage]);
+      
+      setMessages(current => [...current, userMessage, newMessage]);
+      form.reset();
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error("Failed to send message ");
+      console.log(error);
       // Remove optimistic update on error
       setMessages(current => current.filter(msg => msg !== userMessage));
     }
