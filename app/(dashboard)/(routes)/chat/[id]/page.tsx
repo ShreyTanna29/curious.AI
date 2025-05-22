@@ -17,6 +17,8 @@ import remarkGfm from "remark-gfm";
 import { useParams } from 'next/navigation';
 import gsap from "gsap";
 import { HistorySidebar } from "@/components/sidebar/history-sidebar";
+import { useRouter } from "next/navigation";
+
 
 type Message = {
   role: "user" | "assistant";
@@ -24,6 +26,7 @@ type Message = {
 };
 
 export default function ConversationPage() {
+  const router = useRouter();
   const params = useParams();
   const id = params.id;
   const [windowWidth, setWindowWidth] = useState<number>(800);
@@ -117,7 +120,22 @@ export default function ConversationPage() {
 
 return (
   <div className="w-full transition-all duration-300 ease-in-out">
+    <div className="flex items-center justify-between px-4 pt-4">
     <HistorySidebar />
+      <Button
+        variant="outline"
+        onClick={() => {
+          setMessages([]); // Clear current chat messages
+          // Optionally, also reset form if needed
+          router.push(`/chat`)
+          form.reset();
+        }}
+        className="ml-2"
+      >
+        New Chat
+      </Button>
+    </div>
+
     
     {/* Main chat container with padding bottom to account for fixed input */}
     <div className="flex items-center justify-center pb-24"> {/* Added pb-24 for bottom padding */}
