@@ -11,11 +11,10 @@ export async function GET() {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  const userChat = await prismadb.chat.findMany({
+  const userChat = await prismadb.groupChat.findMany({
     where: {
       userId,
     },
   });
-
   return NextResponse.json(userChat);
 }

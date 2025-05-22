@@ -14,10 +14,11 @@ import BotAvatar from "@/components/extra/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, History, Newspaper, Quote, TrendingUp } from "lucide-react";
+import { FileText, Newspaper, Quote, TrendingUp } from "lucide-react";
 import Balancer from "react-wrap-balancer";
 import gsap from "gsap";
-import remarkGfm from "remark-gfm";
+// import remarkGfm from "remark-gfm";
+import { HistorySidebar } from "@/components/sidebar/history-sidebar";
 
 type Message = {
   role: "user" | "assistant";
@@ -28,9 +29,6 @@ function ConversationPage() {
   const router = useRouter();
   const [windowWidth, setWindowWidth] = useState<number>(800);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [previousMessages, setPreviuosMessages] = useState<Message[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [gettingUserChats, setGettingUserChats] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,25 +36,6 @@ function ConversationPage() {
       prompt: "",
     },
   });
-
-  const getUserChats = async () => {
-    setGettingUserChats(true);
-    const response = await axios.get("/api/chat/get-user-chat");
-    if (response.data) {
-      response.data.map((chat: any) =>
-        setPreviuosMessages((prev) => [
-          ...prev,
-          { role: "user", content: chat.prompt },
-          { role: "assistant", content: chat.response.toString("utf8") },
-        ])
-      );
-    }
-    if (!response.data || response.data.length === 0) {
-      toast.error("You don't have any previous chats.");
-      setShowHistory(false);
-    }
-    setGettingUserChats(false);
-  };
 
   // window width handler useEffect
   useEffect(() => {
@@ -78,7 +57,7 @@ function ConversationPage() {
       stagger: 0.2,
       y: 0,
     });
-  }, [showHistory]);
+  }, []);
 
   const isLoading = form.formState.isSubmitting;
 
@@ -117,11 +96,14 @@ function ConversationPage() {
 
       const newMessage: Message = {
         role: "assistant",
-        content: String(response.data),
+        content: String(response.data.response),
       };
 
       setMessages((current) => [...current, userMessage, newMessage]);
       form.reset();
+      if(response.data.groupChatId){
+        router.push(`/chat/${response.data.groupChatId}`)
+      }
     } catch (error: any) {
       console.log(error);
       toast.error("Something went wrong.");
@@ -130,46 +112,25 @@ function ConversationPage() {
     }
   };
 
-  const historyHandler = async () => {
-    setShowHistory(!showHistory);
-    if (previousMessages.length === 0) {
-      await getUserChats();
-    }
-  };
-
   return (
-    <div className="w-full transition-all duration-300 ease-in-out ">
-      <Button
-        variant={"custom"}
-        className="right-3 lg:right-10 bg-gray-100 rounded-lg absolute md:p-4"
-        onClick={() => historyHandler()}
-      >
-        <History className="mr-2" />
-        <span className="hidden md:block">
-          {showHistory ? "Hide" : "Show"} History
-        </span>
-      </Button>
-      {gettingUserChats && (
-        <div className="w-full flex items-center justify-center">
-          <Loader />
-        </div>
-      )}
+    <div className="w-full transition-all duration-300 ease-in-out">
+      <HistorySidebar />
+      
       <div className="flex items-center justify-center">
-        <div className="w-full px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto  md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+        <div className="w-full px-4 lg:px-8 lg:w-[60%] lg:max-w-[60%] overflow-auto md:h-[80vh] h-[65svh] scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
           <div className="w-full space-y-4 mt-4 mx-auto">
-            {messages.length === 0 && !showHistory && (
-              <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[50vh] lg:justify-end ">
-                <div className=" text-center text-3xl mb-6">
+            {messages.length === 0 && (
+              <div className="w-full h-[60svh] mt-auto flex flex-col justify-end lg:items-center lg:h-[50vh] lg:justify-end">
+                <div className="text-center text-3xl mb-6">
                   <h1>
-                    {" "}
-                    <Balancer> How can I help you today?</Balancer>
+                    <Balancer>How can I help you today?</Balancer>
                   </h1>
                 </div>
-                <div className="w-full  flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-y-hidden overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="w-full flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-around overflow-y-hidden overflow-x-scroll scrollbar-thin scrollbar-thumb-black/10 dark:scrollbar-thumb-white/10 scrollbar-track-transparent">
                   <Button
                     onClick={() => tabsHandler("trending")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg opacity-0 slideUp translate-y-10 "
+                    className="md:p-5 text-lg rounded-lg opacity-0 slideUp translate-y-10"
                   >
                     <TrendingUp className="mr-2 text-violet-500" /> What&apos;s
                     trending?
@@ -177,118 +138,37 @@ function ConversationPage() {
                   <Button
                     onClick={() => tabsHandler("quote")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 "
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10"
                   >
                     <Quote className="mr-2 text-green-500" /> Share a quote
                   </Button>
                   <Button
                     onClick={() => tabsHandler("summarize")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 "
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10"
                   >
-                    <FileText className="mr-2 text-orange-500 " />
+                    <FileText className="mr-2 text-orange-500" />
                     Summarize text
                   </Button>
                   <Button
                     onClick={() => tabsHandler("news")}
                     variant={"custom"}
-                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10 "
+                    className="md:p-5 text-lg rounded-lg slideUp opacity-0 translate-y-10"
                   >
-                    <Newspaper className="mr-2 text-blue-500 " />
+                    <Newspaper className="mr-2 text-blue-500" />
                     Today&apos;s news
                   </Button>
                 </div>
               </div>
             )}
             <div className="flex flex-col gap-y-6">
-              {showHistory &&
-                previousMessages.map((message, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      "p-4 flex items-center gap-x-6 w-fit",
-                      message.role === "user"
-                        ? "bg-neutral-200 rounded-xl ml-auto  md:p-5  max-w-[70%] dark:bg-[#212121] "
-                        : "bg-white md:p-6 max-w-[100%] rounded-r-2xl rounded-tl-2xl dark:bg-black"
-                    )}
-                  >
-                    <p className="text-sm flex justify-center gap-3 md:text-xl text-muted-foreground dark:text-white">
-                      {message.role === "user" ? null : <BotAvatar />}
-                      {message.role === "user" ? (
-                        message.content
-                      ) : (
-                        <ReactMarkdown
-                          remarkPlugins={[remarkGfm]}
-                          components={{
-                            pre: ({ ...props }) => (
-                              <div className=" overflow-auto w-full  my-2 bg-black/10 p-2 rounded-lg ">
-                                <pre {...props} />
-                              </div>
-                            ),
-                            code: ({ ...props }) => (
-                              <code
-                                className="bg-black/10 rounded-lg p-1"
-                                {...props}
-                              />
-                            ),
-                            h1: ({ ...props }) => (
-                              <h1
-                                className="text-xl font-bold mt-4"
-                                {...props}
-                              />
-                            ),
-                            h2: ({ ...props }) => (
-                              <h2
-                                className="text-lg font-semibold mt-3"
-                                {...props}
-                              />
-                            ),
-                            h3: ({ ...props }) => (
-                              <h3
-                                className="text-base font-medium mt-2"
-                                {...props}
-                              />
-                            ),
-                            p: ({ ...props }) => (
-                              <p
-                                className="text-sm leading-relaxed my-2"
-                                {...props}
-                              />
-                            ),
-                            ul: ({ ...props }) => (
-                              <ul className="list-disc pl-4 my-2" {...props} />
-                            ),
-                            ol: ({ ...props }) => (
-                              <ol
-                                className="list-decimal pl-4 my-2"
-                                {...props}
-                              />
-                            ),
-                            li: ({ ...props }) => (
-                              <li className="text-sm my-1" {...props} />
-                            ),
-                            blockquote: ({ ...props }) => (
-                              <blockquote
-                                className="border-l-2 border-blue-500 pl-4 italic my-2"
-                                {...props}
-                              />
-                            ),
-                          }}
-                          className="text-sm md:text-xl overflow-hidden leading-7"
-                        >
-                          {message.content || ""}
-                        </ReactMarkdown>
-                      )}
-                    </p>
-                  </div>
-                ))}
               {messages.map((message, index) => (
                 <div
                   key={index}
                   className={cn(
                     "p-4 flex items-center gap-x-6 w-fit",
                     message.role === "user"
-                      ? "bg-neutral-200 rounded-xl ml-auto  md:p-5  max-w-[70%] dark:bg-[#212121] "
+                      ? "bg-neutral-200 rounded-xl ml-auto md:p-5 max-w-[70%] dark:bg-[#212121]"
                       : "md:p-6 max-w-[100%] rounded-r-2xl rounded-tl-2xl dark:bg-black"
                   )}
                 >
@@ -300,7 +180,7 @@ function ConversationPage() {
                       <ReactMarkdown
                         components={{
                           pre: ({ ...props }) => (
-                            <div className=" overflow-auto w-full  my-2 bg-black/10 p-2 rounded-lg ">
+                            <div className="overflow-auto w-full my-2 bg-black/10 p-2 rounded-lg">
                               <pre {...props} />
                             </div>
                           ),
@@ -324,7 +204,7 @@ function ConversationPage() {
         </div>
       </div>
       <div className="flex items-center justify-center">
-        <div className="flex items-center px-4 w-full md:w-[70%] lg:w-[55%]  fixed bottom-4">
+        <div className="flex items-center px-4 w-full md:w-[70%] lg:w-[55%] fixed bottom-4">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(onSubmit)}
@@ -333,18 +213,18 @@ function ConversationPage() {
               <FormField
                 name="prompt"
                 render={({ field }) => (
-                  <FormItem className="col-span-12 lg:col-span-10 ">
+                  <FormItem className="col-span-12 lg:col-span-10">
                     <FormControl className="m-0 p-0">
                       <Textarea
-                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent resize-none transition-all duration-200 text-lg "
+                        className="border-0 outline-none focus-visible:ring-0 focus-visible:ring-transparent resize-none transition-all duration-200 text-lg"
                         disabled={isLoading}
                         placeholder="Ask anything..."
                         {...field}
-                        rows={windowWidth < 800 ? 1 : 5} // Start with a single row
+                        rows={windowWidth < 800 ? 1 : 5}
                         onInput={(e) => {
-                          const textarea = e.target as HTMLTextAreaElement; // Cast EventTarget to HTMLTextAreaElement
-                          textarea.style.height = "auto"; // Reset height to calculate correctly
-                          textarea.style.height = `${textarea.scrollHeight}px`; // Adjust height based on content
+                          const textarea = e.target as HTMLTextAreaElement;
+                          textarea.style.height = "auto";
+                          textarea.style.height = `${textarea.scrollHeight}px`;
                         }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && !e.shiftKey) {
