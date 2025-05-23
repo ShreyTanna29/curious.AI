@@ -1,8 +1,9 @@
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai";
 import prismadb from "@/packages/api/prismadb";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
+import toast from "react-hot-toast";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 
@@ -22,6 +23,35 @@ export interface GroupChat {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+let chat: ChatSession | null = null;
+
+async function seedChats(chat:ChatSession, groupChatId:string){
+  try {
+    const response = await prismadb.groupChat.findFirst({where:{id:groupChatId}, include:{chats:true}});
+    const previousChats = response?.chats;
+    const chatHistoryPrompt = previousChats?.map(entry => 
+    `User: ${entry.prompt}\nAssistant: ${entry.response}`
+  ).join('\n\n');
+    const promptToGetContext = `
+  The following is a conversation I previously had with you. Use this context to answer my next question appropriately.
+  ${chatHistoryPrompt}
+  `;  
+    await chat.sendMessage(promptToGetContext)
+  } catch (error) {
+    console.log(error)
+    toast.error("Somewent Went Wrong")
+  }
+}
+
+async function initChat(groupChatId:string) {
+  if (!chat) {
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    chat = model.startChat();
+    await seedChats(chat, groupChatId);
+  }
+  return chat;
+}
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(NEXT_AUTH_CONFIG!);
@@ -37,9 +67,9 @@ export async function POST(req: Request) {
     if (!prompt) {
       return new NextResponse("prompt is required", { status: 400 });
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    
-    const chat = model.startChat();
+   
+    const chat = await initChat(groupChatId);
+  
     const result = await chat.sendMessage(prompt);
     const response = result.response.candidates?.[0].content.parts[0].text;
     // whenever the chat starts we need to know the title of the chat
