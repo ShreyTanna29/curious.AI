@@ -45,10 +45,11 @@ async function seedChats(chat:ChatSession, groupChatId:string){
 }
 
 async function initChat(groupChatId:string) {
-  if (!chat) {
+  if (!chat || groupChatId==='') {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     chat = model.startChat();
-    await seedChats(chat, groupChatId);
+    console.log("New chat");
+    if(groupChatId) await seedChats(chat, groupChatId);
   }
   return chat;
 }
@@ -70,8 +71,8 @@ export async function POST(req: Request) {
    
     const chat = await initChat(groupChatId);
   
-    const result = await chat.sendMessage(prompt);
-    const response = result.response.candidates?.[0].content.parts[0].text;
+    const result = await chat?.sendMessage(prompt);
+    const response = result?.response.candidates?.[0].content.parts[0].text;
     // whenever the chat starts we need to know the title of the chat
     const chatData = {
       prompt,
