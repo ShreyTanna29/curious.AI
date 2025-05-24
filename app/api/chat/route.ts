@@ -45,12 +45,12 @@ async function seedChats(chat:ChatSession, groupChatId:string){
 }
 
 async function initChat(groupChatId:string) {
-  if (!chat || groupChatId==='') {
+  if (!chat || !groupChatId) {
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     chat = model.startChat();
     console.log("New chat");
-    if(groupChatId) await seedChats(chat, groupChatId);
   }
+  if(groupChatId) await seedChats(chat, groupChatId);
   return chat;
 }
 export async function POST(req: Request) {
@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     let { groupChatId } = body || '';
     const { prompt } = body;
-
+    console.log("prompt ", prompt, groupChatId)
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
