@@ -23,7 +23,6 @@ export async function GET(
         chats: true,
       },
     });
-
     if (!groupChat || groupChat.userId !== userId) {
       return new NextResponse("Not found or forbidden", { status: 403 });
     }
