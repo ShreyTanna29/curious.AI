@@ -369,13 +369,20 @@ const SpeechPage = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
+                        onClick={async () => {
+                          const response = await fetch(audioUrl, {
+                            mode: "cors",
+                          });
+
+                          const blob = await response.blob();
+                          const url = window.URL.createObjectURL(blob);
                           const link = document.createElement("a");
-                          link.href = audioUrl;
-                          link.download = "speech.mp3";
+                          link.href = url;
+                          link.setAttribute("download", "speech.mp3");
                           document.body.appendChild(link);
                           link.click();
                           document.body.removeChild(link);
+                          window.URL.revokeObjectURL(url);
                         }}
                         className="w-full flex items-center justify-center gap-2 hover:bg-primary/10"
                       >
