@@ -21,3 +21,8 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
+
+**NOTE**
+1. Don't ask to assign the issue,leave a comment here that you are working on this issue and start 
+    working.
+2. Read CONTRIBUTING.md before starting to contribute.

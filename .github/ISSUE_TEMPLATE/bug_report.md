@@ -39,3 +39,8 @@ If applicable, add screenshots to help explain your problem.
 
 **Additional context**
 Add any other context about the problem here.
+
+**NOTE**
+1. Don't ask to assign the issue,leave a comment here that you are working on this issue and start 
+    working.
+2. Read CONTRIBUTING.md before starting to contribute
