@@ -37,7 +37,7 @@ export function NavMain({
                 onClick={() => (window.location.href = item.url)}
                 tooltip={item.title}
                 className={clsx(
-                    isActive && "bg-muted"
+                    isActive && "bg-gray-200 dark:bg-muted"
                   )}
               >
                 {item.icon && <item.icon />}
