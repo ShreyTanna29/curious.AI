@@ -4,7 +4,7 @@ import { Button } from "../ui/button";
 import { ArrowRight, Star, Sparkles, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "../loaders/loadingSpinner";
+import LoadingDots from "../loaders/LoadingDots";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -221,14 +221,16 @@ export default function LandingHero() {
                 }
               }}
             >
-              <span className="relative z-10 flex items-center gap-2">
-                {isSignedIn ? "Visit Dashboard" : "Get Started"}{" "}
-                {loading ? (
-                  <LoadingSpinner className="border-white" />
-                ) : (
-                  <ArrowRight className="group-hover:translate-x-1 transition-transform" />
-                )}
-              </span>
+            <span className="relative z-10 flex items-center justify-center gap-2 min-w-[120px]">
+              {!loading ? (
+                <>
+                {isSignedIn ? "Visit Dashboard" : "Get Started"}
+                <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                </>
+                 ) : (
+                 <LoadingDots/>
+                 )}
+                 </span>
             </Button>
 
             <Button
