@@ -18,6 +18,7 @@ import { Montserrat } from "next/font/google";
 import Image from "next/image";
 import UserProfileCard from "./UserProfileCard";
 import { cn } from "@/lib/utils";
+import { usePathname } from "next/navigation";
 
 const routes = [
   {
@@ -66,6 +67,8 @@ const routes = [
 const monserrat = Montserrat({ weight: "600", subsets: ["latin"] });
 const MobileSidebar = () => {
   const [issMounted, setIsMounted] = useState(false);
+  const pathname = usePathname(); 
+  
 
   useEffect(() => {
     document.documentElement.classList.toggle(
@@ -112,12 +115,17 @@ const MobileSidebar = () => {
               <UserProfileCard />
             </div>
             <div>
-              {routes.map((route) => (
+              {routes.map((route) => 
+              {
+                const isActive = pathname === route.href;
+                return (
+                
                 <SheetClose key={route.href} asChild>
                   <div
                     onClick={() => (window.location.href = route.href)}
                     className={cn(
                       "text-sm group flex p-3 w-full justify-start font-medium cursor-pointer hover:bg-black/10  dark:hover:text-white dark:hover:bg-white/10 rounded-lg transition",
+                      isActive && "bg-gray-200 dark:bg-muted",
                       "text-black dark:text-zinc-400"
                     )}
                   >
@@ -127,7 +135,7 @@ const MobileSidebar = () => {
                     </div>
                   </div>
                 </SheetClose>
-              ))}
+              )})}
             </div>
           </div>
         </div>
