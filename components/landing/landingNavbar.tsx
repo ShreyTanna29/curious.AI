@@ -30,14 +30,14 @@ export default function LandingNavbar() {
     );
   }, []);
   return (
-    <nav className="p-4 w-full  absolute z-50 bg-transparent flex items-center justify-between">
-      <Link href="/" className="flex items-center">
-        <div className="relative h-6 w-6 md:h-8 md:w-8 mr-4 slideAnimation opacity-0 -translate-x-10 ">
+    <nav className="px-3 py-2 w-full absolute z-50 bg-transparent flex items-center justify-between">
+      <Link href="/" className="flex items-center gap-2">
+        <div className="relative h-5 w-5 md:h-6 md:w-6 slideAnimation opacity-0 -translate-x-6">
           <Image fill alt="Logo" src="/logo.png" />
         </div>
         <h1
           className={cn(
-            " text-xl md:text-2xl font-bold text-black/70 dark:text-white slideAnimation opacity-0 -translate-x-10 ",
+            "text-lg md:text-xl font-bold text-black/70 dark:text-white slideAnimation opacity-0 -translate-x-6",
             font.className
           )}
         >
