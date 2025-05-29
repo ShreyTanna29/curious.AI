@@ -1,4 +1,5 @@
-![Screenshot from 2025-03-29 00-36-59](https://github.com/user-attachments/assets/450875aa-acc5-42cd-9f1a-8551261400d5)
+
+![Screenshot from 2025-05-29 10-58-00](https://github.com/user-attachments/assets/57f9e39b-1e47-4981-aba7-c16bd66cf1d6)
 
 # 🤖 curious.ai
 
