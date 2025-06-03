@@ -57,5 +57,18 @@ model User {
   provider   String
   profilePic String?
   createdAt  DateTime @default(now())
-  groupChat GroupChat[]
+  groupChat  GroupChat[]
+  serviceCredentials UserServiceCredentials[]
+}
+
+model UserServiceCredentials {
+  id            String   @id @default(uuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service       String   // github, trello, linkedin, clickup
+  credentials   Json     // Store encrypted credentials
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([userId, service])
 }
