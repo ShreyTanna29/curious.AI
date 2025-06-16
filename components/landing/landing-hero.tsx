@@ -241,7 +241,7 @@ export default function LandingHero() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full overflow-hidden bg-white dark:bg-black">
       {/* Background effects */}
       <div className="absolute inset-0">
         {/* Animated background */}
@@ -249,7 +249,7 @@ export default function LandingHero() {
 
         {/* Subtle noise texture */}
         <div
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.02] dark:opacity-[0.02]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
             backgroundSize: "200px 200px",
@@ -258,38 +258,32 @@ export default function LandingHero() {
 
         {/* Text focus gradient */}
         <div className="absolute inset-0">
-          {/* Lighter dark blue aesthetic gradient focus */}
+          {/* Light/Dark mode gradient focus */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[800px] rounded-full"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[800px] rounded-full bg-gradient-light dark:bg-gradient-dark"
             style={{
-              background:
-                "radial-gradient(circle at center, rgba(30,41,59,0.18) 0%, rgba(37,99,235,0.09) 40%, rgba(59,130,246,0.06) 70%, transparent 100%)",
               filter: "blur(80px)",
             }}
           />
           {/* Additional corner fade for elegance */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 bg-corner-fade-light dark:bg-corner-fade-dark"
             style={{
-              background:
-                "radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.12) 100%)",
               maskImage:
                 "radial-gradient(circle at 50% 50%, black 30%, transparent 70%)",
             }}
           />
-          {/* Lighter ambient blue light for depth */}
+          {/* Ambient light for depth */}
           <div
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1000px] rounded-full opacity-15"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[1200px] h-[1000px] rounded-full opacity-15 bg-ambient-light dark:bg-ambient-dark"
             style={{
-              background:
-                "radial-gradient(circle at center, rgba(37,99,235,0.04) 0%, rgba(59,130,246,0.025) 40%, transparent 100%)",
               filter: "blur(60px)",
             }}
           />
         </div>
 
-        {/* Very subtle vignette for focus */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.13)_100%)]" />
+        {/* Subtle vignette for focus */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.05)_100%)] dark:bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.13)_100%)]" />
       </div>
 
       {/* Main content with higher z-index */}
@@ -300,10 +294,10 @@ export default function LandingHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-gray-800/40 shadow-lg backdrop-blur-sm"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100/80 dark:bg-black/40 border border-gray-200/40 dark:border-gray-800/40 shadow-lg backdrop-blur-sm"
           >
             <Brain className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-medium text-gray-300">
+            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
               Your Complete AI Workspace
             </span>
           </motion.div>
@@ -315,14 +309,14 @@ export default function LandingHero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="space-y-4"
           >
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
+            <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-gray-900 dark:text-white">
               <span className="block">One Platform,</span>
               <span className="block mt-1 bg-gradient-to-r from-primary via-primary/90 to-primary bg-clip-text text-transparent">
                 Infinite AI Possibilities
               </span>
             </h1>
 
-            <p className="text-lg max-w-xl mx-auto text-gray-300">
+            <p className="text-lg max-w-xl mx-auto text-gray-600 dark:text-gray-300">
               The ultimate AI toolkit that brings together image generation,
               code assistance, and intelligent chat in one seamless experience.
               Transform your workflow with the power of multiple AI models at
@@ -339,7 +333,7 @@ export default function LandingHero() {
           >
             <Button
               size="lg"
-              className="group relative overflow-hidden px-6 py-5 rounded-lg text-base transition-all duration-300 bg-white text-gray-900 hover:bg-white/90 shadow-lg shadow-white/10 hover:shadow-white/20"
+              className="group relative overflow-hidden px-6 py-5 rounded-lg text-base transition-all duration-300 bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/10 hover:shadow-primary/20 dark:bg-white dark:text-gray-900 dark:hover:bg-white/90 dark:shadow-white/10 dark:hover:shadow-white/20"
               onClick={() => {
                 setLoading(true);
                 if (isSignedIn) {
@@ -364,7 +358,7 @@ export default function LandingHero() {
             <Button
               variant="outline"
               size="lg"
-              className="px-6 py-5 rounded-lg text-base border border-gray-800/40 text-gray-300 hover:bg-black/40 hover:border-gray-700/40 shadow-lg backdrop-blur-sm transition-colors"
+              className="px-6 py-5 rounded-lg text-base border border-gray-200/40 dark:border-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100/40 dark:hover:bg-black/40 hover:border-gray-300/40 dark:hover:border-gray-700/40 shadow-lg backdrop-blur-sm transition-colors"
             >
               See AI Tools
             </Button>
@@ -375,7 +369,7 @@ export default function LandingHero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-800/40 backdrop-blur-sm"
+            className="grid grid-cols-3 gap-6 pt-8 border-t border-gray-200/40 dark:border-gray-800/40 backdrop-blur-sm"
           >
             {[
               { value: "10+", label: "AI Models" },
@@ -383,15 +377,69 @@ export default function LandingHero() {
               { value: "∞", label: "Possibilities" },
             ].map((stat, i) => (
               <div key={i} className="text-center">
-                <div className="text-2xl font-bold mb-1 text-white">
+                <div className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">
                   {stat.value}
                 </div>
-                <div className="text-xs text-gray-400">{stat.label}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  {stat.label}
+                </div>
               </div>
             ))}
           </motion.div>
         </div>
       </div>
+
+      {/* Add these styles at the top of the file, after the imports */}
+      <style jsx global>{`
+        .bg-gradient-light {
+          background: radial-gradient(
+            circle at center,
+            rgba(241, 245, 249, 0.18) 0%,
+            rgba(37, 99, 235, 0.09) 40%,
+            rgba(59, 130, 246, 0.06) 70%,
+            transparent 100%
+          );
+        }
+        .bg-gradient-dark {
+          background: radial-gradient(
+            circle at center,
+            rgba(30, 41, 59, 0.18) 0%,
+            rgba(37, 99, 235, 0.09) 40%,
+            rgba(59, 130, 246, 0.06) 70%,
+            transparent 100%
+          );
+        }
+        .bg-corner-fade-light {
+          background: radial-gradient(
+            circle at 50% 50%,
+            transparent 60%,
+            rgba(0, 0, 0, 0.05) 100%
+          );
+        }
+        .bg-corner-fade-dark {
+          background: radial-gradient(
+            circle at 50% 50%,
+            transparent 60%,
+            rgba(0, 0, 0, 0.12) 100%
+          );
+        }
+        .bg-ambient-light {
+          background: radial-gradient(
+            circle at center,
+            rgba(37, 99, 235, 0.04) 0%,
+            rgba(59, 130, 246, 0.025) 40%,
+            transparent 100%
+          );
+        }
+        .bg-ambient-dark {
+          background: radial-gradient(
+            circle at center,
+            rgba(37, 99, 235, 0.04) 0%,
+            rgba(59, 130, 246, 0.025) 40%,
+            transparent 100%
+          );
+        }
+      `}</style>
     </div>
   );
 }
