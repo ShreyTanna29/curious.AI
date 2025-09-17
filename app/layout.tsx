@@ -31,6 +31,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <link rel="icon" href="/logo.png" sizes="any" />
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9457550738072911"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <CrispProvider />
       <body
         className={`${geistSans.variable} dark:bg-black ${geistMono.variable} antialiased`}
