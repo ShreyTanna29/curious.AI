@@ -1,20 +1,20 @@
-
+﻿
 ![Screenshot from 2025-05-29 10-58-00](https://github.com/user-attachments/assets/57f9e39b-1e47-4981-aba7-c16bd66cf1d6)
 
-# 🤖 curious.ai
+# ðŸ¤– curious.ai
 
 A powerful AI platform that combines conversation, code generation, and image generation capabilities using cutting-edge AI models. Visit: https://curiousai.vercel.app
 
-## ✨ Features
+## âœ¨ Features
 
-- **AI Conversation**: Engage in natural conversations using Google's Gemini Pro model
+- **AI Conversation**: Engage in natural conversations using Groq-hosted Llama models
 - **Code Generation**: Generate code snippets with detailed explanations
 - **Image Generation**: Create images from text descriptions
 - **Authentication**: Secure user authentication with next-auth
 - **Modern UI**: Beautiful interface built with Next.js 14 and Tailwind CSS
 - **24X7 Customer Support**: resolve doubts or report issues with our dedicated chat support
 
-## 🚀 Getting Started
+## ðŸš€ Getting Started
 
 ### Setup using Docker. (Recommended)
 
@@ -62,7 +62,7 @@ npm install
 ```
 
 5. Copy <mark>.env.example</mark> in your root folder and rename it to <mark>.env</mark>
-6. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get. you will also need your postgresql DB url. If you want google auth to work you need to get your own secret and client Id from their site ( google auth is optional, regular sign in and signup would work just fine, do it only your work is related to it.) 
+6. For the models to work you will need your keys from their respective website, which is easy and free to get. If your work does not include need of api response that this keys are not necceesary to get. For data storage, you can use Firebase Realtime DB (recommended) or PostgreSQL + Prisma. If you want google auth to work you need to get your own secret and client Id from their site ( google auth is optional, regular sign in and signup would work just fine, do it only your work is related to it.) 
 7. In your terminal, paste this command
    ```bash
    openssl rand -base64 32
@@ -77,18 +77,17 @@ npm run dev
    
 Visit http://localhost:3000 to see the application.
 
-🛠️ Built With
+ðŸ› ï¸ Built With
 - Next.js 15
 - TypeScript
 - Tailwind CSS
 - ShadCN ui
 - Next Auth
-- Google Generative AI (Gemini)
+- Groq API (Llama models)
 - Hive AI API
 - Zod
 - Crisp for customer support
-- Postgres database
-- Prisma
+- Firebase Realtime Database (recommended) or Postgres + Prisma
 
-Don't forget to star ⭐ the repo. <br>
-Made with ❤️ by Shrey Tanna
+Don't forget to star â­ the repo. <br>
+Made with â¤ï¸ by Shrey Tanna

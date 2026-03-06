@@ -4,6 +4,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { SessionStrategy } from "next-auth";
 
+const hasGoogleOAuth =
+  Boolean(process.env.GOOGLE_CLIENT_ID) &&
+  Boolean(process.env.GOOGLE_CLIENT_SECRET);
+
 export const NEXT_AUTH_CONFIG = {
   providers: [
     CredentialsProvider({
@@ -50,10 +54,14 @@ export const NEXT_AUTH_CONFIG = {
         };
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    ...(hasGoogleOAuth
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+          }),
+        ]
+      : []),
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
