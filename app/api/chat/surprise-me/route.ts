@@ -1,12 +1,18 @@
-import { getServerSession } from "next-auth";
+﻿import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const GROQ_API_KEY =
+  process.env.EXPO_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
+const groq = new Groq({ apiKey: GROQ_API_KEY });
 
 export async function POST(req: Request) {
   try {
+    if (!GROQ_API_KEY) {
+      return new NextResponse("Missing Groq API key", { status: 500 });
+    }
+
     const session = await getServerSession(NEXT_AUTH_CONFIG!);
     const userId = session?.user?.id;
 
@@ -21,11 +27,12 @@ export async function POST(req: Request) {
       return new NextResponse("prompt is required", { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [{ role: "user", content: prompt }],
+    });
 
-    const chat = model.startChat();
-    const result = await chat.sendMessage(prompt);
-    const response = result.response.candidates?.[0].content.parts[0].text;
+    const response = completion.choices[0]?.message?.content ?? "";
 
     return NextResponse.json(response);
   } catch (error) {

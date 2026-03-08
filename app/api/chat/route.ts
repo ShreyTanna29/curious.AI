@@ -1,11 +1,12 @@
-import { getServerSession } from "next-auth";
+﻿import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { ChatSession, GoogleGenerativeAI } from "@google/generative-ai";
+import Groq from "groq-sdk";
 import prismadb from "@/packages/api/prismadb";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
-import toast from "react-hot-toast";
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+const GROQ_API_KEY =
+  process.env.EXPO_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
+const groq = new Groq({ apiKey: GROQ_API_KEY });
 
 export interface Chat {
   id: string;
@@ -24,46 +25,36 @@ export interface GroupChat {
   updatedAt?: Date;
 }
 
-let chat: ChatSession | null = null;
-
-async function seedChats(chat: ChatSession, groupChatId: string) {
+async function seedChats(groupChatId: string) {
   try {
     const response = await prismadb.groupChat.findFirst({
       where: { id: groupChatId },
       include: { chats: true },
     });
-    const previousChats = response?.chats;
-    const chatHistoryPrompt = previousChats
-      ?.map((entry) => `User: ${entry.prompt}\nAssistant: ${entry.response}`)
-      .join("\n\n");
-    const promptToGetContext = `
-  The following is a conversation I previously had with you. Use this context to answer my next question appropriately.
-  ${chatHistoryPrompt}
-  `;
-    await chat.sendMessage(promptToGetContext);
+
+    const previousChats = response?.chats || [];
+    return previousChats.flatMap((entry: Pick<Chat, "prompt" | "response">) => [
+      { role: "user" as const, content: entry.prompt },
+      { role: "assistant" as const, content: String(entry.response) },
+    ]);
   } catch (error) {
     console.log(error);
-    toast.error("Somewent Went Wrong");
+    return [];
   }
 }
 
-async function initChat(groupChatId: string) {
-  if (!chat || !groupChatId) {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    chat = model.startChat();
-    console.log("New chat");
-  }
-  if (groupChatId) await seedChats(chat, groupChatId);
-  return chat;
-}
 export async function POST(req: Request) {
   try {
+    if (!GROQ_API_KEY) {
+      return new NextResponse("Missing Groq API key", { status: 500 });
+    }
+
     const session = await getServerSession(NEXT_AUTH_CONFIG!);
     const userId = session?.user?.id;
     const body = await req.json();
     let { groupChatId } = body || "";
     const { prompt } = body;
-    console.log("prompt ", prompt, groupChatId);
+
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
@@ -72,15 +63,19 @@ export async function POST(req: Request) {
       return new NextResponse("prompt is required", { status: 400 });
     }
 
-    const chat = await initChat(groupChatId);
+    const previousMessages = groupChatId ? await seedChats(groupChatId) : [];
+    const completion = await groq.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      messages: [...previousMessages, { role: "user", content: prompt }],
+    });
 
-    const result = await chat?.sendMessage(prompt);
-    const response = result?.response.candidates?.[0].content.parts[0].text;
-    // whenever the chat starts we need to know the title of the chat
+    const response = completion.choices[0]?.message?.content ?? "";
+
     const chatData = {
       prompt,
       response: String(response),
     };
+
     if (groupChatId) {
       await prismadb.groupChat.update({
         where: { id: groupChatId },
@@ -89,12 +84,19 @@ export async function POST(req: Request) {
         },
       });
     } else {
-      const promptForTitle = await chat.sendMessage(
-        `Generate a short and relevant title (max 6–8 words) that summarizes the topic of this conversation: \n User:${prompt} \n Assistant:${response} \n Only return the title text — no explanation or extra content.`
-      );
-      const title =
-        promptForTitle.response.candidates?.[0].content.parts[0].text ??
-        "Untitled";
+      const titleCompletion = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "user",
+            content:
+              "Generate a short and relevant title (max 6-8 words) that summarizes the topic of this conversation. Only return the title text.\n" +
+              `User: ${prompt}\nAssistant: ${response}`,
+          },
+        ],
+      });
+
+      const title = titleCompletion.choices[0]?.message?.content ?? "Untitled";
 
       const responseOfGroupChat = await prismadb.groupChat.create({
         data: {
@@ -103,9 +105,12 @@ export async function POST(req: Request) {
           userId,
         },
       });
-      if (!groupChatId || groupChatId === "")
+
+      if (!groupChatId || groupChatId === "") {
         groupChatId = responseOfGroupChat.id;
+      }
     }
+
     return NextResponse.json({
       response,
       groupChatId,
