@@ -25,7 +25,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Palette, Settings2, ShieldCheck } from "lucide-react";
+import Themes from "@/components/extra/themes";
 
 const githubSchema = z.object({
   token: z.string().min(1, "GitHub token is required"),
@@ -50,6 +51,10 @@ export default function SettingsPage() {
   const { toast } = useToast();
   const { data: session } = useSession();
   const [isLoading, setIsLoading] = useState(false);
+  const integrationCardClass =
+    "border-border/70 bg-card/90 shadow-sm backdrop-blur-xl";
+  const inputClass =
+    "font-mono text-xs md:text-sm bg-background/70 border border-input";
 
   const githubForm = useForm<z.infer<typeof githubSchema>>({
     resolver: zodResolver(githubSchema),
@@ -129,19 +134,60 @@ export default function SettingsPage() {
     return null;
   }
 
+  const renderActions = (service: string) => (
+    <div className="flex flex-wrap gap-3 pt-2">
+      <Button type="submit" disabled={isLoading} className="min-w-24">
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        Save
+      </Button>
+      <Button
+        type="button"
+        variant="destructive"
+        onClick={() => onDelete(service)}
+        disabled={isLoading}
+        className="min-w-24"
+      >
+        Remove
+      </Button>
+    </div>
+  );
+
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-8">Service Settings</h1>
+    <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-6 md:px-8 md:py-8">
+      <Card className="overflow-hidden border-border/80 bg-gradient-to-br from-card via-card to-secondary/40 shadow-sm">
+        <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-2">
+            <CardTitle className="flex items-center gap-2 text-2xl md:text-3xl">
+              <Settings2 className="h-6 w-6" />
+              Settings
+            </CardTitle>
+            <CardDescription className="max-w-2xl text-sm md:text-base">
+              Manage third-party integrations and switch the app theme from one place.
+            </CardDescription>
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-background/70 px-3 py-1 text-xs text-muted-foreground">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Credentials are saved securely to your account.
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Palette className="h-4 w-4 text-muted-foreground" />
+            <Themes borders={false}>
+              <span className="font-medium">Change Theme</span>
+            </Themes>
+          </div>
+        </CardHeader>
+      </Card>
+
       <Tabs defaultValue="github" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid h-auto w-full grid-cols-2 gap-2 rounded-xl border border-border/70 bg-muted/50 p-1 md:grid-cols-4">
           <TabsTrigger value="github">GitHub</TabsTrigger>
           <TabsTrigger value="trello">Trello</TabsTrigger>
           <TabsTrigger value="linkedin">LinkedIn</TabsTrigger>
           <TabsTrigger value="clickup">ClickUp</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="github">
-          <Card>
+        <TabsContent value="github" className="mt-4">
+          <Card className={integrationCardClass}>
             <CardHeader>
               <CardTitle>GitHub Integration</CardTitle>
               <CardDescription>
@@ -167,6 +213,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -174,30 +221,15 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Save
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => onDelete("github")}
-                      disabled={isLoading}
-                    >
-                      Remove
-                    </Button>
-                  </div>
+                  {renderActions("github")}
                 </form>
               </Form>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="trello">
-          <Card>
+        <TabsContent value="trello" className="mt-4">
+          <Card className={integrationCardClass}>
             <CardHeader>
               <CardTitle>Trello Integration</CardTitle>
               <CardDescription>
@@ -222,6 +254,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -239,6 +272,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -246,30 +280,15 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Save
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => onDelete("trello")}
-                      disabled={isLoading}
-                    >
-                      Remove
-                    </Button>
-                  </div>
+                  {renderActions("trello")}
                 </form>
               </Form>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="linkedin">
-          <Card>
+        <TabsContent value="linkedin" className="mt-4">
+          <Card className={integrationCardClass}>
             <CardHeader>
               <CardTitle>LinkedIn Integration</CardTitle>
               <CardDescription>
@@ -294,6 +313,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="xxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -311,6 +331,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="xxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -328,6 +349,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="xxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -335,30 +357,15 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Save
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => onDelete("linkedin")}
-                      disabled={isLoading}
-                    >
-                      Remove
-                    </Button>
-                  </div>
+                  {renderActions("linkedin")}
                 </form>
               </Form>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="clickup">
-          <Card>
+        <TabsContent value="clickup" className="mt-4">
+          <Card className={integrationCardClass}>
             <CardHeader>
               <CardTitle>ClickUp Integration</CardTitle>
               <CardDescription>
@@ -383,6 +390,7 @@ export default function SettingsPage() {
                           <Input
                             type="password"
                             placeholder="pk_xxxxxxxxxxxxxxxxxxxx"
+                            className={inputClass}
                             {...field}
                           />
                         </FormControl>
@@ -390,22 +398,7 @@ export default function SettingsPage() {
                       </FormItem>
                     )}
                   />
-                  <div className="flex gap-4">
-                    <Button type="submit" disabled={isLoading}>
-                      {isLoading && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      )}
-                      Save
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      onClick={() => onDelete("clickup")}
-                      disabled={isLoading}
-                    >
-                      Remove
-                    </Button>
-                  </div>
+                  {renderActions("clickup")}
                 </form>
               </Form>
             </CardContent>

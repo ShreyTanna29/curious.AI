@@ -297,7 +297,7 @@ export default function LandingHero() {
             className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100/80 dark:bg-black/40 border border-gray-200/40 dark:border-gray-800/40 shadow-lg backdrop-blur-sm"
           >
             <Brain className="w-3.5 h-3.5 text-primary" />
-            <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+            <span className="text-xs font-medium text-gray-600 dark:text-zinc-300">
               Your Complete AI Workspace
             </span>
           </motion.div>
@@ -316,7 +316,7 @@ export default function LandingHero() {
               </span>
             </h1>
 
-            <p className="text-lg max-w-xl mx-auto text-gray-600 dark:text-gray-300">
+            <p className="text-lg max-w-xl mx-auto text-gray-600 dark:text-zinc-300">
               The ultimate AI toolkit that brings together image generation,
               code assistance, and intelligent chat in one seamless experience.
               Transform your workflow with the power of multiple AI models at
@@ -358,7 +358,7 @@ export default function LandingHero() {
             <Button
               variant="outline"
               size="lg"
-              className="px-6 py-5 rounded-lg text-base border border-gray-200/40 dark:border-gray-800/40 text-gray-600 dark:text-gray-300 hover:bg-gray-100/40 dark:hover:bg-black/40 hover:border-gray-300/40 dark:hover:border-gray-700/40 shadow-lg backdrop-blur-sm transition-colors"
+              className="px-6 py-5 rounded-lg text-base border border-gray-200/40 dark:border-gray-800/40 text-gray-600 dark:text-zinc-300 hover:bg-gray-100/40 dark:hover:bg-black/40 hover:border-gray-300/40 dark:hover:border-gray-700/40 shadow-lg backdrop-blur-sm transition-colors"
             >
               See AI Tools
             </Button>
@@ -380,7 +380,7 @@ export default function LandingHero() {
                 <div className="text-2xl font-bold mb-1 text-gray-900 dark:text-white">
                   {stat.value}
                 </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
+                <div className="text-xs text-gray-500 dark:text-zinc-400">
                   {stat.label}
                 </div>
               </div>
@@ -403,9 +403,9 @@ export default function LandingHero() {
         .bg-gradient-dark {
           background: radial-gradient(
             circle at center,
-            rgba(30, 41, 59, 0.18) 0%,
-            rgba(37, 99, 235, 0.09) 40%,
-            rgba(59, 130, 246, 0.06) 70%,
+            rgba(255, 255, 255, 0.07) 0%,
+            rgba(148, 148, 148, 0.06) 42%,
+            rgba(82, 82, 82, 0.05) 72%,
             transparent 100%
           );
         }
@@ -434,8 +434,8 @@ export default function LandingHero() {
         .bg-ambient-dark {
           background: radial-gradient(
             circle at center,
-            rgba(37, 99, 235, 0.04) 0%,
-            rgba(59, 130, 246, 0.025) 40%,
+            rgba(255, 255, 255, 0.035) 0%,
+            rgba(120, 120, 120, 0.02) 40%,
             transparent 100%
           );
         }

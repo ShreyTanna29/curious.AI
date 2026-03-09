@@ -1,11 +1,11 @@
 ﻿
 ![Screenshot from 2025-05-29 10-58-00](https://github.com/user-attachments/assets/57f9e39b-1e47-4981-aba7-c16bd66cf1d6)
 
-# ðŸ¤– curious.ai
+# curious.ai
 
 A powerful AI platform that combines conversation, code generation, and image generation capabilities using cutting-edge AI models. Visit: https://curiousai.vercel.app
 
-## âœ¨ Features
+## Features
 
 - **AI Conversation**: Engage in natural conversations using Groq-hosted Llama models
 - **Code Generation**: Generate code snippets with detailed explanations
@@ -14,7 +14,7 @@ A powerful AI platform that combines conversation, code generation, and image ge
 - **Modern UI**: Beautiful interface built with Next.js 14 and Tailwind CSS
 - **24X7 Customer Support**: resolve doubts or report issues with our dedicated chat support
 
-## ðŸš€ Getting Started
+## Getting Started
 
 ### Setup using Docker. (Recommended)
 
@@ -77,7 +77,7 @@ npm run dev
    
 Visit http://localhost:3000 to see the application.
 
-ðŸ› ï¸ Built With
+ Built With
 - Next.js 15
 - TypeScript
 - Tailwind CSS
@@ -89,5 +89,5 @@ Visit http://localhost:3000 to see the application.
 - Crisp for customer support
 - Firebase Realtime Database (recommended) or Postgres + Prisma
 
-Don't forget to star â­ the repo. <br>
-Made with â¤ï¸ by Shrey Tanna
+Don't forget to star a the repo.
+Made by Shrey Tanna

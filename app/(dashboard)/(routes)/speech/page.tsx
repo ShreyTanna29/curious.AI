@@ -6,6 +6,15 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  CheckCircle2,
+  Download,
+  Mic,
+  Radio,
+  Sparkles,
+  WandSparkles,
+  XCircle,
+} from "lucide-react";
 
 import {
   Form,
@@ -28,9 +37,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { VOICE_PRESETS, VoiceGender } from "@/lib/voice_presets";
 
-// Loading spinner component
 const Loader = ({ size = "default" }: { size?: "default" | "lg" }) => (
-  <div className={`animate-spin ${size === "lg" ? "w-8 h-8" : "w-4 h-4"}`}>
+  <div className={`animate-spin ${size === "lg" ? "h-8 w-8" : "h-4 w-4"}`}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="100%"
@@ -44,16 +52,6 @@ const Loader = ({ size = "default" }: { size?: "default" | "lg" }) => (
     >
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
-  </div>
-);
-
-// Empty state component
-const Empty = ({ label, icon }: { label: string; icon: React.ReactNode }) => (
-  <div className="flex flex-col items-center justify-center">
-    <div className="relative w-32 h-32 flex items-center justify-center">
-      {icon}
-    </div>
-    <p className="text-muted-foreground mt-2">{label}</p>
   </div>
 );
 
@@ -75,6 +73,7 @@ const formSchema = z.object({
 const SpeechPage = () => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -87,7 +86,6 @@ const SpeechPage = () => {
 
   const currentGender = form.watch("gender");
 
-  // Update voice preset when gender changes
   const onGenderChange = (gender: VoiceGender) => {
     form.setValue("gender", gender);
     form.setValue("voicePreset", VOICE_PRESETS[gender][0].id);
@@ -97,6 +95,7 @@ const SpeechPage = () => {
     try {
       setIsLoading(true);
       setAudioUrl(null);
+      setHasError(false);
 
       const response = await fetch("/api/speech", {
         method: "POST",
@@ -123,6 +122,7 @@ const SpeechPage = () => {
       toast.success("Speech generated successfully!");
     } catch (error: any) {
       console.error("Error generating speech:", error);
+      setHasError(true);
       toast.error("Failed to generate speech");
     } finally {
       setIsLoading(false);
@@ -130,207 +130,131 @@ const SpeechPage = () => {
   };
 
   return (
-    <div className="px-4 lg:px-8 py-6 min-h-screen bg-gradient-to-b from-background to-background/80">
-      <motion.div
-        className="mb-8 space-y-4"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <h1 className="text-4xl font-extrabold tracking-tight text-center bg-gradient-to-r from-purple-600 via-blue-500 to-indigo-400 text-transparent bg-clip-text">
-          AI Voice Generator
-        </h1>
-        <p className="text-center text-muted-foreground">
-          Transform your text into natural-sounding speech with AI-powered
-          voices
-        </p>
-      </motion.div>
+    <main className="relative h-full overflow-hidden px-3 py-4 md:px-6 md:py-6">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_18%,rgba(15,23,42,0.08),transparent_40%),radial-gradient(circle_at_85%_15%,rgba(15,23,42,0.06),transparent_36%),radial-gradient(circle_at_60%_100%,rgba(100,116,139,0.12),transparent_40%)] dark:bg-[radial-gradient(circle_at_15%_18%,rgba(255,255,255,0.06),transparent_40%),radial-gradient(circle_at_85%_15%,rgba(255,255,255,0.04),transparent_36%),radial-gradient(circle_at_60%_100%,rgba(161,161,170,0.08),transparent_40%)]" />
+      <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(100,116,139,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(100,116,139,0.12)_1px,transparent_1px)] [background-size:34px_34px] dark:[background-image:linear-gradient(to_right,rgba(161,161,170,0.09)_1px,transparent_1px),linear-gradient(to_bottom,rgba(161,161,170,0.09)_1px,transparent_1px)]" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <Card className="border-2 shadow-lg backdrop-blur-sm bg-card/50">
+      <div className="relative mx-auto flex min-h-full w-full max-w-7xl flex-col gap-4">
+        <section className="rounded-3xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-slate-100 px-5 py-6 text-slate-900 shadow-[0_24px_60px_rgba(15,23,42,0.12)] dark:border-white/20 dark:from-black dark:via-zinc-950 dark:to-black dark:text-white dark:shadow-[0_24px_60px_rgba(0,0,0,0.5)] md:px-8 md:py-8">
+          <p className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs uppercase tracking-widest text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-zinc-200">
+            <Sparkles className="h-3.5 w-3.5" />
+            Speech Studio
+          </p>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">Create high-quality voice outputs in seconds.</h1>
+          <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-200 md:text-base">
+            Compose your text, pick voice style, and export polished audio for content, demos, and product narration.
+          </p>
+        </section>
+
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+          <Card className="col-span-1 border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 lg:col-span-3">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-primary"
-                >
-                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" x2="12" y1="19" y2="22" />
-                </svg>
-                Voice Settings
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <WandSparkles className="h-5 w-5 text-cyan-500" />
+                Voice Configuration
               </CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-6"
-                >
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
                   <FormField
                     control={form.control}
                     name="text"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Text</FormLabel>
+                        <FormLabel>Script</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Enter the text you want to convert to speech..."
-                            className="resize-none min-h-[120px] bg-background/50 backdrop-blur-sm"
+                            placeholder="Enter text to convert into speech..."
+                            className="min-h-[140px] resize-none border-slate-300/80 bg-white/90 dark:border-white/15 dark:bg-black/80"
                             {...field}
                           />
                         </FormControl>
+                        <div className="text-xs text-muted-foreground">{field.value.length}/100 characters</div>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
 
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel>Voice Gender</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={(value: VoiceGender) =>
-                              onGenderChange(value)
-                            }
-                            defaultValue={field.value}
-                            className="flex space-x-4"
-                          >
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="male" id="male" />
-                              <label
-                                htmlFor="male"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Male
-                              </label>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="female" id="female" />
-                              <label
-                                htmlFor="female"
-                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                              >
-                                Female
-                              </label>
-                            </div>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="voicePreset"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Voice Style</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="gender"
+                      render={({ field }) => (
+                        <FormItem className="space-y-2">
+                          <FormLabel>Voice Gender</FormLabel>
                           <FormControl>
-                            <SelectTrigger className="bg-background/50 backdrop-blur-sm h-auto py-2">
-                              <SelectValue placeholder="Select a voice">
-                                {
-                                  VOICE_PRESETS[currentGender].find(
-                                    (v) => v.id === field.value
-                                  )?.name
-                                }
-                              </SelectValue>
-                            </SelectTrigger>
+                            <RadioGroup
+                              onValueChange={(value: VoiceGender) => onGenderChange(value)}
+                              defaultValue={field.value}
+                              className="flex flex-wrap gap-4"
+                            >
+                              <label htmlFor="male" className="flex items-center gap-2 rounded-xl border border-slate-300/80 bg-white/80 px-3 py-2 text-sm dark:border-white/15 dark:bg-black/80">
+                                <RadioGroupItem value="male" id="male" /> Male
+                              </label>
+                              <label htmlFor="female" className="flex items-center gap-2 rounded-xl border border-slate-300/80 bg-white/80 px-3 py-2 text-sm dark:border-white/15 dark:bg-black/80">
+                                <RadioGroupItem value="female" id="female" /> Female
+                              </label>
+                            </RadioGroup>
                           </FormControl>
-                          <SelectContent>
-                            <div className="max-h-[300px] overflow-y-auto">
-                              {VOICE_PRESETS[currentGender].map((voice) => (
-                                <SelectItem
-                                  key={voice.id}
-                                  value={voice.id}
-                                  className="cursor-pointer py-3 hover:bg-primary/5"
-                                >
-                                  <div className="flex flex-col gap-1.5">
-                                    <span className="font-semibold text-base">
-                                      {voice.name}
-                                    </span>
-                                    <span className="text-xs text-muted-foreground leading-snug">
-                                      {voice.description}
-                                    </span>
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </div>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                  <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  >
+                    <FormField
+                      control={form.control}
+                      name="voicePreset"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Voice Style</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger className="h-auto min-h-10 border-slate-300/80 bg-white/90 dark:border-white/15 dark:bg-black/80">
+                                <SelectValue placeholder="Select a voice">
+                                  {VOICE_PRESETS[currentGender].find((v) => v.id === field.value)?.name}
+                                </SelectValue>
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <div className="max-h-[280px] overflow-y-auto">
+                                {VOICE_PRESETS[currentGender].map((voice) => (
+                                  <SelectItem key={voice.id} value={voice.id} className="cursor-pointer py-3">
+                                    <div className="flex flex-col gap-1">
+                                      <span className="text-sm font-semibold">{voice.name}</span>
+                                      <span className="text-xs text-muted-foreground">{voice.description}</span>
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </div>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <Button type="submit" disabled={isLoading} className="h-11 w-full bg-gradient-to-r from-cyan-500 to-blue-500 text-slate-950 hover:from-cyan-400 hover:to-blue-400">
                     {isLoading ? (
-                      <div className="flex items-center gap-x-2">
-                        <Loader /> Generating...
-                      </div>
+                      <span className="inline-flex items-center gap-2"><Loader /> Generating...</span>
                     ) : (
-                      "Generate Speech"
+                      <span className="inline-flex items-center gap-2"><Mic className="h-4 w-4" /> Generate Speech</span>
                     )}
                   </Button>
                 </form>
               </Form>
             </CardContent>
           </Card>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-        >
-          <Card className="h-full border-2 shadow-lg backdrop-blur-sm bg-card/50">
+          <Card className="col-span-1 border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 lg:col-span-2">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-primary"
-                >
-                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
-                </svg>
-                Audio Output
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Radio className="h-5 w-5 text-cyan-500" />
+                Output Panel
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col items-center justify-center h-[calc(100%-5rem)]">
+            <CardContent>
               <AnimatePresence mode="wait">
                 {isLoading ? (
                   <motion.div
@@ -338,103 +262,78 @@ const SpeechPage = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="flex flex-col items-center justify-center h-full"
+                    className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300/80 bg-slate-50/80 text-center dark:border-white/15 dark:bg-black/70"
                   >
-                    <div className="relative w-24 h-24">
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader size="lg" />
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mt-4">
-                      Generating your audio...
-                    </p>
+                    <Loader size="lg" />
+                    <p className="mt-4 text-sm text-muted-foreground">Synthesizing audio waveform...</p>
                   </motion.div>
                 ) : audioUrl ? (
                   <motion.div
                     key="audio"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="w-full flex flex-col items-center justify-center"
+                    className="space-y-4"
                   >
-                    <div className="w-full max-w-md p-6 rounded-xl bg-background/50 backdrop-blur-sm shadow-lg">
-                      <audio
-                        controls
-                        className="w-full mb-4"
-                        src={audioUrl}
-                        autoPlay
-                      >
+                    <div className="rounded-2xl border border-emerald-200 bg-emerald-500/10 p-3 text-sm text-emerald-700 dark:border-emerald-800 dark:text-emerald-300">
+                      <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4" /> Audio generated successfully.</span>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200/80 bg-white/90 p-4 dark:border-white/15 dark:bg-black/80">
+                      <audio controls className="w-full" src={audioUrl} autoPlay>
                         Your browser does not support the audio element.
                       </audio>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={async () => {
-                          const response = await fetch(audioUrl, {
-                            mode: "cors",
-                          });
-
-                          const blob = await response.blob();
-                          const url = window.URL.createObjectURL(blob);
-                          const link = document.createElement("a");
-                          link.href = url;
-                          link.setAttribute("download", "speech.mp3");
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                          window.URL.revokeObjectURL(url);
-                        }}
-                        className="w-full flex items-center justify-center gap-2 hover:bg-primary/10"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                          <polyline points="7 10 12 15 17 10" />
-                          <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        Download Audio
-                      </Button>
                     </div>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={async () => {
+                        const response = await fetch(audioUrl, { mode: "cors" });
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.href = url;
+                        link.setAttribute("download", "speech.mp3");
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                      }}
+                      className="w-full"
+                    >
+                      <Download className="mr-2 h-4 w-4" /> Download Audio
+                    </Button>
+                  </motion.div>
+                ) : hasError ? (
+                  <motion.div
+                    key="error"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-rose-300/70 bg-rose-500/10 text-center"
+                  >
+                    <XCircle className="h-8 w-8 text-rose-500" />
+                    <p className="mt-3 text-sm text-rose-700 dark:text-rose-300">Generation failed. Adjust input and try again.</p>
                   </motion.div>
                 ) : (
-                  <Empty
-                    label="No audio generated yet"
-                    icon={
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="48"
-                        height="48"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-muted-foreground"
-                      >
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                        <line x1="12" y1="19" x2="12" y2="23" />
-                        <line x1="8" y1="23" x2="16" y2="23" />
-                      </svg>
-                    }
-                  />
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex min-h-[260px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300/80 bg-slate-50/80 text-center dark:border-white/15 dark:bg-black/70"
+                  >
+                    <Mic className="h-8 w-8 text-slate-500" />
+                    <p className="mt-3 text-sm text-muted-foreground">No audio yet. Submit text to generate your first clip.</p>
+                  </motion.div>
                 )}
               </AnimatePresence>
             </CardContent>
           </Card>
-        </motion.div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -49,7 +49,7 @@ const LandingFooter: React.FC = () => {
                 Curious.AI
               </span>
             </div>
-            <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-gray-600 dark:text-zinc-400 leading-relaxed">
               Unleash your creativity with our AI-powered platform. We&apos;re
               here to empower your imagination and help you build amazing
               things.
@@ -59,7 +59,7 @@ const LandingFooter: React.FC = () => {
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
+                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
               >
                 <FaFacebook size={18} />
               </a>
@@ -67,7 +67,7 @@ const LandingFooter: React.FC = () => {
                 href="https://twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
+                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
               >
                 <FaXTwitter size={18} />
               </a>
@@ -75,7 +75,7 @@ const LandingFooter: React.FC = () => {
                 href="https://linkedin.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
+                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
               >
                 <FaLinkedin size={18} />
               </a>
@@ -83,7 +83,7 @@ const LandingFooter: React.FC = () => {
                 href="https://instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
+                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
               >
                 <FaInstagram size={18} />
               </a>
@@ -91,7 +91,7 @@ const LandingFooter: React.FC = () => {
                 href="https://github.com/ShreyTanna29/curious.AI"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
+                className="w-9 h-9 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center text-gray-600 dark:text-zinc-400 hover:bg-primary/20 hover:text-primary transition-all duration-300"
               >
                 <FaGithub size={18} />
               </a>
@@ -115,7 +115,7 @@ const LandingFooter: React.FC = () => {
               <li>
                 <Link
                   href="/chat"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
                   Chat With AI
@@ -123,29 +123,20 @@ const LandingFooter: React.FC = () => {
               </li>
               <li>
                 <Link
-                  href="/image"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  href="/chat"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
-                  Generate Images
+                  Generate Images in Chat
                 </Link>
               </li>
               <li>
                 <Link
                   href="/code"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
                   Code Generation
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/marketplace"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
-                >
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
-                  Marketplace
                 </Link>
               </li>
             </ul>
@@ -168,7 +159,7 @@ const LandingFooter: React.FC = () => {
               <li>
                 <Link
                   href="/about"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
                   About Us
@@ -177,7 +168,7 @@ const LandingFooter: React.FC = () => {
               <li>
                 <Link
                   href="/contact"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
                   Contact
@@ -186,7 +177,7 @@ const LandingFooter: React.FC = () => {
               <li>
                 <Link
                   href="/community"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
                   Join Community
@@ -195,7 +186,7 @@ const LandingFooter: React.FC = () => {
               <li>
                 <Link
                   href="/blog"
-                  className="text-gray-600 dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
+                  className="text-gray-600 dark:text-zinc-400 hover:text-primary dark:hover:text-primary transition-colors duration-300 flex items-center group"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-gray-600 group-hover:bg-primary mr-2 transition-colors duration-300"></span>
                   Blog Place
@@ -217,7 +208,7 @@ const LandingFooter: React.FC = () => {
               <span>Stay Updated</span>
               <div className="h-px flex-grow bg-gradient-to-r from-primary/20 to-transparent ml-3"></div>
             </h3>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-zinc-400">
               Subscribe to our newsletter for the latest updates and AI
               innovations.
             </p>
@@ -237,25 +228,25 @@ const LandingFooter: React.FC = () => {
         {/* Bottom section */}
         <div className="pt-8 border-t border-black/10 dark:border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+            <p className="text-gray-500 dark:text-zinc-400 text-sm">
               &copy; {new Date().getFullYear()} Curious.AI. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
               <Link
                 href="/privacy-policy"
-                className="text-gray-500 dark:text-gray-400 text-sm hover:text-primary dark:hover:text-primary transition-colors duration-300"
+                className="text-gray-500 dark:text-zinc-400 text-sm hover:text-primary dark:hover:text-primary transition-colors duration-300"
               >
                 Privacy Policy
               </Link>
               <Link
                 href="/terms"
-                className="text-gray-500 dark:text-gray-400 text-sm hover:text-primary dark:hover:text-primary transition-colors duration-300"
+                className="text-gray-500 dark:text-zinc-400 text-sm hover:text-primary dark:hover:text-primary transition-colors duration-300"
               >
                 Terms & Conditions
               </Link>
               <Link
                 href="/cookies"
-                className="text-gray-500 dark:text-gray-400 text-sm hover:text-primary dark:hover:text-primary transition-colors duration-300"
+                className="text-gray-500 dark:text-zinc-400 text-sm hover:text-primary dark:hover:text-primary transition-colors duration-300"
               >
                 Cookies
               </Link>
