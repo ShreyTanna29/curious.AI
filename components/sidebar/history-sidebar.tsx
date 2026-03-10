@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Pencil, Check, X } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 
 type Message = {
@@ -46,7 +47,7 @@ export function HistorySidebar() {
     if (isOpen && history.length === 0) {
       fetchHistory();
     }
-  }, [isOpen]);
+  }, [isOpen, history.length]);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -82,13 +83,13 @@ export function HistorySidebar() {
     <>
       <Button
         variant={"custom"}
-        className="fixed right-3 top-20 z-40 rounded-lg bg-gray-100 md:right-8 md:top-6 md:p-4"
+        className={cn(
+          "inline-flex h-10 shrink-0 items-center gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 text-slate-700 hover:bg-slate-100 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+        )}
         onClick={toggleSidebar}
       >
-        <History className="mr-2" />
-        <span className="hidden md:block">
-          {isOpen ? "Hide" : "Show"} History
-        </span>
+        <History className="h-4 w-4" />
+        <span>{isOpen ? "Hide" : "Show"} History</span>
       </Button>
 
       <div

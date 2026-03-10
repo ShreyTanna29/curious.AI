@@ -375,7 +375,7 @@ function CodeGenerationPage() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_15%,rgba(15,23,42,0.08),transparent_36%),radial-gradient(circle_at_84%_18%,rgba(15,23,42,0.06),transparent_33%),radial-gradient(circle_at_50%_100%,rgba(100,116,139,0.12),transparent_40%)] dark:bg-[radial-gradient(circle_at_12%_15%,rgba(255,255,255,0.06),transparent_36%),radial-gradient(circle_at_84%_18%,rgba(255,255,255,0.04),transparent_33%),radial-gradient(circle_at_50%_100%,rgba(161,161,170,0.08),transparent_40%)]" />
       <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(100,116,139,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(100,116,139,0.12)_1px,transparent_1px)] [background-size:34px_34px] dark:[background-image:linear-gradient(to_right,rgba(161,161,170,0.09)_1px,transparent_1px),linear-gradient(to_bottom,rgba(161,161,170,0.09)_1px,transparent_1px)]" />
 
-      <div className="relative mx-auto flex min-h-full w-full max-w-7xl flex-col gap-4">
+      <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col gap-4">
         <AnimatePresence mode="wait">
           {showPromptSection ? (
             <motion.section
@@ -438,9 +438,9 @@ function CodeGenerationPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.35 }}
-              className="grid min-h-full grid-cols-1 gap-4 xl:grid-cols-12"
+              className="grid h-full min-h-0 grid-cols-1 gap-4 xl:grid-cols-12"
             >
-              <Card className="border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 xl:col-span-4">
+              <Card className="flex h-full min-h-0 flex-col border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 xl:col-span-4">
                 <CardHeader className="border-b border-slate-200/70 pb-4 dark:border-white/10">
                   <div className="flex items-center justify-between gap-3">
                     <CardTitle className="text-lg">Build Notes</CardTitle>
@@ -449,7 +449,7 @@ function CodeGenerationPage() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="flex h-[calc(100vh-210px)] flex-col gap-3 overflow-hidden p-4">
+                <CardContent className="flex min-h-0 flex-1 flex-col gap-3 overflow-hidden p-4">
                   <div className="flex-1 space-y-3 overflow-y-auto pr-1">
                     {explanations.map((explanation, index) => (
                       <article key={`${index}-${explanation.slice(0, 16)}`} className="rounded-xl border border-slate-200/70 bg-white/80 p-3 text-sm dark:border-white/10 dark:bg-black/70">
@@ -499,7 +499,7 @@ function CodeGenerationPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 xl:col-span-8">
+              <Card className="flex h-full min-h-0 flex-col border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-white/10 dark:bg-zinc-950/80 xl:col-span-8">
                 <CardHeader className="border-b border-slate-200/70 pb-4 dark:border-white/10">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <CardTitle className="text-lg">Workspace</CardTitle>
@@ -529,7 +529,7 @@ function CodeGenerationPage() {
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="h-[calc(100vh-210px)] p-0">
+                <CardContent className="min-h-0 flex-1 p-0">
                   <AnimatePresence mode="wait" initial={false}>
                     {activeTab === "code" ? (
                       <motion.div

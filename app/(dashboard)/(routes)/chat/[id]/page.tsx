@@ -134,14 +134,12 @@ export default function ConversationPage() {
   };
 
   return (
-    <main className="relative min-h-[calc(100vh-2rem)] overflow-hidden px-3 pb-5 pt-3 md:px-6 md:pb-6 md:pt-4">
+    <main className="relative h-full overflow-hidden px-3 pb-5 pt-3 md:px-6 md:pb-6 md:pt-4">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_14%,rgba(15,23,42,0.08),transparent_34%),radial-gradient(circle_at_88%_15%,rgba(15,23,42,0.06),transparent_35%),radial-gradient(circle_at_50%_100%,rgba(100,116,139,0.12),transparent_39%)] dark:bg-[radial-gradient(circle_at_12%_14%,rgba(255,255,255,0.06),transparent_34%),radial-gradient(circle_at_88%_15%,rgba(255,255,255,0.04),transparent_35%),radial-gradient(circle_at_50%_100%,rgba(161,161,170,0.08),transparent_39%)]" />
       <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(100,116,139,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(100,116,139,0.12)_1px,transparent_1px)] [background-size:34px_34px] dark:[background-image:linear-gradient(to_right,rgba(161,161,170,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(161,161,170,0.1)_1px,transparent_1px)]" />
 
-      <div className="relative mx-auto flex w-full max-w-7xl gap-4">
-        <HistorySidebar />
-
-        <section className="relative flex min-h-[84svh] w-full flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/70 shadow-[0_25px_60px_rgba(2,8,23,0.16)] backdrop-blur-xl dark:border-white/15 dark:bg-black/70">
+      <div className="relative mx-auto flex h-full w-full max-w-7xl gap-4">
+        <section className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/70 shadow-[0_25px_60px_rgba(2,8,23,0.16)] backdrop-blur-xl dark:border-white/15 dark:bg-black/70">
           <header className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/70 bg-gradient-to-r from-white via-slate-50 to-slate-100 px-4 py-5 text-slate-900 dark:from-black dark:via-zinc-950 dark:to-black dark:text-white md:px-6">
             <div>
               <p className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs uppercase tracking-wider text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-zinc-200">
@@ -150,17 +148,20 @@ export default function ConversationPage() {
               </p>
               <h1 className="mt-3 text-xl font-semibold md:text-2xl">Conversation Session</h1>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setMessages([]);
-                router.push("/chat");
-                form.reset();
-              }}
-              className="border-white/30 bg-white/10 text-white hover:bg-white/20"
-            >
-              <SquarePlus className="mr-2 h-4 w-4" /> New Chat
-            </Button>
+            <div className="flex items-center gap-2">
+              <HistorySidebar />
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setMessages([]);
+                  router.push("/chat");
+                  form.reset();
+                }}
+                className="border-white/30 bg-white/10 text-white hover:bg-white/20"
+              >
+                <SquarePlus className="mr-2 h-4 w-4" /> New Chat
+              </Button>
+            </div>
           </header>
 
           <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6">

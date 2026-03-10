@@ -116,16 +116,17 @@ function ConversationPage() {
       <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(100,116,139,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(100,116,139,0.12)_1px,transparent_1px)] [background-size:34px_34px] dark:[background-image:linear-gradient(to_right,rgba(161,161,170,0.1)_1px,transparent_1px),linear-gradient(to_bottom,rgba(161,161,170,0.1)_1px,transparent_1px)]" />
 
       <div className="relative mx-auto flex h-full w-full max-w-7xl gap-4">
-        <HistorySidebar />
-
         <section className="relative flex h-full w-full flex-col overflow-hidden rounded-3xl border border-white/20 bg-white/70 shadow-[0_25px_60px_rgba(2,8,23,0.16)] backdrop-blur-xl dark:border-white/15 dark:bg-black/70">
-          <header className="border-b border-slate-200/70 bg-gradient-to-r from-white via-slate-50 to-slate-100 px-4 py-5 text-slate-900 dark:from-black dark:via-zinc-950 dark:to-black dark:text-white md:px-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs uppercase tracking-wider text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-zinc-200">
-              <Sparkles className="h-3.5 w-3.5" />
-              AI Chat
-            </p>
-            <h1 className="mt-3 text-2xl font-semibold md:text-3xl">How can I help you today?</h1>
-            <p className="mt-1 text-sm text-slate-600 dark:text-slate-200">Ask anything from research to creative generation in one conversation.</p>
+          <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-200/70 bg-gradient-to-r from-white via-slate-50 to-slate-100 px-4 py-5 text-slate-900 dark:from-black dark:via-zinc-950 dark:to-black dark:text-white md:px-6">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs uppercase tracking-wider text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-zinc-200">
+                <Sparkles className="h-3.5 w-3.5" />
+                AI Chat
+              </p>
+              <h1 className="mt-3 text-2xl font-semibold md:text-3xl">How can I help you today?</h1>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-200">Ask anything from research to creative generation in one conversation.</p>
+            </div>
+            <HistorySidebar />
           </header>
 
           <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6">
