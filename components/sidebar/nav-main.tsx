@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type LucideIcon, Sparkles } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 import {
   SidebarGroup,
@@ -40,6 +40,7 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => { 
           const isActive = isItemActive(item.url);
+          const gradientId = `sidebar-icon-gradient-${item.title.toLowerCase().replace(/\s+/g, "-")}`;
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
@@ -47,28 +48,38 @@ export function NavMain({
                 tooltip={item.title}
                 isActive={isActive}
                 className={clsx(
-                  "group relative h-11 rounded-xl border border-transparent px-3 transition-all",
-                  "hover:border-slate-200/70 hover:bg-slate-100/90 dark:hover:border-slate-700 dark:hover:bg-slate-800/80",
+                  "group relative h-11 rounded-xl border border-transparent px-3 text-slate-900 dark:text-white transition-all",
+                  "hover:border-slate-300/70 hover:bg-slate-900/10 dark:hover:border-slate-700 dark:hover:bg-black/45",
                   isActive &&
-                    "border-cyan-300/60 bg-gradient-to-r from-cyan-500/15 to-blue-500/15 text-slate-900 shadow-sm dark:border-cyan-600/70 dark:text-white"
+                    "border-slate-300/90 bg-white text-slate-900 shadow-sm dark:border-slate-700 dark:bg-zinc-900/90 dark:text-white"
                 )}
               >
                 <Link href={item.url}>
                   {isActive ? (
-                    <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-cyan-500" />
+                    <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-slate-900 dark:bg-zinc-100" />
                   ) : null}
                   {item.icon && (
                     <item.icon
                       className={clsx(
-                        "size-[18px] text-slate-500 transition-colors dark:text-zinc-400",
-                        isActive && "text-cyan-600 dark:text-cyan-300",
+                        "size-[18px] transition-colors",
+                        !isActive && "stroke-black text-black dark:stroke-white dark:text-white",
+                        isActive && "text-slate-900 dark:text-white",
                       )}
+                      stroke={isActive ? `url(#${gradientId})` : undefined}
+                      fill="none"
                     />
                   )}
-                  <span>{item.title}</span>
-                  {isActive ? (
-                    <Sparkles className="ml-auto size-3.5 text-cyan-500/90" />
+                  {item.icon ? (
+                    <svg width="0" height="0" aria-hidden="true" focusable="false" className="absolute">
+                      <defs>
+                        <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#06b6d4" />
+                          <stop offset="100%" stopColor="#3b82f6" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
                   ) : null}
+                  <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

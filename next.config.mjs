@@ -8,7 +8,8 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/code",
+        // Apply COEP/COOP to ALL routes — required for WebContainer (SharedArrayBuffer)
+        source: "/(.*)",
         headers: [
           {
             key: "Cross-Origin-Embedder-Policy",

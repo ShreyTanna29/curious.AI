@@ -76,13 +76,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, []);
 
   return (
-    <Sidebar collapsible="none" className="border-r border-slate-200/70 bg-gradient-to-b from-white via-slate-50 to-slate-100 dark:border-white/10 dark:from-black dark:via-zinc-950 dark:to-zinc-950" {...props}>
+    <Sidebar collapsible="none" className="border-r border-slate-200/70 bg-slate-50 dark:border-white/10 dark:bg-zinc-950" {...props}>
       <SidebarHeader className="border-b border-slate-200/70 px-2 pb-3 pt-2 dark:border-white/10">
         <TeamSwitcher />
       </SidebarHeader>
       <SidebarContent className="px-2 py-3">
         <NavMain items={data.navMain} />
-        <div className="mx-2 mt-4 rounded-2xl border border-cyan-200/70 bg-gradient-to-br from-cyan-100/70 to-blue-100/70 p-3 text-xs text-slate-700 dark:border-cyan-900/60 dark:from-cyan-950/40 dark:to-blue-950/40 dark:text-zinc-200">
+        <div className="mx-2 mt-4 rounded-2xl border border-slate-300/80 bg-slate-900/5 p-3 text-xs text-slate-700 dark:border-slate-700 dark:bg-black/40 dark:text-zinc-200">
           <p className="font-semibold">Upgrade Output</p>
           <p className="mt-1 text-[11px] text-slate-600 dark:text-zinc-300">
             Combine Chat + Speech for faster workflows.
