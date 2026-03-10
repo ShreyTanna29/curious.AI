@@ -23,19 +23,18 @@ export function SignIn() {
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
       document.documentElement.classList.add("dark");
-    } else {
-      if (document.documentElement.classList.contains("dark")) {
-        document.documentElement.classList.remove("dark");
-      }
+    } else if (document.documentElement.classList.contains("dark")) {
+      document.documentElement.classList.remove("dark");
     }
-  });
+  }, []);
 
   const googleHandler = async () => {
     try {
       setGoogleLoading(true);
       await SignInAuth("google", { callbackUrl: "/dashboard" });
-    } catch (error: any) {
-      console.log(error);
+    } catch (thisError: any) {
+      console.log(thisError);
+      setGoogleLoading(false);
     }
   };
 
@@ -49,7 +48,7 @@ export function SignIn() {
           email: formData.email,
           password: formData.password,
           callbackUrl: "/dashboard",
-          redirect: false, // Add this to handle the error
+          redirect: false,
         });
 
         if (result?.error) {
@@ -57,9 +56,8 @@ export function SignIn() {
         } else {
           window.location.href = "/dashboard";
         }
-      } catch (ThisError: any) {
-        console.log(ThisError);
-
+      } catch (thisError: any) {
+        console.log(thisError);
         setError("Failed to sign in");
       } finally {
         setLoading(false);
@@ -68,88 +66,118 @@ export function SignIn() {
       setError("Email and password should not be empty");
     }
   };
+
   return (
-    <div className="max-w-md w-full mx-auto rounded-none md:rounded-2xl p-4 md:p-8 shadow-input dark:bg-black">
-      <h2 className="font-bold text-xl text-neutral-800 dark:text-neutral-200">
-        Welcome to Curious.AI
-      </h2>
-      <p className="text-neutral-600 text-sm max-w-sm mt-1 dark:text-neutral-300">
-        Sign in to your account
-      </p>
-
-      <form className="my-8" onSubmit={handleSubmit}>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            placeholder="projectmayhem@fc.com"
-            type="email"
-            value={formData.email}
-            onChange={(e) => {
-              setFormData({ ...formData, email: e.target.value });
-            }}
-          />
-        </LabelInputContainer>
-        <LabelInputContainer className="mb-4">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            placeholder="••••••••"
-            type="password"
-            value={formData.password}
-            onChange={(e) => {
-              setFormData({ ...formData, password: e.target.value });
-            }}
-          />
-        </LabelInputContainer>
-        <p className="text-sm text-center text-red-500 mb-1">{error}</p>
-        <button
-          className="bg-gradient-to-br relative group/btn from-black dark:from-zinc-900 dark:to-zinc-900 to-neutral-600 block dark:bg-zinc-800 w-full text-white rounded-md h-10 font-medium shadow-[0px_1px_0px_0px_#ffffff40_inset,0px_-1px_0px_0px_#ffffff40_inset] dark:shadow-[0px_1px_0px_0px_var(--zinc-800)_inset,0px_-1px_0px_0px_var(--zinc-800)_inset]"
-          type="submit"
-        >
-          <div className="flex items-center justify-center w-full h-full">
-            {loading ? (
-              <LoadingSpinner className="border-white border-t-white/10" />
-            ) : (
-              <span>Sign in &rarr;</span>
-            )}
+    <div className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-3xl border border-slate-200 bg-white/95 shadow-2xl dark:border-slate-800 dark:bg-slate-950/90">
+      <div className="grid min-h-[620px] md:grid-cols-2">
+        <div className="relative hidden overflow-hidden border-r border-slate-200 bg-gradient-to-br from-sky-700 via-cyan-700 to-emerald-700 p-10 text-white md:block dark:border-slate-800">
+          <div className="relative z-10">
+            <p className="text-sm font-semibold tracking-[0.2em] text-sky-100/80">
+              CURIOUS.AI
+            </p>
+            <h2 className="mt-6 text-3xl font-semibold leading-tight">
+              Welcome back.
+              <br />
+              Build faster with AI.
+            </h2>
+            <p className="mt-4 max-w-sm text-sm text-sky-100/90">
+              Sign in to continue your workflows, chats, and code sessions.
+            </p>
           </div>
-          <BottomGradient />
-        </button>
+          <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-white/20 blur-2xl" />
+          <div className="absolute -right-16 top-10 h-52 w-52 rounded-full bg-cyan-200/30 blur-2xl" />
+        </div>
 
-        {isGoogleAuthEnabled && (
-          <>
-            <div className="bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full" />
+        <div className="p-6 sm:p-10">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            Sign in
+          </h1>
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+            Access your dashboard and continue where you left off.
+          </p>
 
-            <div className="flex flex-col space-y-4">
-              <button
-                className=" relative group/btn flex space-x-2 items-center justify-start px-4 w-full text-black rounded-md h-10 font-medium shadow-input bg-gray-50 dark:bg-zinc-900 dark:shadow-[0px_0px_1px_1px_var(--neutral-800)]"
-                type="button"
-                onClick={() => googleHandler()}
-              >
-                {googleLoading ? (
-                  <LoadingSpinner className="" />
+          <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
+            <LabelInputContainer>
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                placeholder="name@example.com"
+                type="email"
+                value={formData.email}
+                onChange={(e) => {
+                  setFormData({ ...formData, email: e.target.value });
+                }}
+              />
+            </LabelInputContainer>
+
+            <LabelInputContainer>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                placeholder="********"
+                type="password"
+                value={formData.password}
+                onChange={(e) => {
+                  setFormData({ ...formData, password: e.target.value });
+                }}
+              />
+            </LabelInputContainer>
+
+            <p className="min-h-5 text-center text-sm text-red-500">{error}</p>
+
+            <button
+              className="relative block h-11 w-full rounded-lg bg-slate-900 font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
+              type="submit"
+              disabled={loading || googleLoading}
+            >
+              <div className="flex h-full w-full items-center justify-center">
+                {loading ? (
+                  <LoadingSpinner className="border-white border-t-white/20 dark:border-slate-900 dark:border-t-slate-900/20" />
                 ) : (
-                  <GoogleIcon />
+                  <span>Continue</span>
                 )}
-                <span className="text-neutral-700 dark:text-neutral-300 text-sm">
-                  Google
-                </span>
+              </div>
+              <BottomGradient />
+            </button>
 
-                <BottomGradient />
-              </button>
-            </div>
-          </>
-        )}
-      </form>
-      <p className="text-center text-black dark:text-white">
-        Don&#39;t have an account?
-        <Link href={"/signup"}>
-          <span className="text-blue-500 ml-1 underline cursor-pointer">
-            sign up
-          </span>
-        </Link>{" "}
-      </p>
+            {isGoogleAuthEnabled && (
+              <>
+                <div className="my-2 flex items-center gap-3">
+                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                  <span className="text-xs uppercase tracking-wide text-slate-500">
+                    Or
+                  </span>
+                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                </div>
+
+                <button
+                  className="relative flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-slate-300 bg-white font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                  type="button"
+                  onClick={() => googleHandler()}
+                  disabled={loading || googleLoading}
+                >
+                  {googleLoading ? (
+                    <LoadingSpinner className="" />
+                  ) : (
+                    <GoogleIcon />
+                  )}
+                  <span>Continue with Google</span>
+                  <BottomGradient />
+                </button>
+              </>
+            )}
+          </form>
+
+          <p className="mt-8 text-center text-sm text-slate-700 dark:text-slate-300">
+            Don&#39;t have an account?
+            <Link href={"/signup"}>
+              <span className="ml-1 cursor-pointer font-medium text-cyan-600 underline underline-offset-2 dark:text-cyan-400">
+                Sign up
+              </span>
+            </Link>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -170,9 +198,5 @@ const LabelInputContainer = ({
   children: React.ReactNode;
   className?: string;
 }) => {
-  return (
-    <div className={cn("flex flex-col space-y-2 w-full", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("flex flex-col space-y-2 w-full", className)}>{children}</div>;
 };
