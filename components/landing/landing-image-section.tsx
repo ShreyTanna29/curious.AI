@@ -171,7 +171,7 @@ export default function LandingImageSection() {
             </span>
           </h1>
 
-          <p className="text-gray-600 dark:text-gray-400 text-lg md:text-xl text-center max-w-2xl mb-12">
+          <p className="text-gray-600 dark:text-zinc-400 text-lg md:text-xl text-center max-w-2xl mb-12">
             Go beyond the limits of imagination with AI-generated images. Turn
             your ideas into stunning visuals in seconds.
           </p>
@@ -292,7 +292,7 @@ export default function LandingImageSection() {
               <h3 className="text-lg font-semibold mb-2 dark:text-white">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 text-sm">
+              <p className="text-gray-600 dark:text-zinc-400 text-sm">
                 {feature.description}
               </p>
             </motion.div>
@@ -317,7 +317,7 @@ export default function LandingImageSection() {
                 <Wand2 className="ml-2 h-4 w-4 group-hover:rotate-12 transition-transform" />
               </Button>
             </Link>
-            <p className="text-gray-600 dark:text-gray-400 text-sm mt-4">
+            <p className="text-gray-600 dark:text-zinc-400 text-sm mt-4">
               No design skills required. Start generating beautiful images
               instantly.
             </p>

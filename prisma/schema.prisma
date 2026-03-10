@@ -17,7 +17,7 @@ datasource db {
 model Image {
   id        String   @id @default(uuid())
   userId    String
-  url       String   @unique
+  url       String
   prompt    String
   createdAt DateTime @default(now())
 }

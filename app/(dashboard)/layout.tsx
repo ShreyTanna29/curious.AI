@@ -3,11 +3,11 @@ import Sidebar from "@/components/sidebar/sidebar";
 
 const DashboardLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-full flex w-full ">
-      <div className="hidden h-full md:flex  md:flex-col  md:inset-y-0 z-10">
+    <div className="flex h-screen w-full overflow-hidden">
+      <div className="z-10 hidden h-screen md:flex md:flex-col">
         <Sidebar />
       </div>
-      <main className="md:pl-22 m-2  w-full p-2 ">
+      <main className="min-h-0 w-full overflow-y-auto md:pl-22">
         <MobileSidebar />
         {children}
       </main>

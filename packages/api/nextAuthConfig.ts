@@ -106,13 +106,25 @@ export const NEXT_AUTH_CONFIG = {
     async jwt({ token, account }: any) {
       // Initial sign-in
       if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-        token.accessTokenExpires = account.expires_at * 1000; // Convert to ms
+        token.provider = account.provider;
+        if (account.provider === "google") {
+          token.accessToken = account.access_token;
+          token.refreshToken = account.refresh_token;
+          token.accessTokenExpires = account.expires_at * 1000; // Convert to ms
+        }
+      }
+
+      // Only Google OAuth sessions need token refresh logic.
+      if (token.provider !== "google") {
+        return token;
+      }
+
+      if (!token.accessTokenExpires || !token.refreshToken) {
+        return token;
       }
 
       // Return the previous token if the access token has not expired
-      if (Date.now() < token.accessTokenExpires) {
+      if (Date.now() < token.accessTokenExpires - 60_000) {
         return token;
       }
 
@@ -132,6 +144,10 @@ async function refreshAccessToken(token: {
   accessTokenExpires: number;
 }): Promise<any> {
   try {
+    if (!token.refreshToken) {
+      return token;
+    }
+
     const url =
       "https://oauth2.googleapis.com/token?" +
       new URLSearchParams({

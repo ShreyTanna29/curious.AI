@@ -1,12 +1,12 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import {
+  ArrowUpRight,
   Code,
-  ImageIcon,
   LayoutDashboard,
   MessageSquare,
-  ShoppingBag,
   Mic,
 } from "lucide-react"
 
@@ -18,7 +18,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
 } from "@/components/ui/sidebar"
 import { useEffect } from "react"
 import { useSession } from "next-auth/react"
@@ -55,11 +54,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: MessageSquare,
       },
       {
-        title: "Image Generation",
-        url: "/image",
-        icon: ImageIcon,
-      },
-      {
         title: "Speech Generation",
         url: "/speech",
         icon: Mic,
@@ -68,11 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Code Generation",
         url: "/code",
         icon: Code,
-      },
-      {
-        title: "Marketplace",
-        url: "/marketplace",
-        icon: ShoppingBag,
       }
     ],
   }
@@ -87,17 +76,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, []);
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader>
+    <Sidebar collapsible="none" className="border-r border-slate-200/70 bg-gradient-to-b from-white via-slate-50 to-slate-100 dark:border-white/10 dark:from-black dark:via-zinc-950 dark:to-zinc-950" {...props}>
+      <SidebarHeader className="border-b border-slate-200/70 px-2 pb-3 pt-2 dark:border-white/10">
         <TeamSwitcher />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="px-2 py-3">
         <NavMain items={data.navMain} />
+        <div className="mx-2 mt-4 rounded-2xl border border-cyan-200/70 bg-gradient-to-br from-cyan-100/70 to-blue-100/70 p-3 text-xs text-slate-700 dark:border-cyan-900/60 dark:from-cyan-950/40 dark:to-blue-950/40 dark:text-zinc-200">
+          <p className="font-semibold">Upgrade Output</p>
+          <p className="mt-1 text-[11px] text-slate-600 dark:text-zinc-300">
+            Combine Chat + Speech for faster workflows.
+          </p>
+          <Link
+            href="/speech"
+            className="mt-2 inline-flex items-center gap-1 font-medium text-cyan-700 transition-colors hover:text-cyan-800 dark:text-cyan-300"
+          >
+            Open Speech
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t border-slate-200/70 px-2 pb-2 pt-3 dark:border-white/10">
         <NavUser user={data.user} />
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }

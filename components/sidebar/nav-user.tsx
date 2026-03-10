@@ -41,7 +41,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+              className="h-12 rounded-xl border border-slate-200/80 bg-white/80 px-2 data-[state=open]:bg-slate-100 dark:border-white/10 dark:bg-zinc-950/70 dark:data-[state=open]:bg-zinc-900"
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.name} />
@@ -57,7 +57,7 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl border border-slate-200/80 bg-white/95 p-1 shadow-xl dark:border-white/10 dark:bg-zinc-950/95"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -76,14 +76,14 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <Link href={"/settings"}>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => {}}>
+              <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => {}}>
                 <Settings />
                 Settings
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer"
+              className="cursor-pointer rounded-lg text-rose-600 focus:text-rose-600 dark:text-rose-400 dark:focus:text-rose-400"
               onClick={() => {
                 setLoading(true);
                 signOut({ callbackUrl: "/" });

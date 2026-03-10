@@ -8,18 +8,18 @@ export default function UserProfileCard() {
   const userName = session.data?.user?.name;
   return (
     <>
-      <Card className="bg-black/10 w-full dark:bg-white/10 border-0  dark:text-white overflow-clip flex items-center">
-        <CardContent className="py-6 w-full ">
+      <Card className="w-full overflow-hidden border border-slate-200/80 bg-white/70 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-zinc-950/70 dark:text-white">
+        <CardContent className="w-full py-4">
           <div className="flex">
-            <Avatar>
+            <Avatar className="h-10 w-10 border border-slate-200 dark:border-white/15">
               <AvatarImage src={session.data?.user?.image!} alt="User" />
               <AvatarFallback>
                 {userName?.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div className="ml-3 overflow-hidden">
-              <p>{userName}</p>
-              <p className=" text-sm text-ellipsis overflow-hidden whitespace-nowrap ">
+              <p className="truncate text-sm font-semibold">{userName}</p>
+              <p className="text-ellipsis overflow-hidden whitespace-nowrap text-xs text-slate-500 dark:text-zinc-400">
                 {userEmail}
               </p>
             </div>

@@ -82,7 +82,7 @@ export function HistorySidebar() {
     <>
       <Button
         variant={"custom"}
-        className="right-3 lg:right-10 bg-gray-100 rounded-lg absolute md:p-4"
+        className="fixed right-3 top-20 z-40 rounded-lg bg-gray-100 md:right-8 md:top-6 md:p-4"
         onClick={toggleSidebar}
       >
         <History className="mr-2" />
@@ -92,9 +92,9 @@ export function HistorySidebar() {
       </Button>
 
       <div
-        className={`fixed inset-y-0 right-0 w-80 bg-white dark:bg-[#1a1a1a] shadow-lg transform ${
+        className={`fixed inset-y-0 right-0 w-80 bg-white dark:bg-[#0a0a0a] shadow-lg transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out z-50 border-l border-gray-200 dark:border-gray-700`}
+        } transition-transform duration-300 ease-in-out z-50 border-l border-gray-200 dark:border-white/15`}
       >
         <div className="p-4 h-full flex flex-col">
           <h2 className="text-xl font-bold mb-4">Chat History</h2>
@@ -107,7 +107,7 @@ export function HistorySidebar() {
                 ))}
               </div>
             ) : history.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+              <p className="text-gray-500 dark:text-zinc-400 text-center py-4">
                 No chat history found
               </p>
             ) : (
@@ -131,7 +131,7 @@ export function HistorySidebar() {
                           {chat.title || "Untitled Chat"}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-zinc-400">
                         {new Date(chat.createdAt).toLocaleString()}
                       </p>
                     </div>
