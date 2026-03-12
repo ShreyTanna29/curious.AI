@@ -7,7 +7,6 @@ import {
   MessageSquare,
   Mic,
   Settings,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "../ui/button";
 import { Sheet, SheetTrigger, SheetContent, SheetClose } from "../ui/sheet";
@@ -24,31 +23,26 @@ const routes = [
     label: "Dashboard",
     icon: LayoutDashboard,
     href: "/dashboard",
-    color: "text-sky-500",
   },
   {
     label: "Chat",
     icon: MessageSquare,
     href: "/chat",
-    color: "text-violet-500",
   },
   {
     label: "Speech Generation",
     icon: Mic,
     href: "/speech",
-    color: "text-blue-600",
   },
   {
     label: "Code Generation",
     icon: Code,
     href: "/code",
-    color: "text-emerald-500",
   },
   {
     label: "Settings",
     icon: Settings,
     href: "/settings",
-    color: "text-slate-500",
   },
 ];
 
@@ -84,8 +78,7 @@ const MobileSidebar = () => {
       </SheetTrigger>
 
       <SheetContent side="left" className="w-[88vw] max-w-sm border-r-0 p-0">
-        <div className="relative flex h-full w-full flex-col overflow-hidden bg-gradient-to-b from-slate-100 via-slate-50 to-white text-black dark:from-black dark:via-zinc-950 dark:to-zinc-950 dark:text-white">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_10%,rgba(6,182,212,0.16),transparent_25%),radial-gradient(circle_at_90%_20%,rgba(59,130,246,0.16),transparent_30%)]" />
+        <div className="relative flex h-full w-full flex-col overflow-hidden bg-slate-50 text-black dark:bg-zinc-950 dark:text-white">
 
           <div className="relative flex h-full flex-col px-4 py-5">
             <Link href="/dashboard" className="mb-5 mt-2 flex items-center rounded-2xl border border-slate-200/80 bg-white/70 px-3 py-3 backdrop-blur-sm dark:border-white/10 dark:bg-zinc-950/70">
@@ -115,20 +108,24 @@ const MobileSidebar = () => {
                       href={route.href}
                       className={cn(
                         "group relative flex w-full items-center justify-start rounded-xl border border-transparent p-3 text-sm font-medium transition-all",
-                        "hover:border-slate-200/80 hover:bg-white/80 dark:hover:border-slate-700 dark:hover:bg-zinc-900/70",
+                        "hover:border-slate-300/70 hover:bg-slate-900/10 dark:hover:border-slate-700 dark:hover:bg-black/45",
                         isActive &&
-                          "border-cyan-300/70 bg-gradient-to-r from-cyan-500/15 to-blue-500/10 text-slate-900 shadow-sm dark:border-cyan-700 dark:text-white",
-                        "text-black dark:text-zinc-300",
+                          "border-slate-300/90 bg-white text-slate-900 shadow-sm dark:border-slate-700 dark:bg-zinc-900/90 dark:text-white",
+                        "text-black dark:text-white",
                       )}
                     >
                       {isActive ? (
-                        <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-cyan-500" />
+                        <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-slate-900 dark:bg-zinc-100" />
                       ) : null}
                       <div className="flex items-center">
-                        <route.icon className={cn("mr-3 h-5 w-5", route.color)} />
+                        <route.icon
+                          className={cn(
+                            "mr-3 h-5 w-5 text-slate-900 dark:text-white",
+                            isActive && "text-slate-900 dark:text-white",
+                          )}
+                        />
                         {route.label}
                       </div>
-                      {isActive ? <Sparkles className="ml-auto h-4 w-4 text-cyan-500" /> : null}
                     </Link>
                   </SheetClose>
                 );

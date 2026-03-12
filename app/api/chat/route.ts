@@ -195,7 +195,7 @@ export async function POST(req: Request) {
                 `![Generated image ${index + 1}](${image.imageUrl})`
             )
             .join("\n\n");
-          response = `Here is your generated image:\n\n${markdownImages}`;
+          response = markdownImages;
         } else {
           const finalCompletion = await groq.chat.completions.create({
             model: "llama-3.3-70b-versatile",
@@ -225,7 +225,7 @@ export async function POST(req: Request) {
           prompt,
           userId,
         });
-        response = `Here is your generated image:\n\n![Generated image](${imageUrl})`;
+        response = `![Generated image](${imageUrl})`;
       } catch (fallbackError) {
         response = `I could not generate the image.\n\nReason: ${
           fallbackError instanceof Error
