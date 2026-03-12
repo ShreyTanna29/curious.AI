@@ -15,7 +15,16 @@ import BotAvatar from "@/components/extra/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
-import { FileText, Newspaper, Quote, SendHorizontal, TrendingUp, Sparkles } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  FileText,
+  Newspaper,
+  Quote,
+  SendHorizontal,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import remarkGfm from "remark-gfm";
 import { HistorySidebar } from "@/components/sidebar/history-sidebar";
 
@@ -47,6 +56,7 @@ const isImageOnlyMessage = (content: string): boolean =>
 function ConversationPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isIncognito, setIsIncognito] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -100,6 +110,8 @@ function ConversationPage() {
 
       const response = await axios.post("/api/chat", {
         prompt: values.prompt,
+        messages: isIncognito ? messages : undefined,
+        incognito: isIncognito,
       });
 
       const newMessage: Message = {
@@ -110,7 +122,7 @@ function ConversationPage() {
       const nextMessages = [userMessage, newMessage];
       setMessages((current) => [...current, ...nextMessages]);
       form.reset();
-      if (response.data.groupChatId) {
+      if (!isIncognito && response.data.groupChatId) {
         const groupChatId = String(response.data.groupChatId);
         sessionStorage.setItem(
           chatBootstrapKey(groupChatId),
@@ -140,7 +152,23 @@ function ConversationPage() {
               <h1 className="mt-2 text-xl font-semibold md:text-2xl">How can I help you today?</h1>
               <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-200 md:text-sm">Ask anything from research to creative generation in one conversation.</p>
             </div>
-            <HistorySidebar />
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsIncognito((current) => !current)}
+                className={cn(
+                  "inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-sm",
+                  isIncognito
+                    ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100 dark:hover:bg-amber-400/20"
+                    : "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
+                )}
+              >
+                {isIncognito ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                <span>{isIncognito ? "Incognito On" : "Incognito Off"}</span>
+              </Button>
+              <HistorySidebar />
+            </div>
           </header>
 
           <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6">
@@ -272,6 +300,11 @@ function ConversationPage() {
           </div>
 
           <div className="sticky bottom-0 border-t border-slate-200/70 bg-white/80 p-3 backdrop-blur-xl dark:border-white/10 dark:bg-black/80 md:p-4">
+            {isIncognito ? (
+              <p className="mx-auto mb-2 w-full max-w-4xl rounded-lg border border-amber-300/70 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100">
+                Incognito mode is active. This chat is not saved and will not appear in history.
+              </p>
+            ) : null}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}

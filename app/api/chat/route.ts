@@ -26,6 +26,11 @@ export interface GroupChat {
   updatedAt?: Date;
 }
 
+type ConversationMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 const IMAGE_INTENT_REGEX =
   /\b(create|generate|draw|make|design|render|illustrate)\b[\s\S]{0,80}\b(image|picture|photo|art|artwork|logo|poster|icon|avatar|visual|illustration)\b|\b(image|picture|photo|art|artwork|logo|poster|icon|avatar|visual|illustration)\b[\s\S]{0,80}\b(create|generate|draw|make|design|render|illustrate)\b|\b(image of|picture of|photo of|illustration of)\b/i;
 
@@ -44,6 +49,38 @@ function sanitizeForTitle(input: string): string {
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 500);
+}
+
+function parseClientMessages(input: unknown): ConversationMessage[] {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input
+    .map((message) => {
+      if (
+        !message ||
+        typeof message !== "object" ||
+        !("role" in message) ||
+        !("content" in message)
+      ) {
+        return null;
+      }
+
+      const role = (message as { role: unknown }).role;
+      const content = (message as { content: unknown }).content;
+
+      if (
+        (role !== "user" && role !== "assistant") ||
+        typeof content !== "string" ||
+        !content.trim()
+      ) {
+        return null;
+      }
+
+      return { role, content };
+    })
+    .filter((message): message is ConversationMessage => Boolean(message));
 }
 
 async function seedChats(groupChatId: string) {
@@ -73,8 +110,11 @@ export async function POST(req: Request) {
     const session = await getServerSession(NEXT_AUTH_CONFIG!);
     const userId = session?.user?.id;
     const body = await req.json();
-    let { groupChatId } = body || "";
-    const { prompt } = body;
+    let groupChatId =
+      typeof body?.groupChatId === "string" ? body.groupChatId : "";
+    const prompt = typeof body?.prompt === "string" ? body.prompt : "";
+    const isIncognito = Boolean(body?.incognito);
+    const clientMessages = parseClientMessages(body?.messages);
 
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
@@ -84,7 +124,12 @@ export async function POST(req: Request) {
       return new NextResponse("prompt is required", { status: 400 });
     }
 
-    const previousMessages = groupChatId ? await seedChats(groupChatId) : [];
+    const previousMessages =
+      isIncognito && clientMessages.length > 0
+        ? clientMessages
+        : groupChatId
+        ? await seedChats(groupChatId)
+        : [];
     const userMessage = { role: "user" as const, content: prompt };
     const baseMessages = [...previousMessages, userMessage];
 
@@ -235,47 +280,51 @@ export async function POST(req: Request) {
       }
     }
 
-    const chatData = {
-      prompt,
-      response: String(response),
-    };
+    if (!isIncognito) {
+      const chatData = {
+        prompt,
+        response: String(response),
+      };
 
-    if (groupChatId) {
-      await prismadb.groupChat.update({
-        where: { id: groupChatId },
-        data: {
-          chats: { create: chatData },
-        },
-      });
-    } else {
-      const titlePrompt = sanitizeForTitle(prompt);
-      const titleResponse = sanitizeForTitle(response);
-
-      const titleCompletion = await groq.chat.completions.create({
-        model: "llama-3.3-70b-versatile",
-        messages: [
-          {
-            role: "user",
-            content:
-              "Generate a short and relevant title (max 6-8 words) that summarizes the topic of this conversation. Only return the title text.\n" +
-              `User: ${titlePrompt}\nAssistant: ${titleResponse}`,
+      if (groupChatId) {
+        await prismadb.groupChat.update({
+          where: { id: groupChatId },
+          data: {
+            chats: { create: chatData },
           },
-        ],
-      });
+        });
+      } else {
+        const titlePrompt = sanitizeForTitle(prompt);
+        const titleResponse = sanitizeForTitle(response);
 
-      const title = titleCompletion.choices[0]?.message?.content ?? "Untitled";
+        const titleCompletion = await groq.chat.completions.create({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            {
+              role: "user",
+              content:
+                "Generate a short and relevant title (max 6-8 words) that summarizes the topic of this conversation. Only return the title text.\n" +
+                `User: ${titlePrompt}\nAssistant: ${titleResponse}`,
+            },
+          ],
+        });
 
-      const responseOfGroupChat = await prismadb.groupChat.create({
-        data: {
-          title: String(title),
-          chats: { create: chatData },
-          userId,
-        },
-      });
+        const title = titleCompletion.choices[0]?.message?.content ?? "Untitled";
 
-      if (!groupChatId || groupChatId === "") {
-        groupChatId = responseOfGroupChat.id;
+        const responseOfGroupChat = await prismadb.groupChat.create({
+          data: {
+            title: String(title),
+            chats: { create: chatData },
+            userId,
+          },
+        });
+
+        if (!groupChatId || groupChatId === "") {
+          groupChatId = responseOfGroupChat.id;
+        }
       }
+    } else {
+      groupChatId = "";
     }
 
     return NextResponse.json({
