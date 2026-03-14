@@ -173,22 +173,12 @@ function ConversationPage() {
 
           <div className="flex-1 overflow-y-auto px-3 py-4 md:px-6">
             {messages.length === 0 ? (
-              <div className="mx-auto mt-6 w-full max-w-4xl">
-                <div className="relative overflow-hidden rounded-3xl border border-sky-200/60 bg-gradient-to-br from-white/90 via-sky-50/70 to-indigo-50/70 p-5 shadow-[0_18px_60px_rgba(14,116,144,0.12)] dark:border-sky-900/60 dark:from-zinc-950/80 dark:via-sky-950/25 dark:to-indigo-950/20 md:p-6">
-                  <div className="pointer-events-none absolute -top-12 right-[-24px] h-32 w-32 rounded-full bg-cyan-400/20 blur-2xl dark:bg-cyan-400/10" />
-                  <div className="relative">
-                    <p className="inline-flex items-center rounded-full border border-sky-300/70 bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-700 dark:border-sky-700/70 dark:bg-black/25 dark:text-sky-200">
-                      Starter Prompts
-                    </p>
-                    <p className="mt-3 text-base font-medium text-slate-700 dark:text-zinc-200 md:text-lg">
-                      Pick a prompt and I will generate a fast, focused response.
-                    </p>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-zinc-400">
-                      Designed for quick research, writing help, and idea exploration.
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="mx-auto mt-24 w-full max-w-lg text-center">
+                <h2 className="text-xl font-semibold text-slate-900 dark:text-white md:text-2xl">
+                  How can I help you today?
+                </h2>
+               
+                <div className="mt-6 grid grid-cols-1 gap-2 md:grid-cols-2">
                   {suggestions.map((item) => (
                     <Button
                       key={item.label}
@@ -199,21 +189,16 @@ function ConversationPage() {
                         form.setFocus("prompt");
                       }}
                       className={cn(
-                        "group relative h-auto justify-start gap-3 overflow-hidden rounded-2xl border border-slate-300/80 bg-white/80 px-4 py-3 text-left hover:bg-white dark:border-white/15 dark:bg-zinc-950/80 dark:hover:bg-zinc-900",
-                        "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_30px_rgba(2,6,23,0.14)] dark:hover:shadow-[0_10px_30px_rgba(0,0,0,0.35)]",
+                        "group relative h-8 w-full justify-center gap-2 overflow-hidden rounded-full border border-slate-300/80 bg-white/80 px-3 text-left hover:bg-white dark:border-white/15 dark:bg-zinc-950/80 dark:hover:bg-zinc-900",
+                        "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(2,6,23,0.12)] dark:hover:shadow-[0_8px_22px_rgba(0,0,0,0.35)]",
                       )}
                     >
                       <span className={cn("pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100", item.accent)} />
-                      <span className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 bg-white/80 dark:border-white/15 dark:bg-black/20">
-                        <item.icon className="h-4 w-4 text-sky-500" />
+                      <span className="relative flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white/80 dark:border-white/15 dark:bg-black/20">
+                        <item.icon className="h-3 w-3 text-sky-500" />
                       </span>
-                      <span className="relative flex flex-col">
-                        <span className="text-sm font-semibold text-slate-800 dark:text-zinc-100 md:text-base">
-                          {item.label}
-                        </span>
-                        <span className="text-xs text-slate-500 dark:text-zinc-400">
-                          {item.hint}
-                        </span>
+                      <span className="relative text-xs font-semibold text-slate-800 dark:text-zinc-100">
+                        {item.label}
                       </span>
                     </Button>
                   ))}
