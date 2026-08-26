@@ -3,7 +3,8 @@ import prismadb from "@/packages/api/prismadb";
 
 type GenerateImageInput = {
   prompt: string;
-  userId: string;
+  userId?: string;
+  persist?: boolean;
 };
 
 const GROQ_API_KEY =
@@ -117,9 +118,10 @@ async function fetchImageAsBase64(url: string): Promise<string> {
 export async function generateAndStoreImage({
   prompt,
   userId,
+  persist = true,
 }: GenerateImageInput): Promise<string> {
   if (!prompt?.trim()) throw new Error("Prompt is required.");
-  if (!userId) throw new Error("Unauthorized");
+  if (persist && !userId) throw new Error("Unauthorized");
   if (!GROQ_API_KEY) throw new Error("Missing GROQ_API_KEY");
   if (!HIVE_API_KEY) throw new Error("Missing HIVE_API_KEY");
 
@@ -132,13 +134,15 @@ export async function generateAndStoreImage({
 
   const imgBase64 = await fetchImageAsBase64(cdnUrl);
 
-  await prismadb.image.create({
-    data: {
-      userId,
-      url: imgBase64,
-      prompt,
-    },
-  });
+  if (persist && userId) {
+    await prismadb.image.create({
+      data: {
+        userId,
+        url: imgBase64,
+        prompt,
+      },
+    });
+  }
 
   return imgBase64;
 }

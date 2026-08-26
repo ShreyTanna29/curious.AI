@@ -1,9 +1,8 @@
 ﻿import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
 import prismadb from "@/packages/api/prismadb";
-import { getServerSession } from "next-auth";
-import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 import { designPromt, systemPrompt } from "@/lib/prompts";
+import { requireSessionAccess } from "@/lib/server/app-session";
 
 const GROQ_API_KEY =
   process.env.EXPO_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
@@ -15,13 +14,12 @@ export async function POST(req: Request) {
       return new NextResponse("Missing Groq API key", { status: 500 });
     }
 
-    const session = await getServerSession(NEXT_AUTH_CONFIG);
-    const userId = session?.user.id;
+    const access = await requireSessionAccess({ allowGuest: true });
     const body = await req.json();
     const { prompt, userMessages, modelMessages } = body;
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!access.ok) {
+      return access.response;
     }
 
     if (!prompt) {
@@ -50,13 +48,15 @@ export async function POST(req: Request) {
 
     const response = completion.choices[0]?.message?.content ?? "";
 
-    await prismadb.code.create({
-      data: {
-        userId,
-        prompt,
-        response: String(response),
-      },
-    });
+    if (!access.isGuest) {
+      await prismadb.code.create({
+        data: {
+          userId: access.userId,
+          prompt,
+          response: String(response),
+        },
+      });
+    }
 
     return NextResponse.json(response);
   } catch (error) {

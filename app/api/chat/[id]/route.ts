@@ -1,20 +1,21 @@
 import prismadb from "@/packages/api/prismadb";
-import { getServerSession } from "next-auth";
-import { NextResponse, NextRequest } from "next/server";
-import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
+import { NextRequest, NextResponse } from "next/server";
+
+import { requireSessionAccess } from "@/lib/server/app-session";
 
 export async function GET(
   request: NextRequest,
- { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const groupChatId = (await params).id
+  const groupChatId = (await params).id;
 
   try {
-    const session = await getServerSession(NEXT_AUTH_CONFIG);
-    const userId = session?.user?.id;
+    const access = await requireSessionAccess({
+      guestMessage: "Create an account to access saved chat threads.",
+    });
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!access.ok) {
+      return access.response;
     }
 
     const groupChat = await prismadb.groupChat.findUnique({
@@ -23,7 +24,8 @@ export async function GET(
         chats: true,
       },
     });
-    if (!groupChat || groupChat.userId !== userId) {
+
+    if (!groupChat || groupChat.userId !== access.userId) {
       return new NextResponse("Not found or forbidden", { status: 403 });
     }
 
@@ -41,11 +43,12 @@ export async function PATCH(
   const groupChatId = (await params).id;
 
   try {
-    const session = await getServerSession(NEXT_AUTH_CONFIG);
-    const userId = session?.user?.id;
+    const access = await requireSessionAccess({
+      guestMessage: "Create an account to rename saved chat threads.",
+    });
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!access.ok) {
+      return access.response;
     }
 
     const body = await request.json();
@@ -59,7 +62,7 @@ export async function PATCH(
       where: { id: groupChatId },
     });
 
-    if (!groupChat || groupChat.userId !== userId) {
+    if (!groupChat || groupChat.userId !== access.userId) {
       return new NextResponse("Not found or forbidden", { status: 403 });
     }
 

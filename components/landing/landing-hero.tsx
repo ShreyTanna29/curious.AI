@@ -221,6 +221,7 @@ const AnimatedBackground = () => {
 
 export default function LandingHero() {
   const [loading, setLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
   const { status } = useSession();
   const isSignedIn = status === "authenticated";
   const router = useRouter();
@@ -359,8 +360,17 @@ export default function LandingHero() {
               variant="outline"
               size="lg"
               className="px-6 py-5 rounded-lg text-base border border-gray-200/40 dark:border-gray-800/40 text-gray-600 dark:text-zinc-300 hover:bg-gray-100/40 dark:hover:bg-black/40 hover:border-gray-300/40 dark:hover:border-gray-700/40 shadow-lg backdrop-blur-sm transition-colors"
+              onClick={async () => {
+                try {
+                  setGuestLoading(true);
+                  await signIn("guest", { callbackUrl: "/dashboard" });
+                } catch (error) {
+                  console.error("Failed to start guest session", error);
+                  setGuestLoading(false);
+                }
+              }}
             >
-              See AI Tools
+              {guestLoading ? <LoadingDots /> : "Continue as Guest"}
             </Button>
           </motion.div>
 

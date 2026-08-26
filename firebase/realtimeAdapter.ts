@@ -29,6 +29,15 @@ type CodeRecord = {
   createdAt: Date;
 };
 
+type SpeechRecord = {
+  id: string;
+  userId: string;
+  prompt: string;
+  audioUrl: string;
+  voicePreset: string;
+  createdAt: Date;
+};
+
 type ChatRecord = {
   id: string;
   groupId: string;
@@ -76,6 +85,13 @@ function normalizeImage(record: any): ImageRecord {
 }
 
 function normalizeCode(record: any): CodeRecord {
+  return {
+    ...record,
+    createdAt: toDate(record.createdAt),
+  };
+}
+
+function normalizeSpeech(record: any): SpeechRecord {
   return {
     ...record,
     createdAt: toDate(record.createdAt),
@@ -296,6 +312,53 @@ export const firebaseRealtimeAdapter = {
 
       codes = sortByField(codes, "createdAt", "desc");
       return codes;
+    },
+  },
+  speech: {
+    async create({
+      data,
+    }: {
+      data: Omit<SpeechRecord, "id" | "createdAt">;
+    }): Promise<SpeechRecord> {
+      const db = getFirebaseRealtimeDb();
+      const ref = db.ref("speeches").push();
+      const id = ref.key as string;
+      const createdAt = Date.now();
+      await ref.set({ ...data, createdAt });
+      return normalizeSpeech({ id, ...data, createdAt });
+    },
+    async findMany({
+      where,
+      orderBy,
+      take,
+      skip,
+    }: {
+      where?: { userId?: string };
+      orderBy?: { createdAt?: SortDirection };
+      take?: number;
+      skip?: number;
+    }) {
+      const db = getFirebaseRealtimeDb();
+      const snapshot = await db.ref("speeches").get();
+      let speeches = snapshotToArray<Omit<SpeechRecord, "id">>(snapshot).map(
+        normalizeSpeech
+      );
+
+      if (where?.userId) {
+        speeches = speeches.filter((speech) => speech.userId === where.userId);
+      }
+
+      speeches = sortByField(speeches, "createdAt", orderBy?.createdAt || "desc");
+
+      if (typeof skip === "number" && skip > 0) {
+        speeches = speeches.slice(skip);
+      }
+
+      if (typeof take === "number") {
+        speeches = speeches.slice(0, take);
+      }
+
+      return speeches;
     },
   },
   groupChat: {

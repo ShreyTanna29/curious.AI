@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Settings } from "lucide-react";
+import { LogIn, LogOut, Settings, UserPlus } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -29,6 +29,7 @@ export function NavUser({
     name: string;
     email: string;
     avatar: string;
+    isGuest?: boolean;
   };
 }) {
   const { isMobile } = useSidebar();
@@ -75,12 +76,29 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <Link href={"/settings"}>
-              <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => {}}>
-                <Settings />
-                Settings
-              </DropdownMenuItem>
-            </Link>
+            {user.isGuest ? (
+              <>
+                <Link href={"/signup?upgrade=1"}>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => {}}>
+                    <UserPlus />
+                    Create account
+                  </DropdownMenuItem>
+                </Link>
+                <Link href={"/signin?upgrade=1"}>
+                  <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => {}}>
+                    <LogIn />
+                    Sign in
+                  </DropdownMenuItem>
+                </Link>
+              </>
+            ) : (
+              <Link href={"/settings"}>
+                <DropdownMenuItem className="cursor-pointer rounded-lg" onClick={() => {}}>
+                  <Settings />
+                  Settings
+                </DropdownMenuItem>
+              </Link>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="cursor-pointer rounded-lg text-rose-600 focus:text-rose-600 dark:text-rose-400 dark:focus:text-rose-400"
@@ -90,7 +108,7 @@ export function NavUser({
               }}
             >
               {loading ? <LoadingSpinner /> : <LogOut />}
-              Log out
+              {user.isGuest ? "End guest session" : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

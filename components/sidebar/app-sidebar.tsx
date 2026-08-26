@@ -27,11 +27,15 @@ import { useSession } from "next-auth/react"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const session = useSession()
+  const isGuest = Boolean(session.data?.user?.isGuest)
   const data = {
     user: {
-      name: session.data?.user?.name!,
-      email: session.data?.user?.email!,
-      avatar: session.data?.user?.image!,
+      name: session.data?.user?.name || "Guest User",
+      email: isGuest
+        ? "Temporary guest session"
+        : session.data?.user?.email || "Signed-in account",
+      avatar: session.data?.user?.image || "",
+      isGuest,
     },
     teams: [
       {
@@ -83,15 +87,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="px-2 py-3">
         <NavMain items={data.navMain} />
         <div className="mx-2 mt-4 rounded-2xl border border-slate-300/80 bg-slate-900/5 p-3 text-xs text-slate-700 dark:border-slate-700 dark:bg-black/40 dark:text-zinc-200">
-          <p className="font-semibold">Upgrade Output</p>
+          <p className="font-semibold">
+            {isGuest ? "Save Your Guest Work" : "Upgrade Output"}
+          </p>
           <p className="mt-1 text-[11px] text-slate-600 dark:text-zinc-300">
-            Combine Chat + Speech for faster workflows.
+            {isGuest
+              ? "Create an account to keep chat history, speech generations, and settings across devices."
+              : "Combine Chat + Speech for faster workflows."}
           </p>
           <Link
-            href="/speech"
+            href={isGuest ? "/signup?upgrade=1" : "/speech"}
             className="mt-2 inline-flex items-center gap-1 font-medium text-cyan-700 transition-colors hover:text-cyan-800 dark:text-cyan-300"
           >
-            Open Speech
+            {isGuest ? "Create Account" : "Open Speech"}
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>

@@ -1,19 +1,22 @@
-import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 import prismadb from "@/packages/api/prismadb";
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { requireSessionAccess } from "@/lib/server/app-session";
 
 export async function GET() {
-  const session = await getServerSession(NEXT_AUTH_CONFIG);
-  const userId = session.user.id;
+  const access = await requireSessionAccess({
+    guestMessage: "Create an account to access saved chat history.",
+  });
 
-  if (!userId) {
-    return new NextResponse("Unauthorized", { status: 401 });
+  if (!access.ok) {
+    return access.response;
   }
 
   const userChat = await prismadb.groupChat.findMany({
     where: {
-      userId,
+      userId: access.userId,
+    },
+    orderBy: {
+      updatedAt: "desc",
     },
   });
   return NextResponse.json(userChat);

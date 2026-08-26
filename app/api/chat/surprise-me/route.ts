@@ -1,7 +1,7 @@
-﻿import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
-import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
+
+import { requireSessionAccess } from "@/lib/server/app-session";
 
 const GROQ_API_KEY =
   process.env.EXPO_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
@@ -13,14 +13,12 @@ export async function POST(req: Request) {
       return new NextResponse("Missing Groq API key", { status: 500 });
     }
 
-    const session = await getServerSession(NEXT_AUTH_CONFIG!);
-    const userId = session?.user?.id;
-
+    const access = await requireSessionAccess({ allowGuest: true });
     const body = await req.json();
     const { prompt } = body;
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!access.ok) {
+      return access.response;
     }
 
     if (!prompt) {

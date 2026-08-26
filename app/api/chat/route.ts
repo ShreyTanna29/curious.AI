@@ -1,13 +1,23 @@
-﻿import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import Groq from "groq-sdk";
+
 import prismadb from "@/packages/api/prismadb";
-import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
+import {
+  extractEmbeddedImages,
+  hasEmbeddedImage,
+  MAX_CHAT_ATTACHMENTS,
+  sanitizeAssistantContentForModel,
+  stripEmbeddedImages,
+  type ConversationMessage,
+} from "@/lib/chat";
+import { requireSessionAccess } from "@/lib/server/app-session";
 import { generateAndStoreImage } from "@/lib/server/generate-image";
 
 const GROQ_API_KEY =
   process.env.EXPO_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
 const groq = new Groq({ apiKey: GROQ_API_KEY });
+const TEXT_MODEL = "llama-3.3-70b-versatile";
+const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
 
 export interface Chat {
   id: string;
@@ -26,11 +36,6 @@ export interface GroupChat {
   updatedAt?: Date;
 }
 
-type ConversationMessage = {
-  role: "user" | "assistant";
-  content: string;
-};
-
 const IMAGE_INTENT_REGEX =
   /\b(create|generate|draw|make|design|render|illustrate)\b[\s\S]{0,80}\b(image|picture|photo|art|artwork|logo|poster|icon|avatar|visual|illustration)\b|\b(image|picture|photo|art|artwork|logo|poster|icon|avatar|visual|illustration)\b[\s\S]{0,80}\b(create|generate|draw|make|design|render|illustrate)\b|\b(image of|picture of|photo of|illustration of)\b/i;
 
@@ -45,7 +50,10 @@ function hasMarkdownImage(input: string): boolean {
 function sanitizeForTitle(input: string): string {
   return input
     .replace(/!\[[^\]]*\]\((?:data:image|https?:\/\/)[^)]+\)/gi, "[image]")
-    .replace(/data:image\/[a-zA-Z+.-]+;base64,[a-zA-Z0-9+/=]+/g, "[base64-image]")
+    .replace(
+      /data:image\/[a-zA-Z+.-]+;base64,[a-zA-Z0-9+/=]+/g,
+      "[base64-image]"
+    )
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 500);
@@ -83,22 +91,96 @@ function parseClientMessages(input: unknown): ConversationMessage[] {
     .filter((message): message is ConversationMessage => Boolean(message));
 }
 
-async function seedChats(groupChatId: string) {
-  try {
-    const response = await prismadb.groupChat.findFirst({
-      where: { id: groupChatId },
-      include: { chats: true },
-    });
+function getAllowedImageCounts(messages: ConversationMessage[]): number[] {
+  const allowedImageCounts = new Array(messages.length).fill(0);
+  let remainingImages = MAX_CHAT_ATTACHMENTS;
 
-    const previousChats = response?.chats || [];
-    return previousChats.flatMap((entry: Pick<Chat, "prompt" | "response">) => [
-      { role: "user" as const, content: entry.prompt },
-      { role: "assistant" as const, content: String(entry.response) },
-    ]);
-  } catch (error) {
-    console.log(error);
-    return [];
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (message.role !== "user" || remainingImages <= 0) {
+      continue;
+    }
+
+    const imageCount = extractEmbeddedImages(message.content).length;
+    if (!imageCount) {
+      continue;
+    }
+
+    const allowedImages = Math.min(imageCount, remainingImages);
+    allowedImageCounts[index] = allowedImages;
+    remainingImages -= allowedImages;
   }
+
+  return allowedImageCounts;
+}
+
+function buildUserMessageContent(content: string, allowedImageCount: number) {
+  const text = stripEmbeddedImages(content);
+  const images = extractEmbeddedImages(content);
+
+  if (!images.length) {
+    return text || content;
+  }
+
+  const visibleImages = images.slice(0, allowedImageCount);
+  if (!visibleImages.length) {
+    return text || "[Earlier image omitted to stay within the model image limit.]";
+  }
+
+  const parts: Array<
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string } }
+  > = [];
+
+  if (text) {
+    parts.push({ type: "text", text });
+  }
+
+  visibleImages.forEach((image) => {
+    parts.push({
+      type: "image_url",
+      image_url: { url: image.url },
+    });
+  });
+
+  return parts;
+}
+
+function buildGroqMessages(messages: ConversationMessage[]) {
+  const allowedImageCounts = getAllowedImageCounts(messages);
+
+  return messages.map((message, index) => {
+    if (message.role === "user") {
+      return {
+        role: message.role,
+        content: buildUserMessageContent(
+          message.content,
+          allowedImageCounts[index]
+        ),
+      };
+    }
+
+    return {
+      role: message.role,
+      content: sanitizeAssistantContentForModel(message.content),
+    };
+  });
+}
+
+async function seedChats(groupChatId: string, userId: string) {
+  const response = await prismadb.groupChat.findFirst({
+    where: { id: groupChatId, userId },
+    include: { chats: true },
+  });
+
+  if (!response) {
+    return null;
+  }
+
+  return response.chats.flatMap((entry: Pick<Chat, "prompt" | "response">) => [
+    { role: "user" as const, content: entry.prompt },
+    { role: "assistant" as const, content: String(entry.response) },
+  ]);
 }
 
 export async function POST(req: Request) {
@@ -107,8 +189,7 @@ export async function POST(req: Request) {
       return new NextResponse("Missing Groq API key", { status: 500 });
     }
 
-    const session = await getServerSession(NEXT_AUTH_CONFIG!);
-    const userId = session?.user?.id;
+    const access = await requireSessionAccess({ allowGuest: true });
     const body = await req.json();
     let groupChatId =
       typeof body?.groupChatId === "string" ? body.groupChatId : "";
@@ -116,22 +197,53 @@ export async function POST(req: Request) {
     const isIncognito = Boolean(body?.incognito);
     const clientMessages = parseClientMessages(body?.messages);
 
-    if (!userId) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!access.ok) {
+      return access.response;
     }
 
     if (!prompt) {
       return new NextResponse("prompt is required", { status: 400 });
     }
 
-    const previousMessages =
-      isIncognito && clientMessages.length > 0
-        ? clientMessages
-        : groupChatId
-        ? await seedChats(groupChatId)
-        : [];
+    if (groupChatId && !isIncognito && access.isGuest) {
+      return NextResponse.json(
+        {
+          code: "GUEST_UPGRADE_REQUIRED",
+          message:
+            "Guest conversations stay local to this browser. Create an account to save threaded chat history.",
+        },
+        { status: 403 }
+      );
+    }
+
+    let previousMessages: ConversationMessage[] = [];
+
+    if (isIncognito && clientMessages.length > 0) {
+      previousMessages = clientMessages;
+    } else if (groupChatId) {
+      const storedMessages = await seedChats(groupChatId, access.userId);
+
+      if (!storedMessages) {
+        return NextResponse.json(
+          {
+            code: "CHAT_NOT_FOUND",
+            message: "We could not find that chat thread.",
+          },
+          { status: 404 }
+        );
+      }
+
+      previousMessages = storedMessages;
+    }
+
     const userMessage = { role: "user" as const, content: prompt };
     const baseMessages = [...previousMessages, userMessage];
+    const groqMessages = buildGroqMessages(baseMessages);
+    const usesVision = baseMessages.some(
+      (message) => message.role === "user" && hasEmbeddedImage(message.content)
+    );
+    const model = usesVision ? VISION_MODEL : TEXT_MODEL;
+    const promptText = stripEmbeddedImages(prompt).trim();
 
     const systemMessage = {
       role: "system" as const,
@@ -139,11 +251,11 @@ export async function POST(req: Request) {
         "You are a helpful assistant. For normal questions, respond with text directly. Only call the generate_image tool when the user explicitly asks to create/generate/draw/make an image, artwork, illustration, photo, logo, or visual.",
     };
 
-    const wantsImage = isImageRequest(prompt);
+    const wantsImage = isImageRequest(promptText);
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [systemMessage, ...baseMessages],
+      model,
+      messages: [systemMessage, ...groqMessages] as any,
       tools: [
         {
           type: "function",
@@ -194,11 +306,16 @@ export async function POST(req: Request) {
             parsedArgs = {};
           }
 
-          const toolPrompt = parsedArgs.prompt?.trim() || prompt;
+          const toolPrompt =
+            parsedArgs.prompt?.trim() ||
+            promptText ||
+            "Create an image based on the user's request.";
+
           try {
             const imageUrl = await generateAndStoreImage({
               prompt: toolPrompt,
-              userId,
+              userId: access.userId,
+              persist: !access.isGuest,
             });
             generatedImages.push({ imageUrl, prompt: toolPrompt });
 
@@ -243,10 +360,10 @@ export async function POST(req: Request) {
           response = markdownImages;
         } else {
           const finalCompletion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model,
             messages: [
               systemMessage,
-              ...baseMessages,
+              ...groqMessages,
               {
                 role: "assistant",
                 content: assistantMessage?.content || "",
@@ -267,8 +384,9 @@ export async function POST(req: Request) {
     if (wantsImage && !hasMarkdownImage(response)) {
       try {
         const imageUrl = await generateAndStoreImage({
-          prompt,
-          userId,
+          prompt: promptText || prompt,
+          userId: access.userId,
+          persist: !access.isGuest,
         });
         response = `![Generated image](${imageUrl})`;
       } catch (fallbackError) {
@@ -280,7 +398,7 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!isIncognito) {
+    if (!isIncognito && !access.isGuest) {
       const chatData = {
         prompt,
         response: String(response),
@@ -298,7 +416,7 @@ export async function POST(req: Request) {
         const titleResponse = sanitizeForTitle(response);
 
         const titleCompletion = await groq.chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: TEXT_MODEL,
           messages: [
             {
               role: "user",
@@ -315,7 +433,7 @@ export async function POST(req: Request) {
           data: {
             title: String(title),
             chats: { create: chatData },
-            userId,
+            userId: access.userId,
           },
         });
 

@@ -25,6 +25,8 @@ import remarkGfm from "remark-gfm";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGuestSession } from "@/hooks/useGuestSession";
+import { ensureGuestStore, saveGuestCodeWorkspace } from "@/lib/guest-session";
 import { cn } from "@/lib/utils";
 import useWebContainer from "@/hooks/useWebContainer";
 
@@ -75,7 +77,48 @@ const dotLoader = (
   </div>
 );
 
+function findFirstFileNode(nodes: FileStructure[]): FileStructure | null {
+  for (const node of nodes) {
+    if (node.type === "file") {
+      return node;
+    }
+
+    if (node.children?.length) {
+      const match = findFirstFileNode(node.children);
+      if (match) {
+        return match;
+      }
+    }
+  }
+
+  return null;
+}
+
+function findFileNodeById(
+  nodes: FileStructure[],
+  fileId: string
+): FileStructure | null {
+  for (const node of nodes) {
+    if (node.id === fileId && node.type === "file") {
+      return node;
+    }
+
+    if (node.children?.length) {
+      const match = findFileNodeById(node.children, fileId);
+      if (match) {
+        return match;
+      }
+    }
+  }
+
+  return null;
+}
+
+const getRequestErrorMessage = (error: any, fallback: string) =>
+  error?.response?.data?.message || error?.response?.data || error?.message || fallback;
+
 function CodeGenerationPage() {
+  const { isGuest, guestId, guestExpiresAt } = useGuestSession();
   const [fileTree, setFileTree] = useState<FileStructure[]>([]);
   const [selectedFile, setSelectedFile] = useState<FileStructure | null>(null);
   const [userMessages, setUserMessages] = useState<{ text: string }[]>([]);
@@ -110,8 +153,93 @@ function CodeGenerationPage() {
   const serverReadyResolverRef = useRef<((url: string) => void) | null>(null);
   const progressIntervalRef = useRef<Partial<Record<BuildStageKey, ReturnType<typeof setInterval>>>>({});
   const pendingRuntimeStartRef = useRef<{ tree: FileStructure[]; project: DetectedProject } | null>(null);
+  const guestStorageErrorShownRef = useRef(false);
 
   const webContainer = useWebContainer();
+
+  useEffect(() => {
+    if (!isGuest || !guestId || !guestExpiresAt) {
+      return;
+    }
+
+    try {
+      const store = ensureGuestStore({
+        guestId,
+        expiresAt: guestExpiresAt,
+      });
+      const workspace = store.codeWorkspace;
+
+      if (!workspace) {
+        return;
+      }
+
+      const restoredTree = workspace.fileTree as FileStructure[];
+      setFileTree(restoredTree);
+      setUserMessages(workspace.userMessages);
+      setModelMessages(workspace.modelMessages);
+      setExplanations(workspace.explanations);
+      setPrompt(workspace.prompt);
+      setShowPromptSection(workspace.showPromptSection);
+
+      const restoredSelection = workspace.selectedFileId
+        ? findFileNodeById(restoredTree, workspace.selectedFileId)
+        : findFirstFileNode(restoredTree);
+
+      setSelectedFile(restoredSelection);
+    } catch (error) {
+      console.error("Failed to restore guest code workspace.", error);
+      toast.error("We could not restore your guest code workspace.");
+    }
+  }, [guestExpiresAt, guestId, isGuest]);
+
+  useEffect(() => {
+    if (!isGuest || !guestId || !guestExpiresAt) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      try {
+        saveGuestCodeWorkspace(
+          {
+            guestId,
+            expiresAt: guestExpiresAt,
+          },
+          {
+            fileTree,
+            selectedFileId: selectedFile?.id || null,
+            userMessages,
+            modelMessages,
+            explanations,
+            prompt,
+            showPromptSection,
+            updatedAt: new Date().toISOString(),
+          }
+        );
+        guestStorageErrorShownRef.current = false;
+      } catch (error) {
+        console.error("Failed to persist guest code workspace.", error);
+        if (!guestStorageErrorShownRef.current) {
+          toast.error("We could not save your guest code workspace locally.");
+          guestStorageErrorShownRef.current = true;
+        }
+      }
+    }, 400);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, [
+    explanations,
+    fileTree,
+    guestExpiresAt,
+    guestId,
+    isGuest,
+    modelMessages,
+    prompt,
+    selectedFile?.id,
+    showPromptSection,
+    userMessages,
+  ]);
 
   // Theme observer
   useEffect(() => {
@@ -672,16 +800,8 @@ try {
       let nextTree: FileStructure[] = [];
       dedupedFiles.forEach((content, name) => { nextTree = mergeFileIntoTree(nextTree, name, content); });
 
-      const findFirstFile = (nodes: FileStructure[]): FileStructure | null => {
-        for (const n of nodes) {
-          if (n.type === "file") return n;
-          if (n.children?.length) { const f = findFirstFile(n.children); if (f) return f; }
-        }
-        return null;
-      };
-
       setFileTree(nextTree);
-      setSelectedFile(findFirstFile(nextTree));
+      setSelectedFile(findFirstFileNode(nextTree));
       setOpenFolders([]);
       setExplanations([explanation]);
       setShowPromptSection(false);
@@ -721,10 +841,15 @@ try {
         setDetectedProject(null);
       }
     } catch (error: any) {
+      if (error?.response?.data?.code === "GUEST_SESSION_EXPIRED") {
+        toast.error("Your guest session expired. Sign in to continue.");
+        return;
+      }
+
       if (error?.status === 401 || error?.response?.status === 401) {
-        toast.error("Please login to continue");
+        toast.error(getRequestErrorMessage(error, "Please login to continue"));
       } else {
-        toast.error(error?.message || "Something went wrong.");
+        toast.error(getRequestErrorMessage(error, "Something went wrong."));
       }
       console.error(error);
     } finally {
@@ -926,6 +1051,24 @@ try {
       <div className="pointer-events-none absolute inset-0 [background-image:linear-gradient(to_right,rgba(100,116,139,0.12)_1px,transparent_1px),linear-gradient(to_bottom,rgba(100,116,139,0.12)_1px,transparent_1px)] [background-size:34px_34px] dark:[background-image:linear-gradient(to_right,rgba(161,161,170,0.09)_1px,transparent_1px),linear-gradient(to_bottom,rgba(161,161,170,0.09)_1px,transparent_1px)]" />
 
       <div className="relative mx-auto flex h-full w-full max-w-7xl flex-col gap-4">
+        {isGuest ? (
+          <Card className="border-cyan-200/80 bg-cyan-50/80 backdrop-blur-xl dark:border-cyan-400/20 dark:bg-cyan-400/10">
+            <CardContent className="flex flex-col gap-2 p-4 text-sm text-cyan-900 dark:text-cyan-100 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-semibold">Guest code workspace</p>
+                <p className="mt-1 text-xs md:text-sm">
+                  Your generated files and edit history stay local to this browser
+                  during guest mode and will be imported after you create an account.
+                </p>
+              </div>
+              <p className="text-xs text-cyan-800 dark:text-cyan-100/80">
+                Preview processes restart after reloads, even when the code itself
+                is restored.
+              </p>
+            </CardContent>
+          </Card>
+        ) : null}
+
         <AnimatePresence mode="wait">
           {showPromptSection ? (
             <motion.section

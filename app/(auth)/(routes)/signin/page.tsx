@@ -1,8 +1,10 @@
-import { SignIn } from '@/components/auth/signin'
-import React from 'react'
+import { SignIn } from "@/components/auth/signin";
+import React, { Suspense } from "react";
 
 export default function SignUpPage() {
-    return (
-        <SignIn />
-    )
+  return (
+    <Suspense>
+      <SignIn />
+    </Suspense>
+  );
 }

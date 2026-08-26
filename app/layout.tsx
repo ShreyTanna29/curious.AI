@@ -4,6 +4,7 @@ import "./globals.css";
 import { ToasterProvider } from "@/components/extra/toaster.provider";
 import NextTopLoader from "nextjs-toploader";
 import { Provider } from "@/packages/provider";
+import GuestSessionManager from "@/components/guest/guest-session-manager";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -42,7 +43,10 @@ export default function RootLayout({
       >
         <NextTopLoader showSpinner={false} />
         <ToasterProvider />
-        <Provider>{children}</Provider>
+        <Provider>
+          <GuestSessionManager />
+          {children}
+        </Provider>
       </body>
     </html>
   );

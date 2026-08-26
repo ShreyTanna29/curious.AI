@@ -27,6 +27,8 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import { Loader2, Palette, Settings2, ShieldCheck } from "lucide-react";
 import Themes from "@/components/extra/themes";
+import { useGuestSession } from "@/hooks/useGuestSession";
+import { GuestFeatureGate } from "@/components/guest/guest-feature-gate";
 
 const githubSchema = z.object({
   token: z.string().min(1, "GitHub token is required"),
@@ -50,6 +52,7 @@ const clickupSchema = z.object({
 export default function SettingsPage() {
   const { toast } = useToast();
   const { data: session } = useSession();
+  const { isGuest } = useGuestSession();
   const [isLoading, setIsLoading] = useState(false);
   const integrationCardClass =
     "border-border/70 bg-card/90 shadow-sm backdrop-blur-xl";
@@ -132,6 +135,19 @@ export default function SettingsPage() {
 
   if (!session) {
     return null;
+  }
+
+  if (isGuest) {
+    return (
+      <GuestFeatureGate
+        title="Account settings require a registered profile"
+        description="Guest mode skips permanent credentials and profile storage, so integrations and account preferences unlock after you sign up."
+        details={[
+          "Third-party credentials are tied to a saved user account for security.",
+          "Create an account to keep integrations, themes, and future settings synced across sessions.",
+        ]}
+      />
+    );
   }
 
   const renderActions = (service: string) => (

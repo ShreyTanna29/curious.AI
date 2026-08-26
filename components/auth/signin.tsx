@@ -7,6 +7,7 @@ import GoogleIcon from "@/components/icons/google";
 import { signIn as SignInAuth } from "next-auth/react";
 import Link from "next/link";
 import LoadingSpinner from "../loaders/loadingSpinner";
+import { useSearchParams } from "next/navigation";
 
 const isGoogleAuthEnabled =
   process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
@@ -19,6 +20,10 @@ export function SignIn() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const guestExpired = searchParams.get("guestExpired") === "1";
+  const isUpgradeFlow = searchParams.get("upgrade") === "1";
 
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -35,6 +40,16 @@ export function SignIn() {
     } catch (thisError: any) {
       console.log(thisError);
       setGoogleLoading(false);
+    }
+  };
+
+  const guestHandler = async () => {
+    try {
+      setGuestLoading(true);
+      await SignInAuth("guest", { callbackUrl: "/dashboard" });
+    } catch (thisError: any) {
+      console.log(thisError);
+      setGuestLoading(false);
     }
   };
 
@@ -95,6 +110,14 @@ export function SignIn() {
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Access your dashboard and continue where you left off.
           </p>
+
+          {guestExpired || isUpgradeFlow ? (
+            <div className="mt-4 rounded-2xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
+              {guestExpired
+                ? "Your guest session expired. Sign in or create an account to continue and recover local guest work."
+                : "Sign in to turn your current guest session into a saved account experience."}
+            </div>
+          ) : null}
 
           <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             <LabelInputContainer>
@@ -166,6 +189,16 @@ export function SignIn() {
                 </button>
               </>
             )}
+
+            <button
+              className="relative flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+              type="button"
+              onClick={() => guestHandler()}
+              disabled={loading || googleLoading || guestLoading}
+            >
+              {guestLoading ? <LoadingSpinner className="" /> : <span>Continue as Guest</span>}
+              <BottomGradient />
+            </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-700 dark:text-slate-300">

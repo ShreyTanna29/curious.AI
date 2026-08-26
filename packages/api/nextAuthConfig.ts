@@ -3,6 +3,7 @@ import prismadb from "./prismadb";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
 import { SessionStrategy } from "next-auth";
+import { createGuestSessionWindow, isGuestExpired } from "@/lib/guest-session";
 
 const hasGoogleOAuth =
   Boolean(process.env.GOOGLE_CLIENT_ID) &&
@@ -54,6 +55,25 @@ export const NEXT_AUTH_CONFIG = {
         };
       },
     }),
+    CredentialsProvider({
+      id: "guest",
+      name: "Guest",
+      credentials: {},
+      async authorize() {
+        const { guestId, guestStartedAt, guestExpiresAt, email } =
+          createGuestSessionWindow();
+
+        return {
+          id: guestId,
+          email,
+          name: "Guest User",
+          isGuest: true,
+          guestId,
+          guestStartedAt,
+          guestExpiresAt,
+        };
+      },
+    }),
     ...(hasGoogleOAuth
       ? [
           GoogleProvider({
@@ -73,6 +93,10 @@ export const NEXT_AUTH_CONFIG = {
   },
   callbacks: {
     signIn: async ({ user, account }: any) => {
+      if (account?.provider === "guest") {
+        return true;
+      }
+
       if (account?.provider === "google") {
         const existingUser = await prismadb.user.upsert({
           where: {
@@ -93,17 +117,44 @@ export const NEXT_AUTH_CONFIG = {
       }
       return true;
     },
-    session: async ({ session }: any) => {
+    session: async ({ session, token }: any) => {
+      session.user.id = token.userId || session.user.id;
+      session.user.isGuest = Boolean(token.isGuest);
+      session.user.guestId = token.guestId || undefined;
+      session.guestStartedAt = token.guestStartedAt || null;
+      session.guestExpiresAt = token.guestExpiresAt || null;
+      session.error = token.error;
+
+      if (token.isGuest) {
+        session.user.name = token.name || "Guest User";
+        session.user.email = session.user.email || token.email || "";
+        session.user.image = null;
+        return session;
+      }
+
+      if (!session.user?.email) {
+        return session;
+      }
+
       const dbUser = await prismadb.user.findUnique({
         where: {
           email: session.user.email,
         },
       });
-      session.user.id = dbUser?.id;
+
+      session.user.id = dbUser?.id || token.userId;
       session.user.image = dbUser?.profilePic;
       return session;
     },
-    async jwt({ token, account }: any) {
+    async jwt({ token, account, user }: any) {
+      if (user) {
+        token.userId = user.id;
+        token.isGuest = Boolean(user.isGuest);
+        token.guestId = user.guestId;
+        token.guestStartedAt = user.guestStartedAt;
+        token.guestExpiresAt = user.guestExpiresAt;
+      }
+
       // Initial sign-in
       if (account) {
         token.provider = account.provider;
@@ -112,6 +163,16 @@ export const NEXT_AUTH_CONFIG = {
           token.refreshToken = account.refresh_token;
           token.accessTokenExpires = account.expires_at * 1000; // Convert to ms
         }
+      }
+
+      if (token.isGuest) {
+        if (isGuestExpired(token.guestExpiresAt)) {
+          token.error = "GuestSessionExpired";
+        } else if (token.error === "GuestSessionExpired") {
+          delete token.error;
+        }
+
+        return token;
       }
 
       // Only Google OAuth sessions need token refresh logic.

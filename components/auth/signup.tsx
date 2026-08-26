@@ -8,6 +8,7 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import GoogleIcon from "../icons/google";
 import LoadingSpinner from "../loaders/loadingSpinner";
+import { useSearchParams } from "next/navigation";
 
 const isGoogleAuthEnabled =
   process.env.NEXT_PUBLIC_ENABLE_GOOGLE_AUTH === "true";
@@ -23,6 +24,9 @@ export function Signup() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [guestLoading, setGuestLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const isUpgradeFlow = searchParams.get("upgrade") === "1";
 
   useEffect(() => {
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
@@ -39,6 +43,16 @@ export function Signup() {
     } catch (thisError: any) {
       console.log(thisError);
       setGoogleLoading(false);
+    }
+  };
+
+  const guestHandler = async () => {
+    try {
+      setGuestLoading(true);
+      await signIn("guest", { callbackUrl: "/dashboard" });
+    } catch (thisError: any) {
+      console.log(thisError);
+      setGuestLoading(false);
     }
   };
 
@@ -99,6 +113,13 @@ export function Signup() {
           <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
             Set up your account in less than a minute.
           </p>
+
+          {isUpgradeFlow ? (
+            <div className="mt-4 rounded-2xl border border-cyan-300/70 bg-cyan-50 px-4 py-3 text-sm text-cyan-900 dark:border-cyan-400/30 dark:bg-cyan-400/10 dark:text-cyan-100">
+              Create an account to keep the work from your current guest session
+              and unlock saved history across devices.
+            </div>
+          ) : null}
 
           <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -211,6 +232,20 @@ export function Signup() {
                 </button>
               </>
             )}
+
+            <button
+              className="relative flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-slate-300 bg-slate-50 font-medium text-slate-700 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+              type="button"
+              onClick={() => guestHandler()}
+              disabled={loading || googleLoading || guestLoading}
+            >
+              {guestLoading ? (
+                <LoadingSpinner className="" />
+              ) : (
+                <span>Continue as Guest</span>
+              )}
+              <BottomGradient />
+            </button>
           </form>
 
           <p className="mt-8 text-center text-sm text-slate-700 dark:text-slate-300">
