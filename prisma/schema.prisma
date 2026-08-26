@@ -58,7 +58,20 @@ model User {
   profilePic String?
   createdAt  DateTime @default(now())
   groupChat  GroupChat[]
+  speeches   Speech[]
   serviceCredentials UserServiceCredentials[]
+}
+
+model Speech {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt      String
+  audioUrl    String
+  voicePreset String
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model UserServiceCredentials {

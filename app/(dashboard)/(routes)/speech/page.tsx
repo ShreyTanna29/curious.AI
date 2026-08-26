@@ -36,6 +36,27 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { VOICE_PRESETS, VoiceGender } from "@/lib/voice_presets";
+import { SpeechHistorySidebar } from "@/components/sidebar/speech-history-sidebar";
+
+type SpeechHistoryItem = {
+  id: string;
+  prompt: string;
+  audioUrl: string;
+  voicePreset: string;
+  createdAt: string;
+};
+
+const voicePresetMetaMap = Object.values(VOICE_PRESETS)
+  .flat()
+  .reduce<
+    Record<
+      string,
+      (typeof VOICE_PRESETS)[VoiceGender][number]
+    >
+  >((accumulator, voice) => {
+    accumulator[voice.id] = voice;
+    return accumulator;
+  }, {});
 
 const Loader = ({ size = "default" }: { size?: "default" | "lg" }) => (
   <div className={`animate-spin ${size === "lg" ? "h-8 w-8" : "h-4 w-4"}`}>
@@ -72,8 +93,13 @@ const formSchema = z.object({
 
 const SpeechPage = () => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [history, setHistory] = useState<SpeechHistoryItem[]>([]);
+  const [hasFetchedHistory, setHasFetchedHistory] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -89,6 +115,51 @@ const SpeechPage = () => {
   const onGenderChange = (gender: VoiceGender) => {
     form.setValue("gender", gender);
     form.setValue("voicePreset", VOICE_PRESETS[gender][0].id);
+  };
+
+  const loadHistory = async () => {
+    try {
+      setIsHistoryLoading(true);
+
+      const response = await fetch("/api/speech", {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to load speech history");
+      }
+
+      const data = (await response.json()) as SpeechHistoryItem[];
+      setHistory(Array.isArray(data) ? data : []);
+      setHasFetchedHistory(true);
+    } catch (error) {
+      console.error("Error loading speech history:", error);
+      toast.error("Failed to load speech history");
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  };
+
+  const toggleHistory = () => {
+    const nextOpen = !isHistoryOpen;
+    setIsHistoryOpen(nextOpen);
+
+    if (nextOpen && !hasFetchedHistory) {
+      void loadHistory();
+    }
+  };
+
+  const handleSelectHistory = (item: SpeechHistoryItem) => {
+    const voicePreset = voicePresetMetaMap[item.voicePreset];
+
+    setSelectedHistoryId(item.id);
+    setAudioUrl(item.audioUrl);
+    setHasError(false);
+    form.setValue("text", item.prompt);
+    form.setValue("gender", voicePreset?.gender ?? "male");
+    form.setValue("voicePreset", item.voicePreset);
+    setIsHistoryOpen(false);
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -108,17 +179,20 @@ const SpeechPage = () => {
         }),
       });
 
+      const data = await response.json().catch(() => null);
+
       if (!response.ok) {
-        throw new Error("Failed to generate speech");
+        throw new Error(data?.error || "Failed to generate speech");
       }
 
-      const data = await response.json();
-
-      if (!data.audioUrl) {
+      if (!data.audioUrl || !data.interaction) {
         throw new Error("No audio URL received");
       }
 
       setAudioUrl(data.audioUrl);
+      setSelectedHistoryId(data.interaction.id);
+      setHistory((current) => [data.interaction as SpeechHistoryItem, ...current]);
+      setHasFetchedHistory(true);
       toast.success("Speech generated successfully!");
     } catch (error: any) {
       console.error("Error generating speech:", error);
@@ -136,14 +210,27 @@ const SpeechPage = () => {
 
       <div className="relative mx-auto flex min-h-full w-full max-w-7xl flex-col gap-4">
         <section className="rounded-3xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-slate-100 px-5 py-6 text-slate-900 shadow-[0_24px_60px_rgba(15,23,42,0.12)] dark:border-white/20 dark:from-black dark:via-zinc-950 dark:to-black dark:text-white dark:shadow-[0_24px_60px_rgba(0,0,0,0.5)] md:px-8 md:py-8">
-          <p className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs uppercase tracking-widest text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-zinc-200">
-            <Sparkles className="h-3.5 w-3.5" />
-            Speech Studio
-          </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">Create high-quality voice outputs in seconds.</h1>
-          <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-200 md:text-base">
-            Compose your text, pick voice style, and export polished audio for content, demos, and product narration.
-          </p>
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs uppercase tracking-widest text-slate-700 dark:border-white/20 dark:bg-white/10 dark:text-zinc-200">
+                <Sparkles className="h-3.5 w-3.5" />
+                Speech Studio
+              </p>
+              <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">Create high-quality voice outputs in seconds.</h1>
+              <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-200 md:text-base">
+                Compose your text, pick voice style, and export polished audio for content, demos, and product narration.
+              </p>
+            </div>
+
+            <SpeechHistorySidebar
+              history={history}
+              isOpen={isHistoryOpen}
+              isLoading={isHistoryLoading}
+              selectedId={selectedHistoryId}
+              onSelect={handleSelectHistory}
+              onToggle={toggleHistory}
+            />
+          </div>
         </section>
 
         <section className="grid grid-cols-1 gap-4 lg:grid-cols-5">
@@ -332,6 +419,7 @@ const SpeechPage = () => {
             </CardContent>
           </Card>
         </section>
+
       </div>
     </main>
   );

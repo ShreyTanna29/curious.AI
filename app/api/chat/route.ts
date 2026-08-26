@@ -4,10 +4,20 @@ import Groq from "groq-sdk";
 import prismadb from "@/packages/api/prismadb";
 import { NEXT_AUTH_CONFIG } from "@/packages/api/nextAuthConfig";
 import { generateAndStoreImage } from "@/lib/server/generate-image";
+import {
+  extractEmbeddedImages,
+  hasEmbeddedImage,
+  MAX_CHAT_ATTACHMENTS,
+  sanitizeAssistantContentForModel,
+  stripEmbeddedImages,
+  type ConversationMessage,
+} from "@/lib/chat";
 
 const GROQ_API_KEY =
   process.env.EXPO_PUBLIC_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
 const groq = new Groq({ apiKey: GROQ_API_KEY });
+const TEXT_MODEL = "llama-3.3-70b-versatile";
+const VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct";
 
 export interface Chat {
   id: string;
@@ -25,11 +35,6 @@ export interface GroupChat {
   createdAt?: Date;
   updatedAt?: Date;
 }
-
-type ConversationMessage = {
-  role: "user" | "assistant";
-  content: string;
-};
 
 const IMAGE_INTENT_REGEX =
   /\b(create|generate|draw|make|design|render|illustrate)\b[\s\S]{0,80}\b(image|picture|photo|art|artwork|logo|poster|icon|avatar|visual|illustration)\b|\b(image|picture|photo|art|artwork|logo|poster|icon|avatar|visual|illustration)\b[\s\S]{0,80}\b(create|generate|draw|make|design|render|illustrate)\b|\b(image of|picture of|photo of|illustration of)\b/i;
@@ -83,6 +88,79 @@ function parseClientMessages(input: unknown): ConversationMessage[] {
     .filter((message): message is ConversationMessage => Boolean(message));
 }
 
+function getAllowedImageCounts(messages: ConversationMessage[]): number[] {
+  const allowedImageCounts = new Array(messages.length).fill(0);
+  let remainingImages = MAX_CHAT_ATTACHMENTS;
+
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const message = messages[index];
+    if (message.role !== "user" || remainingImages <= 0) {
+      continue;
+    }
+
+    const imageCount = extractEmbeddedImages(message.content).length;
+    if (!imageCount) {
+      continue;
+    }
+
+    const allowedImages = Math.min(imageCount, remainingImages);
+    allowedImageCounts[index] = allowedImages;
+    remainingImages -= allowedImages;
+  }
+
+  return allowedImageCounts;
+}
+
+function buildUserMessageContent(content: string, allowedImageCount: number) {
+  const text = stripEmbeddedImages(content);
+  const images = extractEmbeddedImages(content);
+
+  if (!images.length) {
+    return text || content;
+  }
+
+  const visibleImages = images.slice(0, allowedImageCount);
+  if (!visibleImages.length) {
+    return text || "[Earlier image omitted to stay within the model image limit.]";
+  }
+
+  const parts: Array<
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string } }
+  > = [];
+
+  if (text) {
+    parts.push({ type: "text", text });
+  }
+
+  visibleImages.forEach((image) => {
+    parts.push({
+      type: "image_url",
+      image_url: { url: image.url },
+    });
+  });
+
+  return parts;
+}
+
+function buildGroqMessages(messages: ConversationMessage[]) {
+  const allowedImageCounts = getAllowedImageCounts(messages);
+
+  return messages.map((message, index) => {
+    if (message.role === "user") {
+      return {
+        role: message.role,
+        content: buildUserMessageContent(message.content, allowedImageCounts[index]),
+      };
+    }
+
+    return {
+      role: message.role,
+      content: sanitizeAssistantContentForModel(message.content),
+    };
+  });
+}
+
 async function seedChats(groupChatId: string) {
   try {
     const response = await prismadb.groupChat.findFirst({
@@ -132,6 +210,12 @@ export async function POST(req: Request) {
         : [];
     const userMessage = { role: "user" as const, content: prompt };
     const baseMessages = [...previousMessages, userMessage];
+    const groqMessages = buildGroqMessages(baseMessages);
+    const usesVision = baseMessages.some(
+      (message) => message.role === "user" && hasEmbeddedImage(message.content)
+    );
+    const model = usesVision ? VISION_MODEL : TEXT_MODEL;
+    const promptText = stripEmbeddedImages(prompt).trim();
 
     const systemMessage = {
       role: "system" as const,
@@ -139,11 +223,11 @@ export async function POST(req: Request) {
         "You are a helpful assistant. For normal questions, respond with text directly. Only call the generate_image tool when the user explicitly asks to create/generate/draw/make an image, artwork, illustration, photo, logo, or visual.",
     };
 
-    const wantsImage = isImageRequest(prompt);
+    const wantsImage = isImageRequest(promptText);
 
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [systemMessage, ...baseMessages],
+      model,
+      messages: [systemMessage, ...groqMessages] as any,
       tools: [
         {
           type: "function",
@@ -194,7 +278,10 @@ export async function POST(req: Request) {
             parsedArgs = {};
           }
 
-          const toolPrompt = parsedArgs.prompt?.trim() || prompt;
+          const toolPrompt =
+            parsedArgs.prompt?.trim() ||
+            promptText ||
+            "Create an image based on the user's request.";
           try {
             const imageUrl = await generateAndStoreImage({
               prompt: toolPrompt,
@@ -243,10 +330,10 @@ export async function POST(req: Request) {
           response = markdownImages;
         } else {
           const finalCompletion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model,
             messages: [
               systemMessage,
-              ...baseMessages,
+              ...groqMessages,
               {
                 role: "assistant",
                 content: assistantMessage?.content || "",
@@ -267,7 +354,7 @@ export async function POST(req: Request) {
     if (wantsImage && !hasMarkdownImage(response)) {
       try {
         const imageUrl = await generateAndStoreImage({
-          prompt,
+          prompt: promptText || prompt,
           userId,
         });
         response = `![Generated image](${imageUrl})`;
@@ -298,7 +385,7 @@ export async function POST(req: Request) {
         const titleResponse = sanitizeForTitle(response);
 
         const titleCompletion = await groq.chat.completions.create({
-          model: "llama-3.3-70b-versatile",
+          model: TEXT_MODEL,
           messages: [
             {
               role: "user",

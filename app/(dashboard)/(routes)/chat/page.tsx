@@ -8,10 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { ChangeEvent, useMemo, useRef, useState } from "react";
 import Loader from "@/components/loaders/loader";
 import { cn } from "@/lib/utils";
-import BotAvatar from "@/components/extra/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +18,7 @@ import {
   Eye,
   EyeOff,
   FileText,
+  ImagePlus,
   Newspaper,
   Quote,
   SendHorizontal,
@@ -27,36 +27,46 @@ import {
 } from "lucide-react";
 import remarkGfm from "remark-gfm";
 import { HistorySidebar } from "@/components/sidebar/history-sidebar";
-
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
+import { ChatAttachmentPreview } from "@/components/chat/chat-attachment-preview";
+import {
+  buildPromptWithAttachment,
+  extractEmbeddedImages,
+  isImageOnlyMessage,
+  MAX_CHAT_ATTACHMENT_BYTES,
+  safeUrlTransform,
+  stripEmbeddedImages,
+  type ConversationMessage,
+} from "@/lib/chat";
+import BotAvatar from "@/components/extra/bot.avatar";
 
 const chatBootstrapKey = (chatId: string) => `chat-bootstrap:${chatId}`;
+const MAX_ATTACHMENT_SIZE_LABEL = `${
+  MAX_CHAT_ATTACHMENT_BYTES / (1024 * 1024)
+}MB`;
 
-const safeUrlTransform = (url: string) => {
-  if (
-    url.startsWith("data:image/") ||
-    url.startsWith("http://") ||
-    url.startsWith("https://") ||
-    url.startsWith("/")
-  ) {
-    return url;
-  }
-  return "";
-};
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-const IMAGE_ONLY_MESSAGE_REGEX =
-  /^\s*(?:!\[[^\]]*\]\((?:data:image\/|https?:\/\/|\/)[^)]+\)\s*)+$/i;
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
 
-const isImageOnlyMessage = (content: string): boolean =>
-  IMAGE_ONLY_MESSAGE_REGEX.test(content.trim());
+      reject(new Error("Failed to read the selected image."));
+    };
+
+    reader.onerror = () => reject(new Error("Failed to read the selected image."));
+    reader.readAsDataURL(file);
+  });
 
 function ConversationPage() {
   const router = useRouter();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [isIncognito, setIsIncognito] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,6 +76,8 @@ function ConversationPage() {
   });
 
   const isLoading = form.formState.isSubmitting;
+  const promptValue = form.watch("prompt") || "";
+  const canSend = Boolean(promptValue.trim() || selectedImage);
 
   const suggestions = useMemo(
     () => [
@@ -98,36 +110,81 @@ function ConversationPage() {
         accent: "from-violet-400/20 to-fuchsia-500/10",
       },
     ],
-    [],
+    []
   );
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const handleImageSelection = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
     try {
-      const userMessage: Message = {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please choose a valid image file.");
+        return;
+      }
+
+      if (file.size > MAX_CHAT_ATTACHMENT_BYTES) {
+        toast.error(`Please upload an image smaller than ${MAX_ATTACHMENT_SIZE_LABEL}.`);
+        return;
+      }
+
+      const dataUrl = await readFileAsDataUrl(file);
+      setSelectedImage(dataUrl);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to read the selected image.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const prompt = buildPromptWithAttachment(values.prompt, selectedImage);
+
+    if (!prompt) {
+      toast.error("Add a message or image before sending.");
+      return;
+    }
+
+    try {
+      const userMessage: ConversationMessage = {
         role: "user",
-        content: values.prompt,
+        content: prompt,
       };
 
       const response = await axios.post("/api/chat", {
-        prompt: values.prompt,
+        prompt,
         messages: isIncognito ? messages : undefined,
         incognito: isIncognito,
       });
 
-      const newMessage: Message = {
+      const newMessage: ConversationMessage = {
         role: "assistant",
         content: String(response.data.response),
       };
 
       const nextMessages = [userMessage, newMessage];
       setMessages((current) => [...current, ...nextMessages]);
-      form.reset();
+      form.reset({ prompt: "" });
+      setSelectedImage(null);
+
       if (!isIncognito && response.data.groupChatId) {
         const groupChatId = String(response.data.groupChatId);
-        sessionStorage.setItem(
-          chatBootstrapKey(groupChatId),
-          JSON.stringify({ messages: nextMessages, createdAt: Date.now() }),
-        );
+
+        try {
+          sessionStorage.setItem(
+            chatBootstrapKey(groupChatId),
+            JSON.stringify({ messages: nextMessages, createdAt: Date.now() })
+          );
+        } catch (storageError) {
+          console.warn("Skipping chat bootstrap cache", storageError);
+        }
+
         router.push(`/chat/${groupChatId}`);
       }
     } catch (error: any) {
@@ -149,8 +206,12 @@ function ConversationPage() {
                 <Sparkles className="h-3.5 w-3.5" />
                 AI Chat
               </p>
-              <h1 className="mt-2 text-xl font-semibold md:text-2xl">How can I help you today?</h1>
-              <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-200 md:text-sm">Ask anything from research to creative generation in one conversation.</p>
+              <h1 className="mt-2 text-xl font-semibold md:text-2xl">
+                How can I help you today?
+              </h1>
+              <p className="mt-0.5 text-xs text-slate-600 dark:text-slate-200 md:text-sm">
+                Ask with text, upload an image, or combine both in one conversation.
+              </p>
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -161,10 +222,14 @@ function ConversationPage() {
                   "inline-flex h-10 items-center gap-2 rounded-lg border px-3 text-sm",
                   isIncognito
                     ? "border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100 dark:hover:bg-amber-400/20"
-                    : "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800",
+                    : "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 dark:border-white/15 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
                 )}
               >
-                {isIncognito ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {isIncognito ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
                 <span>{isIncognito ? "Incognito On" : "Incognito Off"}</span>
               </Button>
               <HistorySidebar />
@@ -177,7 +242,7 @@ function ConversationPage() {
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white md:text-2xl">
                   How can I help you today?
                 </h2>
-               
+
                 <div className="mt-6 grid grid-cols-1 gap-2 md:grid-cols-2">
                   {suggestions.map((item) => (
                     <Button
@@ -190,10 +255,15 @@ function ConversationPage() {
                       }}
                       className={cn(
                         "group relative h-8 w-full justify-center gap-2 overflow-hidden rounded-full border border-slate-300/80 bg-white/80 px-3 text-left hover:bg-white dark:border-white/15 dark:bg-zinc-950/80 dark:hover:bg-zinc-900",
-                        "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(2,6,23,0.12)] dark:hover:shadow-[0_8px_22px_rgba(0,0,0,0.35)]",
+                        "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(2,6,23,0.12)] dark:hover:shadow-[0_8px_22px_rgba(0,0,0,0.35)]"
                       )}
                     >
-                      <span className={cn("pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100", item.accent)} />
+                      <span
+                        className={cn(
+                          "pointer-events-none absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100",
+                          item.accent
+                        )}
+                      />
                       <span className="relative flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 bg-white/80 dark:border-white/15 dark:bg-black/20">
                         <item.icon className="h-3 w-3 text-sky-500" />
                       </span>
@@ -213,7 +283,10 @@ function ConversationPage() {
 
                   if (imageOnlyAssistant) {
                     return (
-                      <div key={`${message.role}-${index}`} className="mr-auto w-full max-w-sm md:max-w-md">
+                      <div
+                        key={`${message.role}-${index}`}
+                        className="mr-auto w-full max-w-sm md:max-w-md"
+                      >
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           urlTransform={safeUrlTransform}
@@ -241,15 +314,13 @@ function ConversationPage() {
                         "rounded-2xl border px-3.5 py-2.5 md:px-4 md:py-3.5",
                         message.role === "user"
                           ? "ml-auto w-fit max-w-[85%] border-sky-200/70 bg-gradient-to-br from-sky-500/10 to-indigo-500/10"
-                          : "mr-auto w-full max-w-4xl border-slate-200/70 bg-white/90 dark:border-white/10 dark:bg-zinc-950/80",
+                          : "mr-auto w-full max-w-4xl border-slate-200/70 bg-white/90 dark:border-white/10 dark:bg-zinc-950/80"
                       )}
                     >
                       <div className="flex items-start gap-3">
                         {message.role === "assistant" ? <BotAvatar /> : null}
                         {message.role === "user" ? (
-                          <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 dark:text-zinc-200 md:text-base md:leading-7">
-                            {message.content}
-                          </p>
+                          <UserMessageContent content={message.content} />
                         ) : (
                           <ReactMarkdown
                             remarkPlugins={[remarkGfm]}
@@ -268,7 +339,10 @@ function ConversationPage() {
                                 </div>
                               ),
                               code: ({ ...props }) => (
-                                <code className="rounded bg-slate-100 px-1.5 py-1 text-[0.92em] dark:bg-zinc-900" {...props} />
+                                <code
+                                  className="rounded bg-slate-100 px-1.5 py-1 text-[0.92em] dark:bg-zinc-900"
+                                  {...props}
+                                />
                               ),
                             }}
                             className="w-full overflow-hidden text-sm leading-6 text-slate-700 dark:text-zinc-200 md:text-base md:leading-7"
@@ -290,25 +364,45 @@ function ConversationPage() {
                 Incognito mode is active. This chat is not saved and will not appear in history.
               </p>
             ) : null}
+
+            {selectedImage ? (
+              <ChatAttachmentPreview
+                attachmentUrl={selectedImage}
+                disabled={isLoading}
+                onRemove={() => setSelectedImage(null)}
+              />
+            ) : null}
+
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="mx-auto grid w-full max-w-4xl grid-cols-12 gap-2 rounded-2xl border border-slate-200/80 bg-white/90 p-2 shadow-[0_10px_28px_rgba(15,23,42,0.08)] transition dark:border-white/10 dark:bg-zinc-950/90 dark:shadow-[0_10px_28px_rgba(0,0,0,0.35)] md:gap-3 md:p-2.5"
               >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelection}
+                  className="hidden"
+                />
+
                 <FormField
                   name="prompt"
                   render={({ field }) => (
-                    <FormItem className="col-span-12 lg:col-span-10">
+                    <FormItem className="col-span-12 lg:col-span-9">
                       <FormControl>
                         <Textarea
                           className="!h-11 !min-h-[44px] max-h-40 resize-none rounded-xl border-0 bg-transparent px-2.5 py-2 text-sm leading-6 shadow-none focus-visible:ring-0 md:text-base"
                           disabled={isLoading}
-                          placeholder="Ask anything. Press Enter to send, Shift + Enter for newline."
+                          placeholder="Ask anything or upload an image. Press Enter to send, Shift + Enter for newline."
                           {...field}
                           onInput={(e) => {
                             const textarea = e.target as HTMLTextAreaElement;
                             textarea.style.height = "auto";
-                            textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 44), 160)}px`;
+                            textarea.style.height = `${Math.min(
+                              Math.max(textarea.scrollHeight, 44),
+                              160
+                            )}px`;
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey) {
@@ -321,11 +415,35 @@ function ConversationPage() {
                     </FormItem>
                   )}
                 />
+
                 <Button
-                  className="col-span-12 h-11 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_10px_24px_rgba(8,145,178,0.35)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-400 hover:shadow-[0_12px_28px_rgba(8,145,178,0.45)] dark:from-white dark:to-white dark:text-slate-900 dark:hover:from-slate-100 dark:hover:to-slate-100 dark:shadow-[0_8px_20px_rgba(255,255,255,0.18)] disabled:opacity-70 lg:col-span-2 lg:h-11"
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
+                  className={cn(
+                    "col-span-6 h-11 rounded-xl border px-3 text-sm lg:col-span-1",
+                    selectedImage
+                      ? "border-cyan-300 bg-cyan-50 text-cyan-800 hover:bg-cyan-100 dark:border-cyan-400/40 dark:bg-cyan-400/10 dark:text-cyan-100 dark:hover:bg-cyan-400/20"
+                      : "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-zinc-950/90 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                  )}
                 >
-                  {isLoading ? <Loader className="h-5 w-5" /> : <span className="inline-flex items-center gap-2">Send <SendHorizontal className="h-4 w-4" /></span>}
+                  <span className="inline-flex items-center gap-2">
+                    <ImagePlus className="h-4 w-4" />
+                  </span>
+                </Button>
+
+                <Button
+                  className="col-span-6 h-11 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_10px_24px_rgba(8,145,178,0.35)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-400 hover:shadow-[0_12px_28px_rgba(8,145,178,0.45)] dark:from-white dark:to-white dark:text-slate-900 dark:hover:from-slate-100 dark:hover:to-slate-100 dark:shadow-[0_8px_20px_rgba(255,255,255,0.18)] disabled:opacity-70 lg:col-span-2 lg:h-11"
+                  disabled={isLoading || !canSend}
+                >
+                  {isLoading ? (
+                    <Loader className="h-5 w-5" />
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      Send <SendHorizontal className="h-4 w-4" />
+                    </span>
+                  )}
                 </Button>
               </form>
             </Form>
@@ -336,5 +454,28 @@ function ConversationPage() {
   );
 }
 
+function UserMessageContent({ content }: { content: string }) {
+  const text = stripEmbeddedImages(content);
+  const images = extractEmbeddedImages(content);
+
+  return (
+    <div className="flex flex-col gap-3">
+      {text ? (
+        <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 dark:text-zinc-200 md:text-base md:leading-7">
+          {text}
+        </p>
+      ) : null}
+
+      {images.map((image, index) => (
+        <img
+          key={`${image.url}-${index}`}
+          src={image.url}
+          alt={image.alt}
+          className="h-auto w-full max-w-xs rounded-lg border border-slate-200 object-contain md:max-w-sm dark:border-white/15"
+        />
+      ))}
+    </div>
+  );
+}
 
 export default ConversationPage;

@@ -7,51 +7,65 @@ import { formSchema } from "../constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import Loader from "@/components/loaders/loader";
 import { cn } from "@/lib/utils";
-import BotAvatar from "@/components/extra/bot.avatar";
 import toast from "react-hot-toast";
 import ReactMarkdown from "react-markdown";
 import { Textarea } from "@/components/ui/textarea";
 import remarkGfm from "remark-gfm";
 import { useParams, useRouter } from "next/navigation";
-import { SendHorizontal, Sparkles, SquarePlus } from "lucide-react";
+import {
+  ImagePlus,
+  SendHorizontal,
+  Sparkles,
+  SquarePlus,
+} from "lucide-react";
 import { HistorySidebar } from "@/components/sidebar/history-sidebar";
-
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-};
+import { ChatAttachmentPreview } from "@/components/chat/chat-attachment-preview";
+import {
+  buildPromptWithAttachment,
+  extractEmbeddedImages,
+  isImageOnlyMessage,
+  MAX_CHAT_ATTACHMENT_BYTES,
+  safeUrlTransform,
+  stripEmbeddedImages,
+  type ConversationMessage,
+} from "@/lib/chat";
+import BotAvatar from "@/components/extra/bot.avatar";
 
 const chatBootstrapKey = (chatId: string) => `chat-bootstrap:${chatId}`;
+const MAX_ATTACHMENT_SIZE_LABEL = `${
+  MAX_CHAT_ATTACHMENT_BYTES / (1024 * 1024)
+}MB`;
 
-const safeUrlTransform = (url: string) => {
-  if (
-    url.startsWith("data:image/") ||
-    url.startsWith("http://") ||
-    url.startsWith("https://") ||
-    url.startsWith("/")
-  ) {
-    return url;
-  }
-  return "";
-};
+const readFileAsDataUrl = (file: File) =>
+  new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
 
-const IMAGE_ONLY_MESSAGE_REGEX =
-  /^\s*(?:!\[[^\]]*\]\((?:data:image\/|https?:\/\/|\/)[^)]+\)\s*)+$/i;
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
 
-const isImageOnlyMessage = (content: string): boolean =>
-  IMAGE_ONLY_MESSAGE_REGEX.test(content.trim());
+      reject(new Error("Failed to read the selected image."));
+    };
+
+    reader.onerror = () => reject(new Error("Failed to read the selected image."));
+    reader.readAsDataURL(file);
+  });
 
 export default function ConversationPage() {
   const router = useRouter();
   const params = useParams();
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const rawId = params.id;
   const id = Array.isArray(rawId) ? rawId[0] : rawId;
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ConversationMessage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,7 +85,10 @@ export default function ConversationPage() {
       const bootstrapRaw = sessionStorage.getItem(chatBootstrapKey(id));
       if (bootstrapRaw) {
         try {
-          const bootstrap = JSON.parse(bootstrapRaw) as { messages?: Message[]; createdAt?: number };
+          const bootstrap = JSON.parse(bootstrapRaw) as {
+            messages?: ConversationMessage[];
+            createdAt?: number;
+          };
           if (Array.isArray(bootstrap.messages) && bootstrap.messages.length > 0) {
             setMessages(bootstrap.messages);
             hasBootstrappedMessages = true;
@@ -107,6 +124,38 @@ export default function ConversationPage() {
   }, [id]);
 
   const isLoading = form.formState.isSubmitting;
+  const promptValue = form.watch("prompt") || "";
+  const canSend = Boolean(promptValue.trim() || selectedImage);
+
+  const handleImageSelection = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please choose a valid image file.");
+        return;
+      }
+
+      if (file.size > MAX_CHAT_ATTACHMENT_BYTES) {
+        toast.error(`Please upload an image smaller than ${MAX_ATTACHMENT_SIZE_LABEL}.`);
+        return;
+      }
+
+      const dataUrl = await readFileAsDataUrl(file);
+      setSelectedImage(dataUrl);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to read the selected image.");
+    } finally {
+      event.target.value = "";
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!id) {
@@ -114,28 +163,33 @@ export default function ConversationPage() {
       return;
     }
 
-    const userMessage: Message = {
-      role: "user",
-      content: values.prompt,
-    };
+    const prompt = buildPromptWithAttachment(values.prompt, selectedImage);
+    if (!prompt) {
+      toast.error("Add a message or image before sending.");
+      return;
+    }
 
     try {
       const response = await axios.post("/api/chat", {
-        prompt: values.prompt,
+        prompt,
         groupChatId: id,
       });
 
-      const newMessage: Message = {
+      const newMessage: ConversationMessage = {
         role: "assistant",
         content: String(response.data.response),
       };
 
-      setMessages((current) => [...current, userMessage, newMessage]);
-      form.reset();
+      setMessages((current) => [
+        ...current,
+        { role: "user", content: prompt },
+        newMessage,
+      ]);
+      form.reset({ prompt: "" });
+      setSelectedImage(null);
     } catch (error) {
-      toast.error("Failed to send message ");
+      toast.error("Failed to send message");
       console.log(error);
-      setMessages((current) => current.filter((msg) => msg !== userMessage));
     }
   };
 
@@ -152,7 +206,9 @@ export default function ConversationPage() {
                 <Sparkles className="h-3.5 w-3.5" />
                 Threaded Chat
               </p>
-              <h1 className="mt-2 text-lg font-semibold md:text-xl">Conversation Session</h1>
+              <h1 className="mt-2 text-lg font-semibold md:text-xl">
+                Conversation Session
+              </h1>
             </div>
             <div className="flex items-center gap-2">
               <HistorySidebar />
@@ -161,7 +217,8 @@ export default function ConversationPage() {
                 onClick={() => {
                   setMessages([]);
                   router.push("/chat");
-                  form.reset();
+                  form.reset({ prompt: "" });
+                  setSelectedImage(null);
                 }}
                 className="border-white/30 bg-white/10 text-white hover:bg-white/20"
               >
@@ -177,6 +234,7 @@ export default function ConversationPage() {
                   <Loader className="h-6 w-6" />
                 </div>
               ) : null}
+
               {messages.map((message, index) => {
                 const imageOnlyAssistant =
                   message.role === "assistant" &&
@@ -184,7 +242,10 @@ export default function ConversationPage() {
 
                 if (imageOnlyAssistant) {
                   return (
-                    <div key={`${message.role}-${index}`} className="mr-auto w-full max-w-sm md:max-w-md">
+                    <div
+                      key={`${message.role}-${index}`}
+                      className="mr-auto w-full max-w-sm md:max-w-md"
+                    >
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         urlTransform={safeUrlTransform}
@@ -212,15 +273,13 @@ export default function ConversationPage() {
                       "rounded-2xl border px-3.5 py-2.5 md:px-4 md:py-3.5",
                       message.role === "user"
                         ? "ml-auto w-fit max-w-[85%] border-emerald-200/80 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10"
-                        : "mr-auto w-full max-w-4xl border-slate-200/70 bg-white/90 dark:border-white/10 dark:bg-zinc-950/80",
+                        : "mr-auto w-full max-w-4xl border-slate-200/70 bg-white/90 dark:border-white/10 dark:bg-zinc-950/80"
                     )}
                   >
                     <div className="flex items-start gap-3">
                       {message.role === "assistant" ? <BotAvatar /> : null}
                       {message.role === "user" ? (
-                        <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 dark:text-zinc-200 md:text-base md:leading-7">
-                          {message.content}
-                        </p>
+                        <UserMessageContent content={message.content} />
                       ) : (
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
@@ -239,7 +298,10 @@ export default function ConversationPage() {
                               </div>
                             ),
                             code: ({ ...props }) => (
-                              <code className="rounded bg-slate-100 px-1.5 py-1 text-[0.92em] dark:bg-zinc-900" {...props} />
+                              <code
+                                className="rounded bg-slate-100 px-1.5 py-1 text-[0.92em] dark:bg-zinc-900"
+                                {...props}
+                              />
                             ),
                           }}
                           className="w-full overflow-hidden text-sm leading-6 text-slate-700 dark:text-zinc-200 md:text-base md:leading-7"
@@ -255,25 +317,44 @@ export default function ConversationPage() {
           </div>
 
           <div className="sticky bottom-0 border-t border-slate-200/70 bg-white/80 p-3 backdrop-blur-xl dark:border-white/10 dark:bg-black/80 md:p-4">
+            {selectedImage ? (
+              <ChatAttachmentPreview
+                attachmentUrl={selectedImage}
+                disabled={isLoading}
+                onRemove={() => setSelectedImage(null)}
+              />
+            ) : null}
+
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="mx-auto grid w-full max-w-4xl grid-cols-12 gap-2 rounded-2xl border border-slate-200/80 bg-white/90 p-2 shadow-[0_10px_28px_rgba(15,23,42,0.08)] transition dark:border-white/10 dark:bg-zinc-950/90 dark:shadow-[0_10px_28px_rgba(0,0,0,0.35)] md:gap-3 md:p-2.5"
               >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageSelection}
+                  className="hidden"
+                />
+
                 <FormField
                   name="prompt"
                   render={({ field }) => (
-                    <FormItem className="col-span-12 lg:col-span-10">
+                    <FormItem className="col-span-12 lg:col-span-9">
                       <FormControl>
                         <Textarea
                           className="!h-11 !min-h-[44px] max-h-40 resize-none rounded-xl border-0 bg-transparent px-2.5 py-2 text-sm leading-6 shadow-none focus-visible:ring-0 md:text-base"
                           disabled={isLoading}
-                          placeholder="Continue the conversation..."
+                          placeholder="Continue the conversation or attach an image..."
                           {...field}
                           onInput={(e) => {
                             const textarea = e.target as HTMLTextAreaElement;
                             textarea.style.height = "auto";
-                            textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, 44), 160)}px`;
+                            textarea.style.height = `${Math.min(
+                              Math.max(textarea.scrollHeight, 44),
+                              160
+                            )}px`;
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey) {
@@ -286,11 +367,35 @@ export default function ConversationPage() {
                     </FormItem>
                   )}
                 />
+
                 <Button
-                  className="col-span-12 h-11 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_10px_24px_rgba(8,145,178,0.35)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-400 hover:shadow-[0_12px_28px_rgba(8,145,178,0.45)] dark:from-white dark:to-white dark:text-slate-900 dark:hover:from-slate-100 dark:hover:to-slate-100 dark:shadow-[0_8px_20px_rgba(255,255,255,0.18)] disabled:opacity-70 lg:col-span-2 lg:h-11"
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={isLoading}
+                  className={cn(
+                    "col-span-6 h-11 rounded-xl border px-3 text-sm lg:col-span-1",
+                    selectedImage
+                      ? "border-cyan-300 bg-cyan-50 text-cyan-800 hover:bg-cyan-100 dark:border-cyan-400/40 dark:bg-cyan-400/10 dark:text-cyan-100 dark:hover:bg-cyan-400/20"
+                      : "border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-100 dark:border-white/10 dark:bg-zinc-950/90 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                  )}
                 >
-                  {isLoading ? <Loader className="h-5 w-5" /> : <span className="inline-flex items-center gap-2">Send <SendHorizontal className="h-4 w-4" /></span>}
+                  <span className="inline-flex items-center gap-2">
+                    <ImagePlus className="h-4 w-4" />
+                  </span>
+                </Button>
+
+                <Button
+                  className="col-span-6 h-11 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white shadow-[0_10px_24px_rgba(8,145,178,0.35)] transition-all duration-200 hover:from-cyan-400 hover:to-blue-400 hover:shadow-[0_12px_28px_rgba(8,145,178,0.45)] dark:from-white dark:to-white dark:text-slate-900 dark:hover:from-slate-100 dark:hover:to-slate-100 dark:shadow-[0_8px_20px_rgba(255,255,255,0.18)] disabled:opacity-70 lg:col-span-2 lg:h-11"
+                  disabled={isLoading || !canSend}
+                >
+                  {isLoading ? (
+                    <Loader className="h-5 w-5" />
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      Send <SendHorizontal className="h-4 w-4" />
+                    </span>
+                  )}
                 </Button>
               </form>
             </Form>
@@ -298,5 +403,29 @@ export default function ConversationPage() {
         </section>
       </div>
     </main>
+  );
+}
+
+function UserMessageContent({ content }: { content: string }) {
+  const text = stripEmbeddedImages(content);
+  const images = extractEmbeddedImages(content);
+
+  return (
+    <div className="flex flex-col gap-3">
+      {text ? (
+        <p className="whitespace-pre-wrap break-words text-sm leading-6 text-slate-700 dark:text-zinc-200 md:text-base md:leading-7">
+          {text}
+        </p>
+      ) : null}
+
+      {images.map((image, index) => (
+        <img
+          key={`${image.url}-${index}`}
+          src={image.url}
+          alt={image.alt}
+          className="h-auto w-full max-w-xs rounded-lg border border-slate-200 object-contain md:max-w-sm dark:border-white/15"
+        />
+      ))}
+    </div>
   );
 }
